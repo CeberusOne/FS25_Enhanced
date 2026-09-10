@@ -138,6 +138,65 @@ function FS25E_Diagnostics.getAllRuntime()
     return runtime
 end
 
+
+--- Resolve schema settingId → cap status for Live-Overlay.
+--- Returns nil if unknown setting or no capId.
+--- Else: { settingId, capId, status, lastResult, lastError, applyMode, registryStatus }
+function FS25E_Diagnostics.getStatusForSetting(settingId)
+    if settingId == nil or settingId == "" then
+        return nil
+    end
+    local sid = tostring(settingId)
+    local field = nil
+    if FS25E_SettingsSchema ~= nil and FS25E_SettingsSchema.getField ~= nil then
+        field = FS25E_SettingsSchema.getField(sid)
+    end
+    if field == nil or field.capId == nil or field.capId == "" then
+        return nil
+    end
+    local capId = tostring(field.capId)
+    local registryStatus = nil
+    local applyMode = field.applyMode
+    if FS25E_CapabilityRegistry ~= nil then
+        if FS25E_CapabilityRegistry.getStatus ~= nil then
+            registryStatus = FS25E_CapabilityRegistry.getStatus(capId)
+        end
+        local cap = FS25E_CapabilityRegistry.get ~= nil and FS25E_CapabilityRegistry.get(capId) or nil
+        if cap ~= nil and cap.applyMode ~= nil then
+            applyMode = cap.applyMode
+        end
+    end
+    local lastResult = nil
+    local lastError = nil
+    local rt = FS25E_Diagnostics.getCapRuntime(capId)
+    if rt ~= nil then
+        lastResult = rt.lastResult
+        lastError = rt.lastError
+        if rt.applyMode ~= nil then
+            applyMode = rt.applyMode
+        end
+    end
+    if lastResult == nil and FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.getLastResult ~= nil then
+        local lr = FS25E_CapabilityRegistry.getLastResult(capId)
+        if type(lr) == "table" then
+            lastResult = lr.status
+            if lastError == nil and lr.error ~= nil then
+                lastError = tostring(lr.error)
+            end
+        end
+    end
+    return {
+        settingId = sid,
+        capId = capId,
+        status = registryStatus,
+        lastResult = lastResult,
+        lastError = lastError,
+        applyMode = applyMode,
+        registryStatus = registryStatus,
+    }
+end
+
+
 function FS25E_Diagnostics.getRing()
     local out = {}
     if ringCount == 0 then
