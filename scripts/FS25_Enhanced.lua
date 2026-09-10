@@ -1,6 +1,7 @@
--- FS25_Enhanced.lua — Bootstrap (Wave 1 CONFIRMED capability wiring)
+-- FS25_Enhanced.lua — Bootstrap (Phase 2 Governor + Scene on Wave 1 base)
 -- Mission-level service only. Client-local. Auto-apply OFF by default.
--- Session-only apply + restore (no saveHardwareScalability / applyPerformanceClass).
+-- Phase 2: SceneAnalyzer + hysteresis + preset stubs; no new automatic engine setters.
+-- Soft nil-checks for optional Wave modules (e.g. LightDiscovery) if present on tip.
 
 local modName = g_currentModName
 local modDirectory = g_currentModDirectory
@@ -8,7 +9,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.2.0.0"
+FS25_Enhanced.VERSION = "0.3.0.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -16,7 +17,6 @@ local function safeCall(label, fn)
     return FS25E_Debug.pcall("Bootstrap", label, fn)
 end
 
---- Mission load — NO-OP-safe if managers/APIs missing.
 local function onLoadMap(mission)
     safeCall("onLoadMap", function()
         FS25E_Debug.info("Bootstrap", "loadMap begin mod=" .. tostring(FS25_Enhanced.modName))
@@ -50,12 +50,22 @@ local function onLoadMap(mission)
         if FS25E_LodGovernor ~= nil then
             FS25E_LodGovernor.init()
         end
+        -- Optional (other PRs): soft-init if present; never required for Phase 2
+        if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.init ~= nil then
+            FS25E_LightDiscovery.init()
+        end
+        if FS25E_ProfileManager ~= nil then
+            FS25E_ProfileManager.init(FS25_Enhanced.modDirectory)
+        end
         if FS25E_PerformanceMonitor ~= nil then
             local target = 60
             if FS25E_SettingsSchema ~= nil then
                 target = FS25E_SettingsSchema.get("targetFps") or 60
             end
             FS25E_PerformanceMonitor.init(target)
+        end
+        if FS25E_SceneAnalyzer ~= nil then
+            FS25E_SceneAnalyzer.init()
         end
         if FS25E_GraphicsGovernor ~= nil then
             FS25E_GraphicsGovernor.init() -- enabled=false; auto-apply off
@@ -64,6 +74,9 @@ local function onLoadMap(mission)
             FS25E_CompatibilityManager.init()
             FS25E_CompatibilityManager.scan()
         end
+        if FS25E_ConsoleCommands ~= nil then
+            FS25E_ConsoleCommands.register()
+        end
 
         FS25_Enhanced.initialized = true
         local capCount = 0
@@ -71,13 +84,13 @@ local function onLoadMap(mission)
             capCount = FS25E_CapabilityRegistry.count()
         end
         FS25E_Debug.info("Bootstrap", string.format(
-            "loadMap complete wave1 caps=%d auto-apply off (session-only; no saveHardwareScalability)",
+            "loadMap complete phase2 v%s caps=%d auto-apply off (SceneAnalyzer+Governor observe; no automatic setters)",
+            FS25_Enhanced.VERSION,
             capCount
         ))
     end)
 end
 
---- Mission delete — restore applied caps; keep Utils hooks for next mission in-session.
 local function onDeleteMap()
     safeCall("onDeleteMap", function()
         FS25E_Debug.info("Bootstrap", "deleteMap begin — restore path")
@@ -87,8 +100,14 @@ local function onDeleteMap()
             FS25E_GraphicsGovernor.setEnabled(false)
             FS25E_GraphicsGovernor.reset()
         end
+        if FS25E_SceneAnalyzer ~= nil then
+            FS25E_SceneAnalyzer.reset()
+        end
         if FS25E_PerformanceMonitor ~= nil then
             FS25E_PerformanceMonitor.reset()
+        end
+        if FS25E_ProfileManager ~= nil and FS25E_ProfileManager.reset ~= nil then
+            FS25E_ProfileManager.reset()
         end
 
         if FS25E_RestoreManager ~= nil then
@@ -101,6 +120,14 @@ local function onDeleteMap()
         if FS25E_LodGovernor ~= nil and FS25E_LodGovernor.reset ~= nil then
             FS25E_LodGovernor.reset()
         end
+        if FS25E_LightDiscovery ~= nil then
+            if FS25E_LightDiscovery.unsubscribeProfileChanges ~= nil then
+                FS25E_LightDiscovery.unsubscribeProfileChanges()
+            end
+            if FS25E_LightDiscovery.reset ~= nil then
+                FS25E_LightDiscovery.reset()
+            end
+        end
         if FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.reset ~= nil then
             FS25E_CapabilityApplier.reset()
         end
@@ -110,7 +137,6 @@ local function onDeleteMap()
     end)
 end
 
---- Mission update — early-out NO-OP when inactive.
 local function onUpdate(mission, dt)
     if not FS25_Enhanced.initialized or not FS25_Enhanced.missionActive then
         return
@@ -122,6 +148,12 @@ local function onUpdate(mission, dt)
     safeCall("PerformanceMonitor.update", function()
         if FS25E_PerformanceMonitor ~= nil then
             FS25E_PerformanceMonitor.update(dt)
+        end
+    end)
+
+    safeCall("SceneAnalyzer.update", function()
+        if FS25E_SceneAnalyzer ~= nil then
+            FS25E_SceneAnalyzer.update(dt)
         end
     end)
 
@@ -182,6 +214,9 @@ safeCall("bootstrap", function()
         tostring(modDirectory)
     ))
     registerMissionHooks()
+    if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.registerTypeInjection ~= nil then
+        FS25E_LightDiscovery.registerTypeInjection()
+    end
     local count = 0
     if FS25E_HookManager ~= nil then
         count = FS25E_HookManager.count()
