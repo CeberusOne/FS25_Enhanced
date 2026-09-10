@@ -1,0 +1,22 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+
+# Editor / IDE (personal)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# FS25 Lua mod build artifacts
+*.zip
+*.rar
+*.7z
+
+# Local / temp
+*.log
+*.tmp
+.env
+.env.*
