@@ -25,12 +25,22 @@ function FS25E_ConsoleCommands.dumpCaps()
     local n = 0
     for id, entry in pairs(all) do
         n = n + 1
+        local lastResult, lastError = "-", ""
+        if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getCapRuntime ~= nil then
+            local rt = FS25E_Diagnostics.getCapRuntime(id)
+            if rt ~= nil then
+                lastResult = tostring(rt.lastResult or "-")
+                lastError = tostring(rt.lastError or "")
+            end
+        end
         say(string.format(
-            "cap id=%s status=%s setter=%s applyMode=%s",
+            "cap id=%s status=%s setter=%s applyMode=%s lastResult=%s lastError=%s",
             tostring(id),
             tostring(entry.status),
             tostring(entry.setter),
-            tostring(entry.applyMode)
+            tostring(entry.applyMode),
+            lastResult,
+            lastError
         ))
     end
     say(string.format("dumpCaps done count=%d", n))
@@ -122,6 +132,15 @@ function FS25E_ConsoleCommands.selectPreset(name)
     end
     local ok = FS25E_ProfileManager.selectPreset(name)
     say(string.format("selectPreset %s ok=%s (cache only)", tostring(name), tostring(ok)))
+end
+
+function FS25E_ConsoleCommands.openSettings()
+    if FS25E_GuiLoader ~= nil and FS25E_GuiLoader.showSettingsDialog ~= nil then
+        local ok = FS25E_GuiLoader.showSettingsDialog()
+        say(string.format("openSettings ok=%s", tostring(ok)))
+    else
+        say("GuiLoader/SettingsDialog missing")
+    end
 end
 
 function FS25E_ConsoleCommands.setGovernorEnabled(flag)
@@ -494,6 +513,22 @@ function FS25E_ConsoleCommands.applyIes(lightIdStr, iesPath)
     say(string.format("applyIes lightId=%s path=%s ok=%s err=%s", tostring(lightId), tostring(iesPath), tostring(ok), tostring(err)))
 end
 
+function FS25E_ConsoleCommands.capStatus()
+    if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.dumpCapStatus ~= nil then
+        FS25E_Diagnostics.dumpCapStatus(say)
+    else
+        say("Diagnostics missing")
+    end
+end
+
+function FS25E_ConsoleCommands.dumpDiagLog()
+    if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.dumpRing ~= nil then
+        FS25E_Diagnostics.dumpRing(say)
+    else
+        say("Diagnostics missing")
+    end
+end
+
 local function tryAdd(name, description, fnName)
     if addConsoleCommand == nil then
         return false
@@ -524,12 +559,21 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eRestore", "FS25_Enhanced: force session restore", "forceRestore") then n = n + 1 end
     if tryAdd("fs25eSelectPreset", "FS25_Enhanced: select preset into SettingsCache (no engine apply)", "selectPreset") then n = n + 1 end
     if tryAdd("fs25eGovernor", "FS25_Enhanced: enable governor observe (1/0); never enables autoApply", "setGovernorEnabled") then n = n + 1 end
+    if tryAdd("fs25eOpenSettings", "FS25_Enhanced: open Gen-1 settings dialog", "openSettings") then n = n + 1 end
     if tryAdd("fs25eApplyLightPriority", "FS25_Enhanced: manual setLightShadowPriority (lightId from fs25eLightsDump)", "applyLightPriority") then n = n + 1 end
     if tryAdd("fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
     if tryAdd("fs25eApplyLightSoft", "FS25_Enhanced: manual Soft-Shadow size/[distance]/[bias] (lightId from Dump; Soft-Apply untouched)", "applyLightSoft") then n = n + 1 end
     if tryAdd("fs25eMergeLights", "FS25_Enhanced: manual mergeLightShadows (primary first; Dump lightIds)", "mergeLights") then n = n + 1 end
     if tryAdd("fs25eSplitLight", "FS25_Enhanced: manual splitLightShadow", "splitLight") then n = n + 1 end
     if tryAdd("fs25eDumpMerges", "FS25_Enhanced: dump ShadowManager tracked merges", "dumpMerges") then n = n + 1 end
+    if tryAdd("fs25eCapStatus", "FS25_Enhanced: dump capability status + lastResult/lastError", "capStatus") then n = n + 1 end
+    if tryAdd("fs25eDumpDiagLog", "FS25_Enhanced: dump diagnostics ring log", "dumpDiagLog") then n = n + 1 end
+    if tryAdd("fs25eExpertMode", "FS25_Enhanced: expertMode 0|1 (gate EXPERIMENTAL/GATED/ASSET; Soft-Apply separate)", "setExpertMode") then n = n + 1 end
+    if tryAdd("fs25eExpertSoftApply", "FS25_Enhanced: expert Soft-Apply 0|1 (DANGER; requires expertMode; never autoApply)", "setExpertSoftApply") then n = n + 1 end
+    if tryAdd("fs25eApplyFastShadow", "FS25_Enhanced: manual applyFastShadowUpdate (requires expertMode)", "applyFastShadowUpdate") then n = n + 1 end
+    if tryAdd("fs25eApplyRainShallow", "FS25_Enhanced: manual applyRainShallowWater (requires expertMode)", "applyRainShallow") then n = n + 1 end
+    if tryAdd("fs25eApplyGated", "FS25_Enhanced: manual gated quality apply (ssr|atmosphere|drs)", "applyGated") then n = n + 1 end
+    if tryAdd("fs25eApplyIes", "FS25_Enhanced: manual IES profile apply (requires expertMode)", "applyIes") then n = n + 1 end
     registered = n > 0
     FS25E_Debug.info("Console", string.format("registered %d console commands (autoApply never forced on)", n))
     return registered
@@ -554,6 +598,9 @@ function FS25E_ConsoleCommands.unregister()
         "fs25eMergeLights",
         "fs25eSplitLight",
         "fs25eDumpMerges",
+        "fs25eOpenSettings",
+        "fs25eCapStatus",
+        "fs25eDumpDiagLog",
         "fs25eExpertMode",
         "fs25eExpertSoftApply",
         "fs25eApplyFastShadow",

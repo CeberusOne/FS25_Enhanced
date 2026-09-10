@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.3.2.0</version>
+    <version>0.3.3.0</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -10,12 +10,12 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-v0.3.2.0: Expert-path caps (EXPERIMENTAL/GATED/ASSET) behind expertMode; Soft-Apply default off.
-Auto-apply off. Soft-Apply off. No saveHardwareScalability / setTerrainQuality without opt-in.]]></en>
+v0.3.3.0: Gen-1 Settings GUI + Diagnostics (CapStatus/ring log) + Expert-path caps (EXPERIMENTAL/GATED/ASSET) behind expertMode; Soft-Apply default off.
+Auto-apply off until user Adaptive/Preset. Soft-Apply off. No saveHardwareScalability / setTerrainQuality without opt-in. No engine setters from GUI.]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
 Nutzt ausschließlich dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-v0.3.2.0: Expert-Pfad (EXPERIMENTAL/GATED/ASSET) hinter expertMode; Soft-Apply standardmäßig aus.
-Auto-Apply aus. Soft-Apply aus. Kein saveHardwareScalability / setTerrainQuality ohne Opt-in.]]></de>
+v0.3.3.0: Gen-1 Settings-GUI + Diagnostics (CapStatus/Ring-Log) + Expert-Pfad (EXPERIMENTAL/GATED/ASSET) hinter expertMode; Soft-Apply standardmäßig aus.
+Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Kein saveHardwareScalability / setTerrainQuality ohne Opt-in. Keine Engine-Setter aus der GUI.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
@@ -38,6 +38,7 @@ Auto-Apply aus. Soft-Apply aus. Kein saveHardwareScalability / setTerrainQuality
         <sourceFile filename="scripts/Core/SettingsCache.lua"/>
         <sourceFile filename="scripts/Core/CapabilityApplier.lua"/>
         <sourceFile filename="scripts/Core/RestoreManager.lua"/>
+        <sourceFile filename="scripts/Core/Diagnostics.lua"/>
         <sourceFile filename="scripts/Core/PerformanceMonitor.lua"/>
         <sourceFile filename="scripts/Shadows/ShadowManager.lua"/>
         <sourceFile filename="scripts/Core/ExperimentalCaps.lua"/>
@@ -50,6 +51,20 @@ Auto-Apply aus. Soft-Apply aus. Kein saveHardwareScalability / setTerrainQuality
         <sourceFile filename="scripts/Core/ModSettings.lua"/>
         <sourceFile filename="scripts/Core/SettingsSchema.lua"/>
         <sourceFile filename="scripts/Core/ConsoleCommands.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_SettingsController.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_SettingsDialog.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_GuiLoader.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_Input.lua"/>
         <sourceFile filename="scripts/FS25_Enhanced.lua"/>
     </extraSourceFiles>
+
+    <actions>
+        <action name="FS25E_OPEN_SETTINGS" category="SYSTEM" ignoreComboMask="false" />
+        <action name="FS25E_LIVE_HINT" category="SYSTEM" ignoreComboMask="false" />
+    </actions>
+    <inputBinding>
+        <actionBinding action="FS25E_OPEN_SETTINGS">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_e" />
+        </actionBinding>
+    </inputBinding>
 </modDesc>
