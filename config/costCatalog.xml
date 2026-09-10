@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  Cost levels for Expert Live-Overlay hover warnings.
+  warn=true → GUI may show Hover/Warn-Popup when value is "high"/extreme.
+  Levels: low | med | high | extreme
+-->
+<costCatalog version="1">
+  <cap id="view-distance-coeff" cost="high" warn="true" notes="Draw distance; CPU risk when raised"/>
+  <cap id="lod-distance-coeff" cost="high" warn="true" notes="LOD pull-in distance"/>
+  <cap id="foliage-view-distance-coeff" cost="high" warn="true" notes="Foliage draw"/>
+  <cap id="foliage-lod-distance-coeff" cost="high" warn="true" notes="Foliage LOD"/>
+  <cap id="terrain-lod-distance-coeff" cost="med" warn="false" notes="Terrain LOD"/>
+  <cap id="max-num-shadow-lights" cost="extreme" warn="true" notes="Shadow light budget"/>
+  <cap id="shadow-quality" cost="extreme" warn="true" notes="Global shadow quality"/>
+  <cap id="shadow-distance-quality" cost="high" warn="true" notes="Shadow distance"/>
+  <cap id="shadow-filter-quality" cost="high" warn="true" notes="Soft filter quality"/>
+  <cap id="allow-foliage-shadows" cost="high" warn="true" notes="Foliage shadows on"/>
+  <cap id="light-soft-shadow-size" cost="high" warn="true" notes="Per-light soft size"/>
+  <cap id="light-soft-shadow-distance" cost="med" warn="false" notes="Per-light soft distance"/>
+  <cap id="merge-light-shadows" cost="extreme" warn="true" notes="Shadow merge"/>
+  <cap id="shadow-focus-box" cost="extreme" warn="true" notes="EXPERIMENTAL focus box"/>
+  <cap id="fast-shadow-update" cost="extreme" warn="true" notes="EXPERIMENTAL fast shadow update"/>
+  <cap id="rain-shallow-water-simulation" cost="extreme" warn="true" notes="EXPERIMENTAL rain SWS"/>
+  <cap id="ssr-quality" cost="high" warn="true" notes="GATED SSR"/>
+  <cap id="atmosphere-quality" cost="high" warn="true" notes="GATED atmosphere"/>
+  <cap id="drs-quality" cost="med" warn="false" notes="GATED DRS"/>
+</costCatalog>

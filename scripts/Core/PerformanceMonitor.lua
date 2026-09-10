@@ -107,3 +107,31 @@ function FS25E_PerformanceMonitor.reset()
     sumSqMs = 0
     lastDtMs = 0
 end
+
+
+--- HUD/Telemetry feed: FPS + frametime from dt only (no fake sensors).
+function FS25E_PerformanceMonitor.getSnapshot()
+    local avg = FS25E_PerformanceMonitor.getAverageMs()
+    local last = FS25E_PerformanceMonitor.getLastFrameMs()
+    local fpsAvg = nil
+    local fpsLast = nil
+    if avg ~= nil and avg > 0 then
+        fpsAvg = 1000.0 / avg
+    end
+    if last ~= nil and last > 0 then
+        fpsLast = 1000.0 / last
+    end
+    return {
+        source = "dt",
+        status = "CONFIRMED",
+        frameMsLast = last,
+        frameMsAvg = avg,
+        fpsLast = fpsLast,
+        fpsAvg = fpsAvg,
+        variance = FS25E_PerformanceMonitor.getVariance(),
+        overBudget = FS25E_PerformanceMonitor.isOverBudget(),
+        spike = FS25E_PerformanceMonitor.isSpike(),
+        targetBudgetMs = FS25E_PerformanceMonitor.getTargetBudgetMs(),
+        samples = FS25E_PerformanceMonitor.getSampleCount(),
+    }
+end
