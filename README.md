@@ -1,28 +1,28 @@
 # FS25_Enhanced
 
 **Autor:** CeberusOne  
-**Version:** 0.1.0.0 (Phase 1 / PoC Core)
+**Version:** 0.2.0.0 (Wave 1 CONFIRMED setters)
 
 Adaptives Graphics-/Optimierungs-Mod für Farming Simulator 25 (Giants Engine 10 / Lua). Der Mod steuert Grafik- und Performance-Einstellungen über dokumentierte Engine-Setter (kein Binary-Hooking).
 
 ## Status
 
-**v0.1 skeleton / PoC Core** — loadable mod skeleton with:
+**v0.2 Wave 1 CONFIRMED** — builds on Phase 1 skeleton:
 
-- Mission lifecycle (`load` / `update` / `delete`) — NO-OP-safe
-- HookManager + RestoreManager (vanilla restore path)
-- CapabilityRegistry stub (`config/capabilityProfiles.xml`)
-- SettingsCache + SettingsSchema defaults (for later GUI)
-- ModSettings path stub (`modSettings/FS25_Enhanced/`)
-- dt-based PerformanceMonitor (no `getFps`)
-- GraphicsGovernor Fast/Medium/Slow + hysteresis **stubs only**
+- CapabilityRegistry loads Wave-1 profiles from XML (+ Lua fallback)
+- CapabilityApplier: session-only apply/restore for CONFIRMED caps (`pcall`, reject on fail)
+- ShadowManager + LodGovernor manager APIs (auto-apply **OFF**)
+- RestoreManager invokes manager/applier restore on deleteMap (no `saveHardwareScalability`)
+- GraphicsGovernor: `wave1 registered, auto-apply off`
 - EN+DE l10n keys (`FS25E_*`)
 
-**Not wired yet:** live engine graphics setters (`setShadow*`, `setLight*`, `set*DistanceCoeff`, `setRain*`, quality writers). Blocked until Research Freeze. See [docs/PHASE1.md](docs/PHASE1.md).
+**Excluded:** EXPERIMENTAL (`setShadowFocusBox`, `setFastShadowUpdate`, `setRainShallowWaterSimulation`), GATED SSR/Atmosphere/DRS, `setTerrainQuality` (RESTART), `saveHardwareScalability` / `applyPerformanceClass`. See [docs/WAVE1.md](docs/WAVE1.md).
 
 ## Dokumentation
 
+- [Wave 1 CONFIRMED wiring](docs/WAVE1.md)
 - [Phase 1 notes](docs/PHASE1.md)
+- [Capability matrix](docs/capability-matrix.md)
 - [Settings schema (GUI prep)](docs/settings-schema.md)
 - [GUI design stub](docs/gui-design.md)
 - [Optimaler Plan](docs/optimal-plan.md)

@@ -1,5 +1,5 @@
 -- FS25_Enhanced / Core/SettingsCache.lua
--- original / current / requested / auto / locked structure. No engine writes in Phase 1.
+-- original / current / requested / auto / locked structure. Wave 1: cache originals for session apply/restore (no saveHardwareScalability).
 
 FS25E_SettingsCache = {}
 
@@ -25,6 +25,8 @@ function FS25E_SettingsCache.ensure(key, originalValue)
             auto = true,
             locked = false,
             applyMode = FS25E_SettingsCache.APPLY_MODE.SESSION,
+            needsCalibration = true,
+            capabilityId = nil,
         }
     end
     return entries[key]

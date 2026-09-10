@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.1.0.0</version>
+    <version>0.2.0.0</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -10,12 +10,12 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-Phase 1 (v0.1): mission lifecycle, hooks/restore, capability registry stub, settings cache, dt-based performance monitor, empty graphics governor.
-Live engine graphics setters are intentionally not wired until Research Freeze.]]></en>
+Wave 1 (v0.2): CONFIRMED capability wiring (shadows/LOD/per-light APIs) with session-only apply+restore.
+Auto-apply off by default. No EXPERIMENTAL/GATED/RESTART setters. No saveHardwareScalability without opt-in.]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
 Nutzt ausschließlich dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-Phase 1 (v0.1): Missions-Lifecycle, Hooks/Restore, Capability-Registry-Stub, Settings-Cache, dt-basiertes Performance-Monitoring, leeres Graphics-Governor-Gerüst.
-Live-Engine-Grafik-Setter sind bewusst erst nach dem Research Freeze verdrahtet.]]></de>
+Welle 1 (v0.2): CONFIRMED-Capability-Verdrahtung (Schatten/LOD/per-Light-APIs) mit session-only Apply+Restore.
+Auto-Apply standardmäßig aus. Keine EXPERIMENTAL/GATED/RESTART-Setter. Kein saveHardwareScalability ohne Opt-in.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
@@ -30,8 +30,11 @@ Live-Engine-Grafik-Setter sind bewusst erst nach dem Research Freeze verdrahtet.
         <sourceFile filename="scripts/Core/HookManager.lua"/>
         <sourceFile filename="scripts/Core/CapabilityRegistry.lua"/>
         <sourceFile filename="scripts/Core/SettingsCache.lua"/>
+        <sourceFile filename="scripts/Core/CapabilityApplier.lua"/>
         <sourceFile filename="scripts/Core/RestoreManager.lua"/>
         <sourceFile filename="scripts/Core/PerformanceMonitor.lua"/>
+        <sourceFile filename="scripts/Shadows/ShadowManager.lua"/>
+        <sourceFile filename="scripts/World/LodGovernor.lua"/>
         <sourceFile filename="scripts/Core/GraphicsGovernor.lua"/>
         <sourceFile filename="scripts/Core/CompatibilityManager.lua"/>
         <sourceFile filename="scripts/Core/ModSettings.lua"/>

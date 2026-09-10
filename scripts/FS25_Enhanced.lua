@@ -1,6 +1,6 @@
--- FS25_Enhanced.lua — Bootstrap (Phase 1 / v0.1 PoC Core)
--- Mission-level service only. Client-local graphics governor skeleton.
--- NO live engine graphics setters in this phase.
+-- FS25_Enhanced.lua — Bootstrap (Wave 1 CONFIRMED capability wiring)
+-- Mission-level service only. Client-local. Auto-apply OFF by default.
+-- Session-only apply + restore (no saveHardwareScalability / applyPerformanceClass).
 
 local modName = g_currentModName
 local modDirectory = g_currentModDirectory
@@ -8,7 +8,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.1.0.0"
+FS25_Enhanced.VERSION = "0.2.0.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -41,6 +41,15 @@ local function onLoadMap(mission)
         if FS25E_SettingsSchema ~= nil then
             FS25E_SettingsSchema.seedCache()
         end
+        if FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.reset ~= nil then
+            FS25E_CapabilityApplier.reset()
+        end
+        if FS25E_ShadowManager ~= nil then
+            FS25E_ShadowManager.init()
+        end
+        if FS25E_LodGovernor ~= nil then
+            FS25E_LodGovernor.init()
+        end
         if FS25E_PerformanceMonitor ~= nil then
             local target = 60
             if FS25E_SettingsSchema ~= nil then
@@ -49,7 +58,7 @@ local function onLoadMap(mission)
             FS25E_PerformanceMonitor.init(target)
         end
         if FS25E_GraphicsGovernor ~= nil then
-            FS25E_GraphicsGovernor.init() -- enabled=false; no engine writers
+            FS25E_GraphicsGovernor.init() -- enabled=false; auto-apply off
         end
         if FS25E_CompatibilityManager ~= nil then
             FS25E_CompatibilityManager.init()
@@ -57,11 +66,18 @@ local function onLoadMap(mission)
         end
 
         FS25_Enhanced.initialized = true
-        FS25E_Debug.info("Bootstrap", "loadMap complete (PoC core; governor disabled, no engine writers)")
+        local capCount = 0
+        if FS25E_CapabilityRegistry ~= nil then
+            capCount = FS25E_CapabilityRegistry.count()
+        end
+        FS25E_Debug.info("Bootstrap", string.format(
+            "loadMap complete wave1 caps=%d auto-apply off (session-only; no saveHardwareScalability)",
+            capCount
+        ))
     end)
 end
 
---- Mission delete — NO-OP-safe restore path; keeps Utils hooks for next mission in-session.
+--- Mission delete — restore applied caps; keep Utils hooks for next mission in-session.
 local function onDeleteMap()
     safeCall("onDeleteMap", function()
         FS25E_Debug.info("Bootstrap", "deleteMap begin — restore path")
@@ -77,6 +93,16 @@ local function onDeleteMap()
 
         if FS25E_RestoreManager ~= nil then
             FS25E_RestoreManager.restoreAll()
+        end
+
+        if FS25E_ShadowManager ~= nil and FS25E_ShadowManager.reset ~= nil then
+            FS25E_ShadowManager.reset()
+        end
+        if FS25E_LodGovernor ~= nil and FS25E_LodGovernor.reset ~= nil then
+            FS25E_LodGovernor.reset()
+        end
+        if FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.reset ~= nil then
+            FS25E_CapabilityApplier.reset()
         end
 
         FS25_Enhanced.initialized = false
@@ -148,7 +174,6 @@ local function registerMissionHooks()
     end
 end
 
--- Capture mod identity at file load (extraSourceFiles); register hooks once.
 safeCall("bootstrap", function()
     FS25E_Debug.info("Bootstrap", string.format(
         "FS25_Enhanced %s loading as %s dir=%s",

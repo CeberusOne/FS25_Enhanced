@@ -1,17 +1,175 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
-  FS25_Enhanced capabilityProfiles.xml
-  Research Freeze fills this with CONFIRMED GDN/LuaDoc API names + applyMode flags.
-  Phase 1: empty/placeholder schema only. No capabilities are applied.
+  FS25_Enhanced capabilityProfiles.xml — Wave 1 CONFIRMED set
+  Source: docs/capability-matrix.md (Research Freeze on main).
   Status enum: CONFIRMED | GATED | EXPERIMENTAL | ASSET_DEPENDENT | UNSUPPORTED | REJECTED
+  applyMode UNKNOWN treated as session apply (cache + restore; no saveHardwareScalability).
+  EXPERIMENTAL / GATED / RESTART (terrain-quality) intentionally omitted from Wave 1.
 -->
-<capabilityProfiles version="0.1">
-    <!-- Example (commented; do not enable until Research Freeze):
-    <capability id="shadowPriority"
+<capabilityProfiles version="0.2" wave="1">
+    <!-- Global / SettingsModel writers (engine free-functions) -->
+    <capability id="max-num-shadow-lights"
+                status="CONFIRMED"
+                apiName="setMaxNumShadowLights"
+                getter="getMaxNumShadowLights"
+                setter="setMaxNumShadowLights"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; Wave1 ShadowManager; session apply"/>
+    <capability id="shadow-quality"
+                status="CONFIRMED"
+                apiName="setShadowQuality"
+                getter="getShadowQuality"
+                setter="setShadowQuality"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; optional Wave1; session apply"/>
+    <capability id="shadow-distance-quality"
+                status="CONFIRMED"
+                apiName="setShadowDistanceQuality"
+                getter="getShadowDistanceQuality"
+                setter="setShadowDistanceQuality"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; optional Wave1; session apply"/>
+    <capability id="shadow-filter-quality"
+                status="CONFIRMED"
+                apiName="setShadowFilterQuality"
+                getter="getShadowFilterQuality"
+                setter="setShadowFilterQuality"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; soft-shadows UI maps here; session apply"/>
+    <capability id="view-distance-coeff"
+                status="CONFIRMED"
+                apiName="setViewDistanceCoeff"
+                getter="getViewDistanceCoeff"
+                setter="setViewDistanceCoeff"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; LodGovernor; clamp 0.5-2.0"/>
+    <capability id="lod-distance-coeff"
+                status="CONFIRMED"
+                apiName="setLODDistanceCoeff"
+                getter="getLODDistanceCoeff"
+                setter="setLODDistanceCoeff"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; LodGovernor; clamp 0.5-2.0"/>
+    <capability id="foliage-view-distance-coeff"
+                status="CONFIRMED"
+                apiName="setFoliageViewDistanceCoeff"
+                getter="getFoliageViewDistanceCoeff"
+                setter="setFoliageViewDistanceCoeff"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; LodGovernor; clamp 0.5-2.0"/>
+    <capability id="foliage-lod-distance-coeff"
+                status="CONFIRMED"
+                apiName="setFoliageLODDistanceCoeff"
+                getter="getFoliageLODDistanceCoeff"
+                setter="setFoliageLODDistanceCoeff"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; LodGovernor; clamp 0.5-2.0"/>
+    <capability id="terrain-lod-distance-coeff"
+                status="CONFIRMED"
+                apiName="setTerrainLODDistanceCoeff"
+                getter="getTerrainLODDistanceCoeff"
+                setter="setTerrainLODDistanceCoeff"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; LodGovernor; clamp 0.5-2.0"/>
+    <capability id="allow-foliage-shadows"
+                status="CONFIRMED"
+                apiName="setAllowFoliageShadows"
+                getter="getAllowFoliageShadows"
+                setter="setAllowFoliageShadows"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="global"
+                notes="SettingsModel; LodGovernor"/>
+
+    <!-- Per-light Engine Lighting — require lightId; no blind world scan -->
+    <capability id="light-shadow-priority"
                 status="CONFIRMED"
                 apiName="setLightShadowPriority"
                 getter="getLightShadowPriority"
-                applyMode="LIVE"
-                notes="Engine Lighting"/>
-    -->
+                setter="setLightShadowPriority"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="per-light"
+                notes="Engine Lighting fn=214; ShadowManager"/>
+    <capability id="light-shadow-map"
+                status="CONFIRMED"
+                apiName="setLightShadowMap"
+                getter="getLightCastingShadowMap"
+                setter="setLightShadowMap"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="per-light"
+                notes="Engine Lighting setter fn=213; getter getLightCastingShadowMap"/>
+    <capability id="light-soft-shadow-size"
+                status="CONFIRMED"
+                apiName="setLightSoftShadowSize"
+                getter="getLightSoftShadowSize"
+                setter="setLightSoftShadowSize"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="per-light"
+                notes="Engine Lighting fn=217"/>
+    <capability id="light-soft-shadow-distance"
+                status="CONFIRMED"
+                apiName="setLightSoftShadowDistance"
+                getter="getLightSoftShadowDistance"
+                setter="setLightSoftShadowDistance"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="per-light"
+                notes="Engine Lighting fn=216"/>
+    <capability id="light-soft-shadow-depth-bias"
+                status="CONFIRMED"
+                apiName="setLightSoftShadowDepthBiasFactor"
+                getter="getLightSoftShadowDepthBiasFactor"
+                setter="setLightSoftShadowDepthBiasFactor"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="per-light"
+                notes="Engine Lighting fn=215"/>
+    <capability id="merge-light-shadows"
+                status="CONFIRMED"
+                apiName="mergeLightShadows"
+                getter="hasMergedShadow"
+                setter="mergeLightShadows"
+                applyMode="UNKNOWN"
+                restoreStrategy="splitLightShadow"
+                scope="per-light"
+                notes="Engine Lighting fn=200; restore via splitLightShadow; explicit API only"/>
+    <capability id="split-light-shadow"
+                status="CONFIRMED"
+                apiName="splitLightShadow"
+                getter="hasMergedShadow"
+                setter="splitLightShadow"
+                applyMode="UNKNOWN"
+                restoreStrategy="YES"
+                scope="per-light"
+                notes="Engine Lighting fn=224; used by restore path"/>
+    <capability id="has-merged-shadow"
+                status="CONFIRMED"
+                apiName="hasMergedShadow"
+                getter="hasMergedShadow"
+                setter="NONE"
+                applyMode="UNKNOWN"
+                restoreStrategy="NO"
+                scope="per-light"
+                notes="Engine Lighting fn=198; query only"/>
 </capabilityProfiles>
