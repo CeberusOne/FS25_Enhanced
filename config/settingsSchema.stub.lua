@@ -1,0 +1,363 @@
+--[[
+  FS25 Enhanced — Settings Schema Stub (reine Daten)
+  ==================================================
+  Nicht andocken bis Core Interfaces stehen.
+  Kein Runtime-Code: keine Governor-/Engine-/g_*-Aufrufe.
+  Spiegel von docs/settings-schema.md. Typen nur bool | enum (keine Slider).
+]]
+
+FS25E_SETTINGS_SCHEMA = {
+    version = 1,
+    prefix = "FS25E_",
+
+    -- Gemeinsame Qualitätsstufen (enum options)
+    qualityTiers = { "low", "med", "high", "ultra" },
+
+    settings = {
+        ----------------------------------------------------------------
+        -- Simple Auto Panel
+        ----------------------------------------------------------------
+        {
+            id = "enabled",
+            type = "bool",
+            default = true,
+            i18nKey = "FS25E_SETTING_ENABLED",
+            i18nTooltipKey = "FS25E_SETTING_ENABLED_TOOLTIP",
+            section = "simple",
+            expertOnly = false,
+            applyMode = "MED",
+            vanillaKeyReuse = { ["true"] = "ui_on", ["false"] = "ui_off" },
+        },
+        {
+            id = "preset",
+            type = "enum",
+            default = "balanced",
+            options = { "off", "balanced", "quality", "performance", "cinematic" },
+            optionI18nKeys = {
+                off = "FS25E_PRESET_OFF",
+                balanced = "FS25E_PRESET_BALANCED",
+                quality = "FS25E_PRESET_QUALITY",
+                performance = "FS25E_PRESET_PERFORMANCE",
+                cinematic = "FS25E_PRESET_CINEMATIC",
+            },
+            i18nKey = "FS25E_SETTING_PRESET",
+            i18nTooltipKey = "FS25E_SETTING_PRESET_TOOLTIP",
+            section = "simple",
+            expertOnly = false,
+            applyMode = "SLOW",
+        },
+        {
+            id = "targetFps",
+            type = "enum",
+            default = "60",
+            options = { "30", "40", "50", "60", "unlimited" },
+            optionI18nKeys = {
+                ["30"] = "FS25E_FPS_30",
+                ["40"] = "FS25E_FPS_40",
+                ["50"] = "FS25E_FPS_50",
+                ["60"] = "FS25E_FPS_60",
+                unlimited = "FS25E_FPS_UNLIMITED",
+            },
+            i18nKey = "FS25E_SETTING_TARGET_FPS",
+            i18nTooltipKey = "FS25E_SETTING_TARGET_FPS_TOOLTIP",
+            section = "simple",
+            expertOnly = false,
+            applyMode = "MED",
+        },
+        {
+            id = "adaptive",
+            type = "bool",
+            default = true,
+            i18nKey = "FS25E_SETTING_ADAPTIVE",
+            i18nTooltipKey = "FS25E_SETTING_ADAPTIVE_TOOLTIP",
+            section = "simple",
+            expertOnly = false,
+            applyMode = "MED",
+            vanillaKeyReuse = { ["true"] = "ui_on", ["false"] = "ui_off" },
+        },
+
+        ----------------------------------------------------------------
+        -- Advanced: Shadows (CONFIRMED caps — Platzhalter)
+        ----------------------------------------------------------------
+        {
+            id = "shadowQuality",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_SHADOW_QUALITY",
+            i18nTooltipKey = "FS25E_SETTING_SHADOW_QUALITY_TOOLTIP",
+            section = "advanced",
+            group = "shadows",
+            expertOnly = false,
+            applyMode = "SLOW",
+            capHint = "setShadowQuality",
+        },
+        {
+            id = "shadowDistance",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_SHADOW_DISTANCE",
+            i18nTooltipKey = "FS25E_SETTING_SHADOW_DISTANCE_TOOLTIP",
+            section = "advanced",
+            group = "shadows",
+            expertOnly = false,
+            applyMode = "SLOW",
+            capHint = "setShadowDistanceQuality",
+        },
+        {
+            id = "maxShadowLights",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_MAX_SHADOW_LIGHTS",
+            i18nTooltipKey = "FS25E_SETTING_MAX_SHADOW_LIGHTS_TOOLTIP",
+            section = "advanced",
+            group = "shadows",
+            expertOnly = false,
+            applyMode = "MED",
+            capHint = "setMaxNumShadowLights",
+        },
+        {
+            id = "foliageShadows",
+            type = "bool",
+            default = true,
+            i18nKey = "FS25E_SETTING_FOLIAGE_SHADOWS",
+            i18nTooltipKey = "FS25E_SETTING_FOLIAGE_SHADOWS_TOOLTIP",
+            section = "advanced",
+            group = "shadows",
+            expertOnly = false,
+            applyMode = "MED",
+            vanillaKeyReuse = { ["true"] = "ui_on", ["false"] = "ui_off" },
+            capHint = "setAllowFoliageShadows",
+        },
+
+        ----------------------------------------------------------------
+        -- Advanced: Lighting
+        ----------------------------------------------------------------
+        {
+            id = "maxLights",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_MAX_LIGHTS",
+            i18nTooltipKey = "FS25E_SETTING_MAX_LIGHTS_TOOLTIP",
+            section = "advanced",
+            group = "lighting",
+            expertOnly = false,
+            applyMode = "MED",
+            capHint = "MaxLights-Stufe (CONFIRMED via SettingsModel)",
+        },
+        {
+            id = "lightScattering",
+            type = "enum",
+            default = "med",
+            options = { "off", "low", "med", "high" },
+            optionI18nKeys = {
+                off = "FS25E_OPT_OFF",
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+            },
+            i18nKey = "FS25E_SETTING_LIGHT_SCATTERING",
+            i18nTooltipKey = "FS25E_SETTING_LIGHT_SCATTERING_TOOLTIP",
+            section = "advanced",
+            group = "lighting",
+            expertOnly = false,
+            applyMode = "MED",
+            capHint = "setLightUseLightScattering / intensity tiers",
+        },
+        {
+            id = "shadowMerge",
+            type = "bool",
+            default = true,
+            i18nKey = "FS25E_SETTING_SHADOW_MERGE",
+            i18nTooltipKey = "FS25E_SETTING_SHADOW_MERGE_TOOLTIP",
+            section = "advanced",
+            group = "lighting",
+            expertOnly = false,
+            applyMode = "SLOW",
+            vanillaKeyReuse = { ["true"] = "ui_on", ["false"] = "ui_off" },
+            capHint = "mergeLightShadows",
+        },
+
+        ----------------------------------------------------------------
+        -- Advanced: LOD / Foliage
+        ----------------------------------------------------------------
+        {
+            id = "viewDistance",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_VIEW_DISTANCE",
+            i18nTooltipKey = "FS25E_SETTING_VIEW_DISTANCE_TOOLTIP",
+            section = "advanced",
+            group = "lod",
+            expertOnly = false,
+            applyMode = "MED",
+            capHint = "setViewDistanceCoeff",
+        },
+        {
+            id = "lodDistance",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_LOD_DISTANCE",
+            i18nTooltipKey = "FS25E_SETTING_LOD_DISTANCE_TOOLTIP",
+            section = "advanced",
+            group = "lod",
+            expertOnly = false,
+            applyMode = "MED",
+            capHint = "setLODDistanceCoeff",
+        },
+        {
+            id = "foliageViewDistance",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_FOLIAGE_VIEW",
+            i18nTooltipKey = "FS25E_SETTING_FOLIAGE_VIEW_TOOLTIP",
+            section = "advanced",
+            group = "lod",
+            expertOnly = false,
+            applyMode = "MED",
+            capHint = "setFoliageViewDistanceCoeff",
+        },
+        {
+            id = "foliageLodDistance",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_FOLIAGE_LOD",
+            i18nTooltipKey = "FS25E_SETTING_FOLIAGE_LOD_TOOLTIP",
+            section = "advanced",
+            group = "lod",
+            expertOnly = false,
+            applyMode = "MED",
+            capHint = "setFoliageLODDistanceCoeff",
+        },
+        {
+            id = "terrainLodDistance",
+            type = "enum",
+            default = "med",
+            options = { "low", "med", "high", "ultra" },
+            optionI18nKeys = {
+                low = "FS25E_OPT_LOW",
+                med = "FS25E_OPT_MED",
+                high = "FS25E_OPT_HIGH",
+                ultra = "FS25E_OPT_ULTRA",
+            },
+            i18nKey = "FS25E_SETTING_TERRAIN_LOD",
+            i18nTooltipKey = "FS25E_SETTING_TERRAIN_LOD_TOOLTIP",
+            section = "advanced",
+            group = "lod",
+            expertOnly = false,
+            applyMode = "MED",
+            capHint = "setTerrainLODDistanceCoeff",
+        },
+
+        ----------------------------------------------------------------
+        -- Live Tuning (minimal)
+        ----------------------------------------------------------------
+        {
+            id = "liveTuningEnabled",
+            type = "bool",
+            default = false,
+            i18nKey = "FS25E_SETTING_LIVE_TUNING",
+            i18nTooltipKey = "FS25E_SETTING_LIVE_TUNING_TOOLTIP",
+            section = "live",
+            expertOnly = false,
+            applyMode = "LIVE",
+            vanillaKeyReuse = { ["true"] = "ui_on", ["false"] = "ui_off" },
+        },
+
+        ----------------------------------------------------------------
+        -- Expert / Meta
+        ----------------------------------------------------------------
+        {
+            id = "expertMode",
+            type = "bool",
+            default = false,
+            i18nKey = "FS25E_EXPERT_MODE",
+            i18nTooltipKey = "FS25E_EXPERT_MODE_TOOLTIP",
+            section = "expert",
+            expertOnly = false,
+            applyMode = "LIVE",
+            vanillaKeyReuse = { ["true"] = "ui_on", ["false"] = "ui_off" },
+        },
+        {
+            id = "clientOnlyHint",
+            type = "bool",
+            default = true,
+            displayOnly = true,
+            i18nKey = "FS25E_CLIENT_ONLY_HINT",
+            i18nTooltipKey = "FS25E_CLIENT_ONLY_HINT_TOOLTIP",
+            section = "expert",
+            expertOnly = false,
+            applyMode = nil,
+        },
+    },
+
+    -- Section / UI chrome keys (keine Werte)
+    uiKeys = {
+        modName = "FS25E_MOD_NAME",
+        settingsTitle = "FS25E_SETTINGS_TITLE",
+        settingsSimple = "FS25E_SETTINGS_SIMPLE",
+        settingsAdvanced = "FS25E_SETTINGS_ADVANCED",
+        sectionShadows = "FS25E_SECTION_SHADOWS",
+        sectionLighting = "FS25E_SECTION_LIGHTING",
+        sectionLod = "FS25E_SECTION_LOD",
+        liveTuningTitle = "FS25E_LIVE_TUNING_TITLE",
+        hotkeyLiveTuning = "FS25E_HOTKEY_LIVE_TUNING",
+        warnExtremeCost = "FS25E_WARN_EXTREME_COST",
+        keyConflict = "FS25E_KEY_CONFLICT",
+    },
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  FS25_Enhanced defaults.xml — session defaults (not applied to engine in Phase 1).
+  Mirrors scripts/Core/SettingsSchema.lua defaults table.
+-->
+<defaults version="0.1">
+    <setting name="enabled" type="bool" value="false"/>
+    <setting name="adaptive" type="bool" value="true"/>
+    <setting name="targetFps" type="int" value="60"/>
+    <setting name="preset" type="string" value="Balanced"/>
+    <setting name="expertMode" type="bool" value="false"/>
+    <setting name="persistHardware" type="bool" value="false"/>
+</defaults>
