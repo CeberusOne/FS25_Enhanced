@@ -71,8 +71,10 @@ local function onLoadMap(mission)
         end
         if FS25E_PerformanceMonitor ~= nil then
             local target = 60
-            if FS25E_SettingsSchema ~= nil then
-                target = FS25E_SettingsSchema.get("targetFps") or 60
+            if FS25E_ModSettings ~= nil and FS25E_ModSettings.get ~= nil then
+                target = tonumber(FS25E_ModSettings.get("targetFps")) or 60
+            elseif FS25E_SettingsSchema ~= nil then
+                target = tonumber(FS25E_SettingsSchema.get("targetFps")) or 60
             end
             FS25E_PerformanceMonitor.init(target)
         end
@@ -81,6 +83,10 @@ local function onLoadMap(mission)
         end
         if FS25E_GraphicsGovernor ~= nil then
             FS25E_GraphicsGovernor.init() -- enabled=false; auto-apply off
+        end
+        -- Re-apply ModSettings after governor/lights exist (load ran earlier for path/values).
+        if FS25E_ModSettings ~= nil and FS25E_ModSettings.applyToRuntime ~= nil then
+            FS25E_ModSettings.applyToRuntime()
         end
         if FS25E_CompatibilityManager ~= nil then
             FS25E_CompatibilityManager.init()

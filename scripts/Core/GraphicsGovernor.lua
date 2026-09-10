@@ -168,9 +168,12 @@ function FS25E_GraphicsGovernor.applyPreset(presetName, force)
         FS25E_Debug.info("GraphicsGovernor", "applyPreset skipped (enabled=" .. tostring(enabled) .. " autoApply=" .. tostring(autoApply) .. ")")
         return false
     end
-    FS25E_Debug.info("GraphicsGovernor", "applyPreset " .. tostring(presetName) .. " (manager stubs; session-only)")
+    FS25E_Debug.info("GraphicsGovernor", "applyPreset " .. tostring(presetName) .. " (via ProfileManager.applySelected; session-only)")
     if FS25E_ProfileManager ~= nil then
         FS25E_ProfileManager.selectPreset(presetName)
+        if FS25E_ProfileManager.applySelected ~= nil then
+            return FS25E_ProfileManager.applySelected(true)
+        end
     end
     if FS25E_ShadowManager ~= nil and FS25E_ShadowManager.applyPresetStub ~= nil then
         FS25E_ShadowManager.applyPresetStub(presetName)
