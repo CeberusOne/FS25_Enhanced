@@ -42,3 +42,8 @@ Read-only; does not mutate engine state or enable auto-apply.
 
 `installHooks()` wraps Applier/Registry/RestoreManager apply & restore paths (once).  
 `trySubscribeListeners()` soft-subscribes `FS25E_CapabilityRegistry.onApply` / `onReject` / `onSkip` (payload `{ status, error, detail, ts }`). `getSnapshot()` also reads `getLastResult(id)` when local runtime is empty.
+
+## Overlay helper / Overlay-Hilfe
+
+`FS25E_Diagnostics.getStatusForSetting(settingId)` → `nil` or `{ settingId, capId, status, lastResult, lastError, applyMode, registryStatus }`  
+Maps `SettingsSchema` field `capId`, then Diagnostics runtime / `CapabilityRegistry.getLastResult`.
