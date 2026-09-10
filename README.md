@@ -1,22 +1,26 @@
 # FS25_Enhanced
 
 **Autor:** CeberusOne  
-**Version:** 0.3.0.0 (Phase 2 Governor + Scene on Wave 1)
+**Version:** 0.4.2.1
 
 Adaptives Graphics-/Optimierungs-Mod für Farming Simulator 25 (Giants Engine 10 / Lua). Der Mod steuert Grafik- und Performance-Einstellungen über dokumentierte Engine-Setter (kein Binary-Hooking).
 
 ## Status
 
-**v0.4 Phase 2** — Wave 1 CONFIRMED managers + Governor/Scene stubs:
+**v0.4.2.1** — GUI + Wave 1 + Expert/Pro overlays:
 
-- SceneAnalyzer (read-only mission/environment snapshot; Medium/Slow cadence)
-- GraphicsGovernor hysteresis bands + desired preset/tier (default **disabled**, **autoApply off**)
-- ProfileManager presets Performance/Balanced/Quality/Cinematic → SettingsCache requested only
-- Optional console commands for manual Manager API tests (never force autoApply)
-- CapabilityApplier / ShadowManager / LodGovernor from Wave 1 (session-only; auto-apply **OFF**)
+- Settings GUI tabs (Simple / Advanced / Expert / Status)
+- Wave-1 CONFIRMED managers (CapabilityApplier, ShadowManager, LodGovernor) + Governor/Scene
+- Expert live overlay with custom bars (session via SettingsCache)
+- Pro HUD: FPS/frametime + sidecar DISCONNECTED when telemetry absent
+- Diagnostics (CapStatus / ring log)
+- Experimental caps gated behind expertMode; Soft-Apply / persist-HW opt-in
+- Adaptive / autoApply **default off** — no live engine apply until explicitly enabled
 - EN+DE l10n keys (`FS25E_*`)
 
-**Not automatic:** live adaptive apply of engine setters. Governor computes desired state only unless `autoApply` is explicitly enabled later. No EXPERIMENTAL/GATED/RESTART writers; no `saveHardwareScalability` without opt-in.
+**Multiplayer:** client-local only (graphics values are not network-synced).
+
+**Not automatic:** live adaptive apply of engine setters unless `autoApply` / Soft-Apply is enabled. No `saveHardwareScalability` without opt-in.
 
 ## Dokumentation
 
