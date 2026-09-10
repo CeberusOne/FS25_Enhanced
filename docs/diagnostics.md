@@ -41,4 +41,4 @@ Read-only; does not mutate engine state or enable auto-apply.
 ## Soft-subscribe / Soft-Subscribe
 
 `installHooks()` wraps Applier/Registry/RestoreManager apply & restore paths (once).  
-`trySubscribeListeners()` soft-subscribes `FS25E_CapabilityRegistry.onApply` / `onReject` / `onSkip` **when present** (future Settings-API PR) — no edits to CapabilityRegistry or SettingsSchema required from Diagnostics.
+`trySubscribeListeners()` soft-subscribes `FS25E_CapabilityRegistry.onApply` / `onReject` / `onSkip` (payload `{ status, error, detail, ts }`). `getSnapshot()` also reads `getLastResult(id)` when local runtime is empty.
