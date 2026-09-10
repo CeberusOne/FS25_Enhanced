@@ -1,11 +1,20 @@
 -- FS25_Enhanced / Core/CapabilityApplier.lua
--- Generic apply/restore for CONFIRMED capabilities. Session-only (no saveHardwareScalability).
+-- Generic apply/restore for CONFIRMED (+ Expert EXPERIMENTAL/GATED/ASSET when allowed).
+-- Session-only (no saveHardwareScalability). Every setter: type(fn)==function + pcall;
+-- fail → REJECTED + restore + log capabilityId.
 
 FS25E_CapabilityApplier = {}
 
 local unpack = rawget(_G, "unpack") or table.unpack
 
 local applied = {} -- cacheKey -> { capabilityId, setterName, getterName, argsPrefix, original, appliedValue }
+
+-- GATED setters must pass paired getSupports* before set (capability-matrix / wave2).
+local GATED_SUPPORT = {
+    ["ssr-quality"] = "getSupportsScreenSpaceReflectionsQuality",
+    ["atmosphere-quality"] = "getSupportsAtmosphereQuality",
+    ["drs-quality"] = "getSupportsDRSQuality",
+}
 
 local function resolveGlobal(name)
     if name == nil or name == "" or name == "NONE" then
@@ -44,7 +53,7 @@ end
 
 local function callSetter(setterName, prefixArgs, valueArgs)
     local setter = resolveGlobal(setterName)
-    if setter == nil then
+    if type(setter) ~= "function" then
         return false, "setter missing: " .. tostring(setterName)
     end
     local args = {}
@@ -67,8 +76,38 @@ local function callSetter(setterName, prefixArgs, valueArgs)
     return true, nil
 end
 
---- Apply a CONFIRMED capability.
---- opts = { prefixArgs = {lightId,...}, values = {v1,...}, skipRestoreRegister = bool }
+local function resolveExpertFlag(opts)
+    if opts ~= nil and opts.expertMode ~= nil then
+        return opts.expertMode == true
+    end
+    if FS25E_SettingsSchema ~= nil and FS25E_SettingsSchema.get ~= nil then
+        return FS25E_SettingsSchema.get("expertMode") == true
+    end
+    return false
+end
+
+--- Check GATED getSupports* gate. Returns ok, errOrNil.
+function FS25E_CapabilityApplier.checkGatedSupport(capabilityId)
+    local supportName = GATED_SUPPORT[capabilityId]
+    if supportName == nil then
+        return true, nil
+    end
+    local fn = resolveGlobal(supportName)
+    if type(fn) ~= "function" then
+        return false, "support gate missing: " .. tostring(supportName)
+    end
+    local ok, supported = pcall(fn)
+    if not ok then
+        return false, "support gate pcall failed: " .. tostring(supported)
+    end
+    if supported ~= true then
+        return false, "getSupports* returned false (" .. tostring(supportName) .. ")"
+    end
+    return true, nil
+end
+
+--- Apply a capability when registry allowsApply (CONFIRMED, or Expert statuses with expertMode).
+--- opts = { prefixArgs, values|value, keySuffix, skipRestoreRegister, expertMode, skipGateCheck }
 --- Returns ok, errOrNil
 function FS25E_CapabilityApplier.apply(capabilityId, opts)
     opts = opts or {}
@@ -76,23 +115,50 @@ function FS25E_CapabilityApplier.apply(capabilityId, opts)
     if cap == nil then
         return false, "unknown capability"
     end
-    if FS25E_CapabilityRegistry.allowsApply == nil or not FS25E_CapabilityRegistry.allowsApply(capabilityId) then
+
+    local expert = resolveExpertFlag(opts)
+    if FS25E_CapabilityRegistry.allowsApply == nil
+        or not FS25E_CapabilityRegistry.allowsApply(capabilityId, expert) then
         if FS25E_CapabilityRegistry.markSkipped ~= nil then
-            FS25E_CapabilityRegistry.markSkipped(capabilityId, "not allowed (expertMode/status)")
+            FS25E_CapabilityRegistry.markSkipped(capabilityId, "not allowed (expertMode=" .. tostring(expert) .. " status=" .. tostring(cap.status) .. ")")
         end
-        return false, "not allowed"
+        return false, "not allowed (expertMode=" .. tostring(expert) .. " status=" .. tostring(cap.status) .. ")"
     end
     if cap.setter == nil or cap.setter == "" or cap.setter == "NONE" then
         return false, "no setter (query-only)"
     end
     if cap.applyMode == "RESTART" then
-        return false, "RESTART applyMode blocked in Wave 1 Fast path"
+        return false, "RESTART applyMode blocked on Fast path"
+    end
+
+    -- Never call these without explicit opt-in elsewhere; block if somehow registered for apply.
+    if capabilityId == "save-hardware-scalability" or capabilityId == "apply-performance-class"
+        or capabilityId == "terrain-quality" then
+        return false, "blocked: requires explicit opt-in / not Fast path"
     end
 
     local setter = resolveGlobal(cap.setter)
     if type(setter) ~= "function" then
         FS25E_CapabilityRegistry.reject(capabilityId, "setter not a function: " .. tostring(cap.setter))
+        FS25E_Debug.warning("CapabilityApplier", string.format(
+            "REJECTED capabilityId=%s reason=setter not a function setter=%s",
+            tostring(capabilityId), tostring(cap.setter)
+        ))
         return false, "setter not a function"
+    end
+
+    -- GATED: getSupports* BEFORE set
+    local base = cap.baseStatus or cap.status
+    if not opts.skipGateCheck
+        and (base == "GATED" or cap.status == "GATED" or GATED_SUPPORT[capabilityId] ~= nil) then
+        local gateOk, gateErr = FS25E_CapabilityApplier.checkGatedSupport(capabilityId)
+        if not gateOk then
+            FS25E_Debug.warning("CapabilityApplier", string.format(
+                "GATED skip capabilityId=%s reason=%s",
+                tostring(capabilityId), tostring(gateErr)
+            ))
+            return false, gateErr
+        end
     end
 
     local prefixArgs = opts.prefixArgs or {}
@@ -133,11 +199,18 @@ function FS25E_CapabilityApplier.apply(capabilityId, opts)
     local okSet, errSet = callSetter(cap.setter, prefixArgs, values)
     if not okSet then
         FS25E_CapabilityRegistry.reject(capabilityId, "apply pcall failed: " .. tostring(errSet))
-        -- Attempt restore of this cap if we had an original
         if hadGetter and original ~= nil then
             callSetter(cap.setter, prefixArgs, { original })
+        elseif cap.restoreStrategy == "shadowFocusBoxReset" then
+            local resetFn = resolveGlobal("setShadowFocusBox")
+            if type(resetFn) == "function" then
+                pcall(resetFn, 0)
+            end
         end
-        FS25E_Debug.warning("CapabilityApplier", string.format("apply failed id=%s err=%s", tostring(capabilityId), tostring(errSet)))
+        FS25E_Debug.warning("CapabilityApplier", string.format(
+            "apply failed REJECTED capabilityId=%s err=%s",
+            tostring(capabilityId), tostring(errSet)
+        ))
         return false, errSet
     end
 
@@ -158,6 +231,7 @@ function FS25E_CapabilityApplier.apply(capabilityId, opts)
         original = original,
         hadGetter = hadGetter,
         appliedValue = values[1],
+        appliedValues = values,
         restoreStrategy = cap.restoreStrategy,
     }
 
@@ -169,9 +243,13 @@ function FS25E_CapabilityApplier.apply(capabilityId, opts)
         FS25E_RestoreManager.registerCapabilityRestore(key)
     end
 
+    if FS25E_CapabilityRegistry.markApplied ~= nil then
+        FS25E_CapabilityRegistry.markApplied(capabilityId)
+    end
+
     FS25E_Debug.info("CapabilityApplier", string.format(
-        "applied id=%s key=%s setter=%s session-only needsCalibration=true",
-        tostring(capabilityId), key, tostring(cap.setter)
+        "APPLIED capabilityId=%s key=%s setter=%s session-only needsCalibration=true expertMode=%s",
+        tostring(capabilityId), key, tostring(cap.setter), tostring(expert)
     ))
     return true, nil
 end
@@ -187,13 +265,24 @@ function FS25E_CapabilityApplier.restoreOne(key)
         return true
     end
 
-    -- Special: merge restores via splitLightShadow (handled by ShadowManager; still try if setter is merge)
     if entry.restoreStrategy == "splitLightShadow" then
         local split = resolveGlobal("splitLightShadow")
         if type(split) == "function" and entry.prefixArgs ~= nil and entry.prefixArgs[1] ~= nil then
             local ok, err = pcall(split, entry.prefixArgs[1])
             if not ok then
                 FS25E_Debug.warning("CapabilityApplier", "splitLightShadow restore failed: " .. tostring(err))
+            end
+        end
+        applied[key] = nil
+        return true
+    end
+
+    if entry.restoreStrategy == "shadowFocusBoxReset" then
+        local resetFn = resolveGlobal("setShadowFocusBox")
+        if type(resetFn) == "function" then
+            local ok, err = pcall(resetFn, 0)
+            if not ok then
+                FS25E_Debug.warning("CapabilityApplier", "setShadowFocusBox(0) restore failed: " .. tostring(err))
             end
         end
         applied[key] = nil
@@ -239,4 +328,8 @@ end
 --- Resolve global by name with type(fn)=="function" check (shared helper).
 function FS25E_CapabilityApplier.resolveGlobal(name)
     return resolveGlobal(name)
+end
+
+function FS25E_CapabilityApplier.getGatedSupportMap()
+    return GATED_SUPPORT
 end

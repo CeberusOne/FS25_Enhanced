@@ -1,6 +1,7 @@
 -- FS25_Enhanced / Core/SettingsSchema.lua
 -- Metadata / labels / option lists for GUI (Gen-1).
 -- User VALUES live in FS25E_ModSettings.get/set — schema is not the value store.
+-- Expert Soft-Apply / expert* toggles (default OFF; expertOnly) for ExperimentalCaps.
 
 FS25E_SettingsSchema = {}
 
@@ -45,6 +46,17 @@ local schema = {
     { id = "fastShadowUpdate", type = "bool", l10n = "FS25E_SETTING_FAST_SHADOW_UPDATE", tooltip = "FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "LIVE", capId = "fast-shadow-update", gui = "binary" },
     { id = "rainShallowWater", type = "bool", l10n = "FS25E_SETTING_RAIN_SHALLOW_WATER", tooltip = "FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "MED", capId = "rain-shallow-water-simulation", gui = "binary" },
     { id = "liveTuningEnabled", type = "bool", l10n = "FS25E_SETTING_LIVE_TUNING", tooltip = "FS25E_SETTING_LIVE_TUNING_TOOLTIP", default = false, section = "live", expertOnly = false, applyMode = "LIVE", gui = "binary" },
+
+    -- Expert Soft-Apply / per-cap toggles (ExperimentalCaps; all OFF; expertOnly)
+    { id = "persistHardware", type = "bool", l10n = "FS25E_SETTING_PERSIST_HW", tooltip = "FS25E_WARN_PERSIST_HW", default = false, section = "expert", expertOnly = false, applyMode = "RESTART", gui = "binary", warningL10n = "FS25E_WARN_PERSIST_HW" },
+    { id = "expertSoftApply", type = "bool", l10n = "FS25E_SETTING_EXPERT_SOFT_APPLY", tooltip = "FS25E_SETTING_EXPERT_SOFT_APPLY", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "expertShadowFocusBox", type = "bool", l10n = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX", tooltip = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "shadow-focus-box" },
+    { id = "expertFastShadowUpdate", type = "bool", l10n = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE", tooltip = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "fast-shadow-update" },
+    { id = "expertRainShallowWater", type = "bool", l10n = "FS25E_SETTING_EXPERT_RAIN_SHALLOW", tooltip = "FS25E_SETTING_EXPERT_RAIN_SHALLOW", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "rain-shallow-water-simulation" },
+    { id = "expertSsrQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_SSR", tooltip = "FS25E_SETTING_EXPERT_SSR", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "expertAtmosphereQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_ATMOSPHERE", tooltip = "FS25E_SETTING_EXPERT_ATMOSPHERE", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "expertDrsQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_DRS", tooltip = "FS25E_SETTING_EXPERT_DRS", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "expertRainSuite", type = "bool", l10n = "FS25E_SETTING_EXPERT_RAIN_SUITE", tooltip = "FS25E_SETTING_EXPERT_RAIN_SUITE", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
 }
 
 local byId = {}
@@ -54,7 +66,7 @@ function FS25E_SettingsSchema.init()
     for i = 1, #schema do
         byId[schema[i].id] = schema[i]
     end
-    FS25E_Debug.info("SettingsSchema", string.format("metadata ready fields=%d (values via ModSettings)", #schema))
+    FS25E_Debug.info("SettingsSchema", string.format("metadata ready fields=%d (values via ModSettings; expert toggles OFF)", #schema))
 end
 
 function FS25E_SettingsSchema.getDefaults()
@@ -95,10 +107,31 @@ function FS25E_SettingsSchema.get(id)
 end
 
 function FS25E_SettingsSchema.set(id, value)
-    if FS25E_ModSettings ~= nil and FS25E_ModSettings.set ~= nil then
-        return FS25E_ModSettings.set(id, value)
+    local prev = nil
+    if FS25E_ModSettings ~= nil and FS25E_ModSettings.get ~= nil then
+        prev = FS25E_ModSettings.get(id)
     end
-    return false
+    local ok = false
+    if FS25E_ModSettings ~= nil and FS25E_ModSettings.set ~= nil then
+        ok = FS25E_ModSettings.set(id, value)
+    end
+    if not ok then
+        return false
+    end
+    -- Soft-Apply trigger only when a value changes and Soft-Apply is armed (never on init path)
+    if prev ~= value and FS25E_ExperimentalCaps ~= nil and FS25E_ExperimentalCaps.onSettingsChanged ~= nil then
+        if id == "expertMode" or id == "expertSoftApply" or string.sub(tostring(id), 1, 6) == "expert" then
+            local expertMode = FS25E_ModSettings.get("expertMode") == true
+            local expertSoft = FS25E_ModSettings.get("expertSoftApply") == true
+            if expertMode and expertSoft then
+                if FS25E_ExperimentalCaps.setSoftApplyEnabled ~= nil then
+                    FS25E_ExperimentalCaps.setSoftApplyEnabled(true)
+                end
+                FS25E_ExperimentalCaps.onSettingsChanged()
+            end
+        end
+    end
+    return true, prev
 end
 
 function FS25E_SettingsSchema.getAll()

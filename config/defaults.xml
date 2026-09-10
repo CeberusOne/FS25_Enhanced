@@ -2,12 +2,21 @@
 <!--
   FS25_Enhanced defaults.xml — session defaults (not applied to engine in Phase 1).
   Mirrors scripts/Core/SettingsSchema.lua defaults table.
+  Expert Soft-Apply / per-cap toggles default false (expertOnly).
 -->
-<defaults version="0.1">
+<defaults version="0.2">
     <setting name="enabled" type="bool" value="false"/>
     <setting name="adaptive" type="bool" value="true"/>
     <setting name="targetFps" type="int" value="60"/>
     <setting name="preset" type="string" value="Balanced"/>
     <setting name="expertMode" type="bool" value="false"/>
     <setting name="persistHardware" type="bool" value="false"/>
+    <setting name="expertSoftApply" type="bool" value="false"/>
+    <setting name="expertShadowFocusBox" type="bool" value="false"/>
+    <setting name="expertFastShadowUpdate" type="bool" value="false"/>
+    <setting name="expertRainShallowWater" type="bool" value="false"/>
+    <setting name="expertSsrQuality" type="bool" value="false"/>
+    <setting name="expertAtmosphereQuality" type="bool" value="false"/>
+    <setting name="expertDrsQuality" type="bool" value="false"/>
+    <setting name="expertRainSuite" type="bool" value="false"/>
 </defaults>

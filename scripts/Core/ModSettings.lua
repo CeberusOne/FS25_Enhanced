@@ -39,6 +39,15 @@ local DEFAULTS = {
     fastShadowUpdate = false,
     rainShallowWater = false,
     liveTuningEnabled = false,
+    -- Expert Soft-Apply / ExperimentalCaps toggles (default OFF)
+    expertSoftApply = false,
+    expertShadowFocusBox = false,
+    expertFastShadowUpdate = false,
+    expertRainShallowWater = false,
+    expertSsrQuality = false,
+    expertAtmosphereQuality = false,
+    expertDrsQuality = false,
+    expertRainSuite = false,
 }
 
 -- Aliases for SettingsAPI / older Core names

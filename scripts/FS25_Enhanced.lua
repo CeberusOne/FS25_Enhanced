@@ -2,6 +2,7 @@
 -- Mission-level service only. Client-local. Auto-apply OFF by default.
 -- Phase 2: SceneAnalyzer + hysteresis + preset stubs; no new automatic engine setters.
 -- Lights: Spec-based RealLight discovery (no global scan); Soft-Apply off by default.
+-- Expert-path: EXPERIMENTAL/GATED/ASSET behind expertMode (default false); Soft-Apply off.
 -- GUI Gen-1: MessageDialog settings; values via ModSettings; Expert+Status tabs.
 -- Session-only apply + restore (no saveHardwareScalability / applyPerformanceClass).
 
@@ -11,7 +12,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.3.2.0"
+FS25_Enhanced.VERSION = "0.3.3.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -56,6 +57,9 @@ local function onLoadMap(mission)
         if FS25E_ShadowManager ~= nil then
             FS25E_ShadowManager.init()
         end
+        if FS25E_ExperimentalCaps ~= nil then
+            FS25E_ExperimentalCaps.init() -- expertMode gate; softApply=false
+        end
         if FS25E_LodGovernor ~= nil then
             FS25E_LodGovernor.init()
         end
@@ -96,7 +100,7 @@ local function onLoadMap(mission)
             capCount = FS25E_CapabilityRegistry.count()
         end
         FS25E_Debug.info("Bootstrap", string.format(
-            "loadMap complete v%s caps=%d lightsProbe=on softApply=off auto-apply off gui=gen1 (phase2+lights+settings; no global scan)",
+            "loadMap complete v%s caps=%d lightsProbe=on softApply=off expertSoftApply=off auto-apply off gui=gen1 (phase2+lights+settings+expertCaps; no global scan)",
             FS25_Enhanced.VERSION,
             capCount
         ))
@@ -149,6 +153,9 @@ local function onDeleteMap()
             FS25E_RestoreManager.restoreAll()
         end
 
+        if FS25E_ExperimentalCaps ~= nil and FS25E_ExperimentalCaps.reset ~= nil then
+            FS25E_ExperimentalCaps.reset()
+        end
         if FS25E_ShadowManager ~= nil and FS25E_ShadowManager.reset ~= nil then
             FS25E_ShadowManager.reset()
         end

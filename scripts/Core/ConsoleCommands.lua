@@ -1,6 +1,7 @@
 -- FS25_Enhanced / Core/ConsoleCommands.lua
 -- Optional manual test helpers via addConsoleCommand (GDN documented).
--- NEVER sets autoApply=true. Manual apply goes through Wave-1 Manager APIs only.
+-- NEVER sets autoApply=true. Manual apply goes through Wave-1 Manager / Expert APIs.
+-- Expert Soft-Apply default false; requires expertMode.
 
 FS25E_ConsoleCommands = {}
 
@@ -406,6 +407,112 @@ function FS25E_ConsoleCommands.setSoftApply(flag)
     ))
 end
 
+
+--- Expert mode master gate (does NOT enable Soft-Apply / autoApply).
+function FS25E_ConsoleCommands.setExpertMode(flag)
+    if FS25E_SettingsSchema == nil then
+        say("SettingsSchema missing")
+        return
+    end
+    if flag ~= "0" and flag ~= "1" then
+        say("usage: fs25eExpertMode 0|1  (master gate for EXPERIMENTAL/GATED/ASSET; Soft-Apply stays separate; autoApply untouched)")
+        return
+    end
+    local on = flag == "1"
+    FS25E_SettingsSchema.set("expertMode", on)
+    say(string.format("expertMode=%s (EXPERIMENTAL/GATED/ASSET require this; Soft-Apply/autoApply untouched)", tostring(on)))
+end
+
+--- Expert Soft-Apply flag. When 1 AND expertMode on, runs softApplyEnabledCaps once.
+function FS25E_ConsoleCommands.setExpertSoftApply(flag)
+    if FS25E_ExperimentalCaps == nil then
+        say("ExperimentalCaps missing")
+        return
+    end
+    if flag ~= "0" and flag ~= "1" then
+        say("usage: fs25eExpertSoftApply 0|1  (DANGER when 1+expertMode: applies enabled expert caps; default 0; never enables autoApply)")
+        return
+    end
+    local on = flag == "1"
+    FS25E_ExperimentalCaps.setSoftApplyEnabled(on)
+    if FS25E_SettingsSchema ~= nil then
+        -- Schema set triggers softApply once when expertMode already on
+        FS25E_SettingsSchema.set("expertSoftApply", on)
+    elseif on then
+        local summary = FS25E_ExperimentalCaps.softApplyEnabledCaps()
+        say(string.format(
+            "expertSoftApply=true attempted=%s applied=%s skipped=%s",
+            tostring(summary and summary.attempted),
+            tostring(summary and summary.applied),
+            tostring(summary and summary.skipped)
+        ))
+        return
+    end
+    say(string.format("expertSoftApply=%s (requires expertMode=true and enabled expert toggles; autoApply untouched)", tostring(on)))
+end
+
+function FS25E_ConsoleCommands.applyFastShadowUpdate(flag)
+    if FS25E_ExperimentalCaps == nil then
+        say("ExperimentalCaps missing")
+        return
+    end
+    local on = flag == nil or flag == "" or flag == "1" or flag == "true"
+    local ok, err = FS25E_ExperimentalCaps.applyFastShadowUpdate(on)
+    say(string.format("applyFastShadowUpdate value=%s ok=%s err=%s", tostring(on), tostring(ok), tostring(err)))
+end
+
+function FS25E_ConsoleCommands.applyRainShallow(flag)
+    if FS25E_ExperimentalCaps == nil then
+        say("ExperimentalCaps missing")
+        return
+    end
+    local on = flag == nil or flag == "" or flag == "1" or flag == "true"
+    local ok, err = FS25E_ExperimentalCaps.applyRainShallowWater(on)
+    say(string.format("applyRainShallow value=%s ok=%s err=%s", tostring(on), tostring(ok), tostring(err)))
+end
+
+function FS25E_ConsoleCommands.applyGated(capId, valueStr)
+    if FS25E_ExperimentalCaps == nil then
+        say("ExperimentalCaps missing")
+        return
+    end
+    if capId == nil or capId == "" or valueStr == nil then
+        say("usage: fs25eApplyGated <ssr-quality|atmosphere-quality|drs-quality> <value>")
+        return
+    end
+    local v = tonumber(valueStr)
+    if v == nil then
+        say("gated value must be number")
+        return
+    end
+    local ok, err
+    if capId == "ssr-quality" then
+        ok, err = FS25E_ExperimentalCaps.applySsrQuality(v)
+    elseif capId == "atmosphere-quality" then
+        ok, err = FS25E_ExperimentalCaps.applyAtmosphereQuality(v)
+    elseif capId == "drs-quality" then
+        ok, err = FS25E_ExperimentalCaps.applyDrsQuality(v)
+    else
+        say("unknown gated id (ssr-quality|atmosphere-quality|drs-quality)")
+        return
+    end
+    say(string.format("applyGated id=%s value=%s ok=%s err=%s", tostring(capId), tostring(v), tostring(ok), tostring(err)))
+end
+
+function FS25E_ConsoleCommands.applyIes(lightIdStr, iesPath)
+    if FS25E_ExperimentalCaps == nil then
+        say("ExperimentalCaps missing")
+        return
+    end
+    local lightId = tonumber(lightIdStr)
+    if lightId == nil or iesPath == nil or iesPath == "" then
+        say("usage: fs25eApplyIes <lightId> <path.ies>  (requires expertMode; never blind)")
+        return
+    end
+    local ok, err = FS25E_ExperimentalCaps.applyLightIesProfile(lightId, iesPath)
+    say(string.format("applyIes lightId=%s path=%s ok=%s err=%s", tostring(lightId), tostring(iesPath), tostring(ok), tostring(err)))
+end
+
 function FS25E_ConsoleCommands.capStatus()
     if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.dumpCapStatus ~= nil then
         FS25E_Diagnostics.dumpCapStatus(say)
@@ -475,17 +582,21 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eGovernor", "FS25_Enhanced: enable governor observe (1/0); never enables autoApply", "setGovernorEnabled") then n = n + 1 end
     if tryAdd("fs25eOpenSettings", "FS25_Enhanced: open Gen-1 settings dialog", "openSettings") then n = n + 1 end
     if tryAdd("fs25eApplyLightPriority", "FS25_Enhanced: manual setLightShadowPriority (lightId from fs25eLightsDump)", "applyLightPriority") then n = n + 1 end
+    if tryAdd("fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
     if tryAdd("fs25eAutoApply", "FS25_Enhanced: autoApply 0|1 (DANGER; default 0)", "setAutoApplyFlag") then n = n + 1 end
-    if tryAdd("fs25eExpert", "FS25_Enhanced: expertMode 0|1 (default 0)", "setExpertFlag") then n = n + 1 end
-    if tryAdd("fs25eAutoApply",
-        "fs25eExpert",
-        "fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
+    if tryAdd("fs25eExpert", "FS25_Enhanced: expertMode 0|1 via SettingsAPI (default 0)", "setExpertFlag") then n = n + 1 end
     if tryAdd("fs25eApplyLightSoft", "FS25_Enhanced: manual Soft-Shadow size/[distance]/[bias] (lightId from Dump; Soft-Apply untouched)", "applyLightSoft") then n = n + 1 end
     if tryAdd("fs25eMergeLights", "FS25_Enhanced: manual mergeLightShadows (primary first; Dump lightIds)", "mergeLights") then n = n + 1 end
     if tryAdd("fs25eSplitLight", "FS25_Enhanced: manual splitLightShadow", "splitLight") then n = n + 1 end
     if tryAdd("fs25eDumpMerges", "FS25_Enhanced: dump ShadowManager tracked merges", "dumpMerges") then n = n + 1 end
     if tryAdd("fs25eCapStatus", "FS25_Enhanced: dump capability status + lastResult/lastError", "capStatus") then n = n + 1 end
     if tryAdd("fs25eDumpDiagLog", "FS25_Enhanced: dump diagnostics ring log", "dumpDiagLog") then n = n + 1 end
+    if tryAdd("fs25eExpertMode", "FS25_Enhanced: expertMode 0|1 (gate EXPERIMENTAL/GATED/ASSET; Soft-Apply separate)", "setExpertMode") then n = n + 1 end
+    if tryAdd("fs25eExpertSoftApply", "FS25_Enhanced: expert Soft-Apply 0|1 (DANGER; requires expertMode; never autoApply)", "setExpertSoftApply") then n = n + 1 end
+    if tryAdd("fs25eApplyFastShadow", "FS25_Enhanced: manual applyFastShadowUpdate (requires expertMode)", "applyFastShadowUpdate") then n = n + 1 end
+    if tryAdd("fs25eApplyRainShallow", "FS25_Enhanced: manual applyRainShallowWater (requires expertMode)", "applyRainShallow") then n = n + 1 end
+    if tryAdd("fs25eApplyGated", "FS25_Enhanced: manual gated quality apply (ssr|atmosphere|drs)", "applyGated") then n = n + 1 end
+    if tryAdd("fs25eApplyIes", "FS25_Enhanced: manual IES profile apply (requires expertMode)", "applyIes") then n = n + 1 end
     registered = n > 0
     FS25E_Debug.info("Console", string.format("registered %d console commands (autoApply never forced on)", n))
     return registered
@@ -512,8 +623,15 @@ function FS25E_ConsoleCommands.unregister()
         "fs25eMergeLights",
         "fs25eSplitLight",
         "fs25eDumpMerges",
+        "fs25eOpenSettings",
         "fs25eCapStatus",
         "fs25eDumpDiagLog",
+        "fs25eExpertMode",
+        "fs25eExpertSoftApply",
+        "fs25eApplyFastShadow",
+        "fs25eApplyRainShallow",
+        "fs25eApplyGated",
+        "fs25eApplyIes",
     }
     for i = 1, #names do
         pcall(removeConsoleCommand, names[i])
