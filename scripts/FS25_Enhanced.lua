@@ -1,7 +1,8 @@
--- FS25_Enhanced.lua — Bootstrap (Phase 2 Governor + Scene on Wave 1 base)
+-- FS25_Enhanced.lua — Bootstrap (Phase 2 + Lights Spec Probe)
 -- Mission-level service only. Client-local. Auto-apply OFF by default.
 -- Phase 2: SceneAnalyzer + hysteresis + preset stubs; no new automatic engine setters.
--- Soft nil-checks for optional Wave modules (e.g. LightDiscovery) if present on tip.
+-- Lights: Spec-based RealLight discovery (no global scan); Soft-Apply off by default.
+-- Session-only apply + restore (no saveHardwareScalability / applyPerformanceClass).
 
 local modName = g_currentModName
 local modDirectory = g_currentModDirectory
@@ -9,7 +10,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.3.0.0"
+FS25_Enhanced.VERSION = "0.3.1.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -50,9 +51,8 @@ local function onLoadMap(mission)
         if FS25E_LodGovernor ~= nil then
             FS25E_LodGovernor.init()
         end
-        -- Optional (other PRs): soft-init if present; never required for Phase 2
         if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.init ~= nil then
-            FS25E_LightDiscovery.init()
+            FS25E_LightDiscovery.init() -- softApply=false; profile subscribe; console
         end
         if FS25E_ProfileManager ~= nil then
             FS25E_ProfileManager.init(FS25_Enhanced.modDirectory)
@@ -84,7 +84,7 @@ local function onLoadMap(mission)
             capCount = FS25E_CapabilityRegistry.count()
         end
         FS25E_Debug.info("Bootstrap", string.format(
-            "loadMap complete phase2 v%s caps=%d auto-apply off (SceneAnalyzer+Governor observe; no automatic setters)",
+            "loadMap complete v%s caps=%d lightsProbe=on softApply=off auto-apply off (phase2+lights; no global scan)",
             FS25_Enhanced.VERSION,
             capCount
         ))
@@ -110,6 +110,15 @@ local function onDeleteMap()
             FS25E_ProfileManager.reset()
         end
 
+        if FS25E_LightDiscovery ~= nil then
+            if FS25E_LightDiscovery.unsubscribeProfileChanges ~= nil then
+                FS25E_LightDiscovery.unsubscribeProfileChanges()
+            end
+            if FS25E_LightDiscovery.reset ~= nil then
+                FS25E_LightDiscovery.reset()
+            end
+        end
+
         if FS25E_RestoreManager ~= nil then
             FS25E_RestoreManager.restoreAll()
         end
@@ -119,14 +128,6 @@ local function onDeleteMap()
         end
         if FS25E_LodGovernor ~= nil and FS25E_LodGovernor.reset ~= nil then
             FS25E_LodGovernor.reset()
-        end
-        if FS25E_LightDiscovery ~= nil then
-            if FS25E_LightDiscovery.unsubscribeProfileChanges ~= nil then
-                FS25E_LightDiscovery.unsubscribeProfileChanges()
-            end
-            if FS25E_LightDiscovery.reset ~= nil then
-                FS25E_LightDiscovery.reset()
-            end
         end
         if FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.reset ~= nil then
             FS25E_CapabilityApplier.reset()
@@ -214,6 +215,7 @@ safeCall("bootstrap", function()
         tostring(modDirectory)
     ))
     registerMissionHooks()
+    -- Mileage-pattern: inject Lights probe specs during TypeManager.finalizeTypes (early).
     if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.registerTypeInjection ~= nil then
         FS25E_LightDiscovery.registerTypeInjection()
     end
