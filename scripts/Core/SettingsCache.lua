@@ -1,5 +1,7 @@
 -- FS25_Enhanced / Core/SettingsCache.lua
--- original / current / requested / auto / locked structure. Wave 1: cache originals for session apply/restore (no saveHardwareScalability).
+-- original / current / requested / auto / locked structure.
+-- Wave 1: cache originals for session apply/restore (no saveHardwareScalability).
+-- Phase 2: ProfileManager fills requested; locks respected by GraphicsGovernor.
 
 FS25E_SettingsCache = {}
 
@@ -60,6 +62,11 @@ function FS25E_SettingsCache.setLocked(key, locked)
     end
     e.locked = locked == true
     return true
+end
+
+function FS25E_SettingsCache.isLocked(key)
+    local e = entries[key]
+    return e ~= nil and e.locked == true
 end
 
 function FS25E_SettingsCache.setAuto(key, auto)

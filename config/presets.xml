@@ -1,20 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
   FS25_Enhanced presets.xml — Performance / Balanced / Quality / Cinematic stubs.
-  NOT applied to engine in Phase 1. Values are placeholders for later BudgetAllocator.
+  Phase 2: ProfileManager reads these into SettingsCache requested slots only.
+  NOT applied to engine automatically (autoApply remains off).
 -->
-<presets version="0.1">
+<presets version="0.2">
     <preset name="Performance" l10n="FS25E_PRESET_PERFORMANCE">
         <note>Favor frame-time; lowest visual budget.</note>
-        <!-- Future: capability target levels only for CONFIRMED caps -->
+        <target key="viewDistanceCoeff" value="0.7"/>
+        <target key="lodDistanceCoeff" value="0.7"/>
+        <target key="foliageViewDistanceCoeff" value="0.6"/>
+        <target key="foliageLodDistanceCoeff" value="0.6"/>
+        <target key="terrainLodDistanceCoeff" value="0.7"/>
+        <target key="maxNumShadowLights" value="2"/>
+        <target key="allowFoliageShadows" value="false"/>
     </preset>
     <preset name="Balanced" l10n="FS25E_PRESET_BALANCED" default="true">
         <note>Default compromise between visuals and performance.</note>
+        <target key="viewDistanceCoeff" value="1.0"/>
+        <target key="lodDistanceCoeff" value="1.0"/>
+        <target key="foliageViewDistanceCoeff" value="1.0"/>
+        <target key="foliageLodDistanceCoeff" value="1.0"/>
+        <target key="terrainLodDistanceCoeff" value="1.0"/>
+        <target key="maxNumShadowLights" value="4"/>
+        <target key="allowFoliageShadows" value="true"/>
     </preset>
     <preset name="Quality" l10n="FS25E_PRESET_QUALITY">
         <note>Higher visual budget; still respects target FPS when adaptive.</note>
+        <target key="viewDistanceCoeff" value="1.25"/>
+        <target key="lodDistanceCoeff" value="1.25"/>
+        <target key="foliageViewDistanceCoeff" value="1.2"/>
+        <target key="foliageLodDistanceCoeff" value="1.2"/>
+        <target key="terrainLodDistanceCoeff" value="1.2"/>
+        <target key="maxNumShadowLights" value="6"/>
+        <target key="allowFoliageShadows" value="true"/>
     </preset>
     <preset name="Cinematic" l10n="FS25E_PRESET_CINEMATIC">
         <note>Max visuals; may allow EXPERIMENTAL caps later. Not for competitive FPS.</note>
+        <target key="viewDistanceCoeff" value="1.5"/>
+        <target key="lodDistanceCoeff" value="1.5"/>
+        <target key="foliageViewDistanceCoeff" value="1.5"/>
+        <target key="foliageLodDistanceCoeff" value="1.5"/>
+        <target key="terrainLodDistanceCoeff" value="1.5"/>
+        <target key="maxNumShadowLights" value="8"/>
+        <target key="allowFoliageShadows" value="true"/>
     </preset>
 </presets>
