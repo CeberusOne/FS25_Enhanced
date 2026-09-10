@@ -88,5 +88,26 @@
         <!-- Warnings -->
         <text name="FS25E_WARN_EXTREME_COST" text="This setting can heavily impact performance."/>
         <text name="FS25E_KEY_CONFLICT" text="Key binding conflict detected. Rebind in Controls or disable the conflicting action."/>
+
+        <!-- GUI Gen-1 chrome / actions / status / expert -->
+        <text name="FS25E_SETTINGS_EXPERT" text="Expert"/>
+        <text name="FS25E_SETTINGS_STATUS" text="Status"/>
+        <text name="FS25E_SETTINGS_SECTION" text="Section"/>
+        <text name="input_FS25E_OPEN_SETTINGS" text="Open FS25 Enhanced Settings"/>
+        <text name="input_FS25E_LIVE_HINT" text="FS25 Enhanced Live Tuning Hint"/>
+        <text name="FS25E_LIVE_HINT_LATER" text="Live Tuning coming later"/>
+        <text name="FS25E_SETTING_SOFT_SHADOWS" text="Soft Shadows"/>
+        <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="Shadow filter / soft-shadow quality tier (setShadowFilterQuality)."/>
+        <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box"/>
+        <text name="FS25E_SETTING_SHADOW_FOCUS_TOOLTIP" text="EXPERIMENTAL: setShadowFocusBox. Gen-1 risky — stored only until Core apply path exists."/>
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE" text="Fast Shadow Update"/>
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP" text="EXPERIMENTAL: setFastShadowUpdate. Stored only; no engine setter from GUI."/>
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER" text="Rain Shallow Water Sim"/>
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="EXPERIMENTAL: setRainShallowWaterSimulation. Stored only; no engine setter from GUI."/>
+        <text name="FS25E_STATUS_HEADER" text="Capability status (read-only)"/>
+        <text name="FS25E_STATUS_EMPTY" text="No capability data (Diagnostics/Registry unavailable)."/>
+        <text name="FS25E_STATUS_APPLIED" text="APPLIED — works"/>
+        <text name="FS25E_STATUS_REJECTED" text="REJECTED — does not work"/>
+        <text name="FS25E_STATUS_SKIPPED" text="SKIPPED — idle/ready"/>
     </texts>
 </l10n>
