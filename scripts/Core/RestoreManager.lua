@@ -30,6 +30,8 @@ function FS25E_RestoreManager.restoreAll()
         end
     end)
 
+    -- Expert caps restore via CapabilityApplier (shadow-focus-box → setShadowFocusBox(0))
+
     FS25E_Debug.pcall("RestoreManager", "LodGovernor.restoreAll", function()
         if FS25E_LodGovernor ~= nil and FS25E_LodGovernor.restoreAll ~= nil then
             FS25E_LodGovernor.restoreAll()
