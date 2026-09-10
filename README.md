@@ -14,7 +14,7 @@ Adaptives Graphics-/Optimierungs-Mod für Farming Simulator 25 (Giants Engine 10
 - Diagnostics (CapStatus / ring log / getSnapshot)
 - Wave 1 CONFIRMED managers + Phase 2 Governor/Scene (desired state only)
 - Defaults: `enabled`, `autoApply`, `softApply`, `expertMode` = **false**
-- **Experimental** capabilities remain behind `expertMode` (PR #13 may still be merging — see [docs/RELEASE_0.4.md](docs/RELEASE_0.4.md))
+- **Experimental** capabilities remain behind `expertMode` (Expert-path on main (PR #13))
 
 **Not automatic:** live adaptive apply of engine setters. Soft-Apply and Expert Mode stay off until the user opts in. No EXPERIMENTAL/GATED/RESTART writers without expert gate; no `saveHardwareScalability` without opt-in.
 
