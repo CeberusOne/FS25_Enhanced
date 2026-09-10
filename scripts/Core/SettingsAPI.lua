@@ -260,3 +260,62 @@ function FS25E_SettingsAPI.liveRestore(capabilityId, opts)
     end
     return false, "no restore path"
 end
+
+
+--- List all registry caps for Expert Live-Overlay (fine tune 0.01).
+--- GUI filters by expertMode / allowsApply as needed.
+function FS25E_SettingsAPI.liveListCaps()
+    local out = {}
+    if FS25E_CapabilityRegistry == nil or FS25E_CapabilityRegistry.all == nil then
+        return out
+    end
+    for id, entry in pairs(FS25E_CapabilityRegistry.all()) do
+        local cost = nil
+        local warn = false
+        if FS25E_CostCatalog ~= nil then
+            cost = FS25E_CostCatalog.getCost(id)
+            warn = FS25E_CostCatalog.shouldWarn(id)
+        end
+        out[#out + 1] = {
+            id = id,
+            status = entry.status,
+            apiName = entry.apiName or entry.setter,
+            setter = entry.setter,
+            getter = entry.getter,
+            applyMode = entry.applyMode,
+            scope = entry.scope,
+            cost = cost,
+            warn = warn,
+            allowsApply = FS25E_CapabilityRegistry.allowsApply ~= nil and FS25E_CapabilityRegistry.allowsApply(id) or false,
+        }
+    end
+    table.sort(out, function(a, b) return tostring(a.id) < tostring(b.id) end)
+    return out
+end
+
+function FS25E_SettingsAPI.getCapCost(capabilityId)
+    if FS25E_CostCatalog == nil then
+        return { cost = "med", warn = false }
+    end
+    local e = FS25E_CostCatalog.get(capabilityId)
+    if e == nil then
+        return { cost = "med", warn = false }
+    end
+    return { cost = e.cost, warn = e.warn == true, notes = e.notes }
+end
+
+--- Combined HUD snapshot: engine dt metrics + optional sidecar telemetry.
+function FS25E_SettingsAPI.getHudTelemetry()
+    local perf = nil
+    if FS25E_PerformanceMonitor ~= nil and FS25E_PerformanceMonitor.getSnapshot ~= nil then
+        perf = FS25E_PerformanceMonitor.getSnapshot()
+    end
+    local sys = nil
+    if FS25E_TelemetryReader ~= nil and FS25E_TelemetryReader.getSnapshot ~= nil then
+        sys = FS25E_TelemetryReader.getSnapshot()
+    end
+    return {
+        engine = perf,
+        system = sys,
+    }
+end

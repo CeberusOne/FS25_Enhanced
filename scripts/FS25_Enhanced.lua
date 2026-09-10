@@ -12,7 +12,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.4.1.0"
+FS25_Enhanced.VERSION = "0.4.2.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -37,6 +37,9 @@ local function onLoadMap(mission)
         end
         if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.init ~= nil then
             FS25E_Diagnostics.init()
+        end
+        if FS25E_CostCatalog ~= nil then
+            FS25E_CostCatalog.load(FS25_Enhanced.modDirectory)
         end
         if FS25E_CapabilityRegistry ~= nil then
             FS25E_CapabilityRegistry.load(FS25_Enhanced.modDirectory)
@@ -68,6 +71,9 @@ local function onLoadMap(mission)
         end
         if FS25E_ProfileManager ~= nil then
             FS25E_ProfileManager.init(FS25_Enhanced.modDirectory)
+        end
+        if FS25E_TelemetryReader ~= nil then
+            FS25E_TelemetryReader.init()
         end
         if FS25E_PerformanceMonitor ~= nil then
             local target = 60
@@ -150,6 +156,9 @@ local function onDeleteMap()
         if FS25E_SceneAnalyzer ~= nil then
             FS25E_SceneAnalyzer.reset()
         end
+        if FS25E_TelemetryReader ~= nil and FS25E_TelemetryReader.reset ~= nil then
+            FS25E_TelemetryReader.reset()
+        end
         if FS25E_PerformanceMonitor ~= nil then
             FS25E_PerformanceMonitor.reset()
         end
@@ -198,6 +207,12 @@ local function onUpdate(mission, dt)
     if dt == nil then
         return
     end
+
+    safeCall("TelemetryReader.update", function()
+        if FS25E_TelemetryReader ~= nil then
+            FS25E_TelemetryReader.update(dt)
+        end
+    end)
 
     safeCall("PerformanceMonitor.update", function()
         if FS25E_PerformanceMonitor ~= nil then

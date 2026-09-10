@@ -34,3 +34,11 @@ Do **not** call engine setters. Use only:
 1. User edits MultiTextOption → tonumber → `liveSetRequested("view-distance-coeff", 1.25)`
 2. Confirm / debounce → `liveApply("view-distance-coeff", 1.25)`
 3. Status-Tab / Diagnostics reads `lastResult` / `liveGet`
+
+## Pro Live HUD extensions (v0.4.2.0)
+
+- `FS25E_SettingsAPI.liveListCaps()` — all registry caps + `cost` / `warn` from `config/costCatalog.xml`
+- `FS25E_SettingsAPI.getCapCost(id)` — `{cost, warn, notes?}`
+- `FS25E_SettingsAPI.getHudTelemetry()` — `{ engine=PerformanceMonitor.getSnapshot(), system=TelemetryReader.getSnapshot() }`
+- Engine metrics: FPS/frametime from **dt only** (CONFIRMED). System metrics: optional sidecar `modSettings/FS25_Enhanced/telemetry.json`; stale >2s → DISCONNECTED. No fake numbers.
+- See `docs/PRO_LIVE_HUD_CORE.md`.
