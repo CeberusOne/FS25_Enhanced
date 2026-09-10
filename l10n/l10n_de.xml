@@ -13,9 +13,9 @@
         <text name="FS25E_SETTING_PRESET" text="Modus / Preset"/>
         <text name="FS25E_SETTING_PRESET_TOOLTIP" text="Grafik-Preset. Aus deaktiviert Governor-Presets; andere Modi balancieren Qualität und Frame-Zeit."/>
         <text name="FS25E_SETTING_TARGET_FPS" text="Ziel-FPS"/>
-        <text name="FS25E_SETTING_TARGET_FPS_TOOLTIP" text="Ziel-Framerate, die der adaptive Governor schützen soll. Nur Stufen, kein freier Wert."/>
+        <text name="FS25E_SETTING_TARGET_FPS_TOOLTIP" text="Ziel-Framerate, die Adaptiv halten soll (nur Wave-1). Standard 60. Nur Stufen, kein freier Wert."/>
         <text name="FS25E_SETTING_ADAPTIVE" text="Adaptiv"/>
-        <text name="FS25E_SETTING_ADAPTIVE_TOOLTIP" text="Passt bestätigte Grafik-Caps automatisch an, um die Ziel-FPS zu halten."/>
+        <text name="FS25E_SETTING_ADAPTIVE_TOOLTIP" text="Bei aktivem Mod: wechselt Wave-1-Presets (Performance/Balanced/Quality), um die Ziel-FPS zu halten — plus feine Anpassung von Distanz-/Schattenlicht-Caps. Kein Expert/Experimental. Standard aus."/>
 
         <!-- Preset options -->
         <text name="FS25E_PRESET_OFF" text="Aus"/>
