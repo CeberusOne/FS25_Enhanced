@@ -1,7 +1,7 @@
 # Lights Spec Probe — RealLight discovery
 
 **Branch:** `feature/lights-spec-probe`  
-**Version:** 0.3.1.1  
+**Version:** 0.3.1.2  
 **Source of truth:** [wave2-candidates.md](wave2-candidates.md) §1 · Optimalplan EnhancedLightsProbe  
 **GDN:** Lights class **691** · PlaceableLights class **746** (Script v1.20.0.0)
 
@@ -74,9 +74,13 @@ Placeable onLoad / onFinalizePlacement
 |---------|--------|
 | `fs25eLightsDump` | Print discovered counts + up to 64 nodes (**active first**); lines include `lightId=<node>`; **no apply** |
 | `fs25eApplyLightPriority <lightId> <priority>` | Manual `ShadowManager.setLightShadowPriority` (id from dump); does not enable Soft-Apply/autoApply |
+| `fs25eApplyLightSoft <lightId> <size> [distance] [bias]` | Manual Soft-Shadow setters (id from dump); does **not** toggle Soft-Apply/autoApply |
+| `fs25eMergeLights <idA> <idB> [more…]` | Manual `mergeLightShadows` (primary first) |
+| `fs25eSplitLight <lightId>` | Manual `splitLightShadow` |
+| `fs25eDumpMerges` | Dump tracked merge membership |
 | `fs25eSoftApply` `0` or `1` | **DANGER:** toggle Soft-Apply; **default 0**; never enables `autoApply` |
 
-Registered via `addConsoleCommand` when available. Soft-Apply / autoApply stay **OFF** unless explicitly enabled.
+Registered via `addConsoleCommand` when available. Soft-Apply / autoApply stay **OFF** unless explicitly enabled. Soft/Merge console helpers never flip Soft-Apply.
 
 ## Smoke
 

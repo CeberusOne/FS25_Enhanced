@@ -4,6 +4,8 @@
 
 FS25E_ConsoleCommands = {}
 
+local unpack = rawget(_G, "unpack") or table.unpack
+
 local registered = false
 
 local function say(msg)
@@ -134,6 +136,46 @@ function FS25E_ConsoleCommands.setGovernorEnabled(flag)
     say(string.format("governor enabled=%s autoApply=false", tostring(on)))
 end
 
+local function requireDiscoveredLightId(lightId, cmdLabel)
+    if FS25E_LightDiscovery == nil or FS25E_LightDiscovery.getEntries == nil then
+        return true
+    end
+    local found = false
+    local entries = FS25E_LightDiscovery.getEntries()
+    local n = 0
+    local want = tostring(lightId)
+    for _, e in pairs(entries) do
+        n = n + 1
+        if e ~= nil and e.node ~= nil and tostring(e.node) == want then
+            found = true
+            break
+        end
+    end
+    if n > 0 and not found then
+        say(string.format(
+            "%s rejected: lightId=%s not in LightDiscovery (run fs25eLightsDump; use Dump ids only)",
+            tostring(cmdLabel), tostring(lightId)
+        ))
+        return false
+    end
+    return true
+end
+
+local function tryReadGlobal(getterName, lightId)
+    if FS25E_CapabilityApplier == nil or FS25E_CapabilityApplier.resolveGlobal == nil then
+        return nil
+    end
+    local fn = FS25E_CapabilityApplier.resolveGlobal(getterName)
+    if type(fn) ~= "function" then
+        return nil
+    end
+    local ok, result = pcall(fn, lightId)
+    if ok then
+        return result
+    end
+    return nil
+end
+
 function FS25E_ConsoleCommands.applyLightPriority(lightIdStr, priorityStr)
     local lightId = tonumber(lightIdStr)
     local priority = tonumber(priorityStr)
@@ -145,29 +187,185 @@ function FS25E_ConsoleCommands.applyLightPriority(lightIdStr, priorityStr)
         say("ShadowManager.setLightShadowPriority missing")
         return
     end
-    -- Require a known discovered id when registry has entries (no blind apply).
-    if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.getEntries ~= nil then
-        local found = false
-        local entries = FS25E_LightDiscovery.getEntries()
-        local n = 0
-        local want = tostring(lightId)
-        for _, e in pairs(entries) do
-            n = n + 1
-            if e ~= nil and e.node ~= nil and tostring(e.node) == want then
-                found = true
-                break
-            end
-        end
-        if n > 0 and not found then
-            say(string.format("applyLightPriority rejected: lightId=%s not in LightDiscovery (run fs25eLightsDump)", tostring(lightId)))
-            return
-        end
+    if not requireDiscoveredLightId(lightId, "applyLightPriority") then
+        return
     end
     local ok, err = FS25E_ShadowManager.setLightShadowPriority(lightId, priority)
     say(string.format(
         "applyLightPriority lightId=%s priority=%s ok=%s err=%s (manual; softApply/autoApply untouched)",
         tostring(lightId), tostring(priority), tostring(ok), tostring(err)
     ))
+end
+
+--- Manual Soft-Shadow apply for one Dump lightId. Does NOT toggle Soft-Apply / autoApply.
+--- size required; optional distance + bias.
+function FS25E_ConsoleCommands.applyLightSoft(lightIdStr, sizeStr, distanceStr, biasStr)
+    local lightId = tonumber(lightIdStr)
+    local size = tonumber(sizeStr)
+    if lightId == nil or size == nil then
+        say("usage: fs25eApplyLightSoft <lightId> <size> [distance] [bias]  (manual; lightId from fs25eLightsDump; Soft-Apply/autoApply untouched)")
+        return
+    end
+    if FS25E_ShadowManager == nil then
+        say("ShadowManager missing")
+        return
+    end
+    if not requireDiscoveredLightId(lightId, "applyLightSoft") then
+        return
+    end
+
+    local beforeSize = tryReadGlobal("getLightSoftShadowSize", lightId)
+    local beforeDist = tryReadGlobal("getLightSoftShadowDistance", lightId)
+    local beforeBias = tryReadGlobal("getLightSoftShadowDepthBiasFactor", lightId)
+    say(string.format(
+        "applyLightSoft BEFORE lightId=%s size=%s distance=%s bias=%s",
+        tostring(lightId), tostring(beforeSize), tostring(beforeDist), tostring(beforeBias)
+    ))
+
+    local okSize, errSize = FS25E_ShadowManager.setLightSoftShadowSize(lightId, size)
+    say(string.format("applyLightSoft setSize value=%s ok=%s err=%s", tostring(size), tostring(okSize), tostring(errSize)))
+
+    local distance = tonumber(distanceStr)
+    local bias = tonumber(biasStr)
+    local okDist, errDist, okBias, errBias = true, nil, true, nil
+    if distanceStr ~= nil and distanceStr ~= "" then
+        if distance == nil then
+            say("applyLightSoft: optional distance must be a number")
+            return
+        end
+        okDist, errDist = FS25E_ShadowManager.setLightSoftShadowDistance(lightId, distance)
+        say(string.format("applyLightSoft setDistance value=%s ok=%s err=%s", tostring(distance), tostring(okDist), tostring(errDist)))
+    end
+    if biasStr ~= nil and biasStr ~= "" then
+        if bias == nil then
+            say("applyLightSoft: optional bias must be a number")
+            return
+        end
+        okBias, errBias = FS25E_ShadowManager.setLightSoftShadowDepthBiasFactor(lightId, bias)
+        say(string.format("applyLightSoft setBias value=%s ok=%s err=%s", tostring(bias), tostring(okBias), tostring(errBias)))
+    end
+
+    local afterSize = tryReadGlobal("getLightSoftShadowSize", lightId)
+    local afterDist = tryReadGlobal("getLightSoftShadowDistance", lightId)
+    local afterBias = tryReadGlobal("getLightSoftShadowDepthBiasFactor", lightId)
+    say(string.format(
+        "applyLightSoft AFTER/readback lightId=%s size=%s distance=%s bias=%s (expect size=%s; Soft-Apply/autoApply untouched; use fs25eRestore)",
+        tostring(lightId), tostring(afterSize), tostring(afterDist), tostring(afterBias), tostring(size)
+    ))
+end
+
+--- Manual merge of Dump lightIds (primary first). Does NOT enable Soft-Apply / autoApply.
+function FS25E_ConsoleCommands.mergeLights(idAStr, idBStr, ...)
+    if idAStr == nil or idBStr == nil or idAStr == "" or idBStr == "" then
+        say("usage: fs25eMergeLights <lightIdA> <lightIdB> [more…]  (primary first; ids from fs25eLightsDump)")
+        return
+    end
+    if FS25E_ShadowManager == nil or FS25E_ShadowManager.mergeLightShadows == nil then
+        say("ShadowManager.mergeLightShadows missing")
+        return
+    end
+
+    local ids = {}
+    local raw = { idAStr, idBStr, ... }
+    for i = 1, #raw do
+        local s = raw[i]
+        if s ~= nil and s ~= "" then
+            local id = tonumber(s)
+            if id == nil then
+                say(string.format("mergeLights: invalid lightId arg[%d]=%s", i, tostring(s)))
+                return
+            end
+            ids[#ids + 1] = id
+        end
+    end
+    if #ids < 2 then
+        say("usage: fs25eMergeLights <lightIdA> <lightIdB> [more…]")
+        return
+    end
+    for i = 1, #ids do
+        if not requireDiscoveredLightId(ids[i], "mergeLights") then
+            return
+        end
+    end
+
+    for i = 1, #ids do
+        local merged = FS25E_ShadowManager.hasMergedShadow(ids[i])
+        say(string.format("mergeLights BEFORE lightId=%s hasMergedShadow=%s", tostring(ids[i]), tostring(merged)))
+    end
+
+    local primary = ids[1]
+    local others = {}
+    for i = 2, #ids do
+        others[#others + 1] = ids[i]
+    end
+    local ok, err = FS25E_ShadowManager.mergeLightShadows(primary, unpack(others))
+    say(string.format(
+        "mergeLights primary=%s others=%d ok=%s err=%s (manual; Soft-Apply/autoApply untouched)",
+        tostring(primary), #others, tostring(ok), tostring(err)
+    ))
+
+    for i = 1, #ids do
+        local merged = FS25E_ShadowManager.hasMergedShadow(ids[i])
+        say(string.format(
+            "mergeLights AFTER lightId=%s hasMergedShadow=%s (expect true when engine merge succeeded)",
+            tostring(ids[i]), tostring(merged)
+        ))
+    end
+end
+
+function FS25E_ConsoleCommands.splitLight(lightIdStr)
+    local lightId = tonumber(lightIdStr)
+    if lightId == nil then
+        say("usage: fs25eSplitLight <lightId>  (manual split; lightId from dump/merge)")
+        return
+    end
+    if FS25E_ShadowManager == nil or FS25E_ShadowManager.splitLightShadow == nil then
+        say("ShadowManager.splitLightShadow missing")
+        return
+    end
+    local before = FS25E_ShadowManager.hasMergedShadow(lightId)
+    say(string.format("splitLight BEFORE lightId=%s hasMergedShadow=%s", tostring(lightId), tostring(before)))
+    local ok, err = FS25E_ShadowManager.splitLightShadow(lightId)
+    local after = FS25E_ShadowManager.hasMergedShadow(lightId)
+    say(string.format(
+        "splitLight lightId=%s ok=%s err=%s AFTER hasMergedShadow=%s (expect false / pre-merge; Soft-Apply/autoApply untouched)",
+        tostring(lightId), tostring(ok), tostring(err), tostring(after)
+    ))
+end
+
+function FS25E_ConsoleCommands.dumpMerges()
+    if FS25E_ShadowManager == nil then
+        say("ShadowManager missing")
+        return
+    end
+    local tracked = nil
+    if FS25E_ShadowManager.getTrackedMerges ~= nil then
+        tracked = FS25E_ShadowManager.getTrackedMerges()
+    elseif FS25E_ShadowManager.getMergedLights ~= nil then
+        tracked = FS25E_ShadowManager.getMergedLights()
+    end
+    if tracked == nil then
+        say("dumpMerges: no tracked merge table")
+        return
+    end
+    local n = 0
+    local ids = {}
+    for lightId in pairs(tracked) do
+        n = n + 1
+        ids[#ids + 1] = lightId
+    end
+    table.sort(ids, function(a, b)
+        return tostring(a) < tostring(b)
+    end)
+    for i = 1, #ids do
+        local lightId = ids[i]
+        local engineMerged = FS25E_ShadowManager.hasMergedShadow(lightId)
+        say(string.format(
+            "dumpMerges tracked lightId=%s hasMergedShadow=%s",
+            tostring(lightId), tostring(engineMerged)
+        ))
+    end
+    say(string.format("dumpMerges done count=%d (Soft-Apply/autoApply untouched)", n))
 end
 
 --- DANGER: enables Soft-Apply (CONFIRMED ShadowManager per-light APIs). Default OFF.
@@ -221,6 +419,10 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eGovernor", "FS25_Enhanced: enable governor observe (1/0); never enables autoApply", "setGovernorEnabled") then n = n + 1 end
     if tryAdd("fs25eApplyLightPriority", "FS25_Enhanced: manual setLightShadowPriority (lightId from fs25eLightsDump)", "applyLightPriority") then n = n + 1 end
     if tryAdd("fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
+    if tryAdd("fs25eApplyLightSoft", "FS25_Enhanced: manual Soft-Shadow size/[distance]/[bias] (lightId from Dump; Soft-Apply untouched)", "applyLightSoft") then n = n + 1 end
+    if tryAdd("fs25eMergeLights", "FS25_Enhanced: manual mergeLightShadows (primary first; Dump lightIds)", "mergeLights") then n = n + 1 end
+    if tryAdd("fs25eSplitLight", "FS25_Enhanced: manual splitLightShadow", "splitLight") then n = n + 1 end
+    if tryAdd("fs25eDumpMerges", "FS25_Enhanced: dump ShadowManager tracked merges", "dumpMerges") then n = n + 1 end
     registered = n > 0
     FS25E_Debug.info("Console", string.format("registered %d console commands (autoApply never forced on)", n))
     return registered
@@ -241,6 +443,10 @@ function FS25E_ConsoleCommands.unregister()
         "fs25eGovernor",
         "fs25eApplyLightPriority",
         "fs25eSoftApply",
+        "fs25eApplyLightSoft",
+        "fs25eMergeLights",
+        "fs25eSplitLight",
+        "fs25eDumpMerges",
     }
     for i = 1, #names do
         pcall(removeConsoleCommand, names[i])

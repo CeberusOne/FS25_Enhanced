@@ -232,6 +232,11 @@ function FS25E_ShadowManager.getMergedLights()
     return mergedLights
 end
 
+--- Thin public dump helper for smoke / console (same table as getMergedLights).
+function FS25E_ShadowManager.getTrackedMerges()
+    return mergedLights
+end
+
 function FS25E_ShadowManager.isInitialized()
     return initialized
 end
