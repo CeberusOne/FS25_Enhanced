@@ -29,7 +29,7 @@ local function onLoadMap(mission)
 
         if FS25E_ModSettings ~= nil then
             FS25E_ModSettings.init()
-            FS25E_ModSettings.loadStub()
+            FS25E_ModSettings.load()
         end
         if FS25E_SettingsSchema ~= nil then
             FS25E_SettingsSchema.init()
@@ -106,6 +106,11 @@ end
 local function onDeleteMap()
     safeCall("onDeleteMap", function()
         FS25E_Debug.info("Bootstrap", "deleteMap begin — restore path")
+        if FS25E_ModSettings ~= nil and FS25E_ModSettings.save ~= nil then
+            safeCall("ModSettings.save", function()
+                FS25E_ModSettings.save()
+            end)
+        end
         FS25_Enhanced.missionActive = false
 
         if FS25E_Input ~= nil and FS25E_Input.unregister ~= nil then

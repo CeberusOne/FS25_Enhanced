@@ -1,6 +1,6 @@
 -- FS25_Enhanced / Core/ModSettings.lua
--- Client modSettings path + user-value store (GUI docks here via get/set).
--- Persist best-effort to settings.xml; session table always works.
+-- Client modSettings path + user-value store (GUI docks via get/set).
+-- Persist best-effort to settings.xml. Defaults: enabled/autoApply/softApply/expertMode/adaptive = false.
 
 FS25E_ModSettings = {}
 
@@ -10,13 +10,14 @@ local relativePath = nil
 local absolutePath = nil
 local ready = false
 
---- In-memory user values (authoritative for GUI R/W).
 local values = {}
 
---- Defaults for user-facing settings (GUI Gen-1). Governor stays off until user acts.
+--- GUI Gen-1 keys + Core toggles. Governor stays off until user acts.
 local DEFAULTS = {
     enabled = false,
     adaptive = false,
+    autoApply = false,
+    softApply = false,
     targetFps = "60",
     preset = "Balanced",
     expertMode = false,
@@ -40,43 +41,48 @@ local DEFAULTS = {
     liveTuningEnabled = false,
 }
 
-local function copyDefaults()
-    local t = {}
-    for k, v in pairs(DEFAULTS) do
-        t[k] = v
-    end
-    return t
+-- Aliases for SettingsAPI / older Core names
+local ALIASES = {
+    governorEnabled = "enabled",
+    activePreset = "preset",
+}
+
+local function resolveKey(id)
+    if id == nil then return nil end
+    if ALIASES[id] ~= nil then return ALIASES[id] end
+    return id
 end
 
-local function coerceStored(raw, default)
-    if raw == nil then
+local function coerceStored(value, default)
+    if type(default) == "boolean" then
+        if type(value) == "boolean" then return value end
+        if type(value) == "string" then
+            local s = value:lower()
+            if s == "true" or s == "1" then return true end
+            if s == "false" or s == "0" then return false end
+        end
+        if type(value) == "number" then return value ~= 0 end
         return default
     end
-    local dt = type(default)
-    if dt == "boolean" then
-        if type(raw) == "boolean" then
-            return raw
-        end
-        local s = tostring(raw):lower()
-        if s == "true" or s == "1" then
-            return true
-        end
-        if s == "false" or s == "0" then
-            return false
-        end
-        return default
+    if type(default) == "number" then
+        return tonumber(value) or default
     end
-    if dt == "number" then
-        return tonumber(raw) or default
+    if value == nil then return default end
+    return tostring(value)
+end
+
+local function seedDefaults()
+    values = {}
+    for k, v in pairs(DEFAULTS) do
+        values[k] = v
     end
-    return tostring(raw)
 end
 
 function FS25E_ModSettings.init()
     ready = false
     relativePath = "modSettings/" .. MOD_SETTINGS_FOLDER .. "/"
     absolutePath = nil
-    values = copyDefaults()
+    seedDefaults()
 
     local ok, err = pcall(function()
         if getUserProfileAppPath ~= nil then
@@ -100,7 +106,7 @@ function FS25E_ModSettings.init()
     FS25E_Debug.info("ModSettings", string.format(
         "path prepared relative=%s absolute=%s",
         tostring(relativePath),
-        tostring(absolutePath or "(deferred until profile path available)")
+        tostring(absolutePath or "(deferred)")
     ))
 end
 
@@ -129,7 +135,8 @@ function FS25E_ModSettings.getDefaults()
 end
 
 function FS25E_ModSettings.get(id)
-    if id == nil then
+    id = resolveKey(id)
+    if id == nil or DEFAULTS[id] == nil then
         return nil
     end
     if values[id] ~= nil then
@@ -139,6 +146,8 @@ function FS25E_ModSettings.get(id)
 end
 
 function FS25E_ModSettings.set(id, value)
+    local rawId = id
+    id = resolveKey(id)
     if id == nil or DEFAULTS[id] == nil then
         return false
     end
@@ -155,59 +164,120 @@ function FS25E_ModSettings.getAll()
 end
 
 function FS25E_ModSettings.resetToDefaults()
-    values = copyDefaults()
+    seedDefaults()
 end
 
-function FS25E_ModSettings.loadStub()
+--- Push toggles into live modules (no engine quality setters here).
+function FS25E_ModSettings.applyToRuntime()
+    local enabled = FS25E_ModSettings.get("enabled") == true
+    local autoApply = FS25E_ModSettings.get("autoApply") == true
+    local softApply = FS25E_ModSettings.get("softApply") == true
+    local expert = FS25E_ModSettings.get("expertMode") == true
+    local preset = FS25E_ModSettings.get("preset") or "Balanced"
+
+    if FS25E_GraphicsGovernor ~= nil then
+        if FS25E_GraphicsGovernor.setEnabled ~= nil then
+            FS25E_GraphicsGovernor.setEnabled(enabled)
+        end
+        if FS25E_GraphicsGovernor.setAutoApply ~= nil then
+            FS25E_GraphicsGovernor.setAutoApply(autoApply)
+        end
+    end
+    if FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.setExpertMode ~= nil then
+        FS25E_CapabilityRegistry.setExpertMode(expert)
+    end
+    if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.setSoftApplyEnabled ~= nil then
+        FS25E_LightDiscovery.setSoftApplyEnabled(softApply)
+    end
+    if FS25E_ProfileManager ~= nil and FS25E_ProfileManager.selectPreset ~= nil then
+        FS25E_ProfileManager.selectPreset(tostring(preset))
+    end
+    FS25E_Debug.info("ModSettings", string.format(
+        "runtime applied enabled=%s autoApply=%s soft=%s expert=%s preset=%s",
+        tostring(enabled), tostring(autoApply), tostring(softApply), tostring(expert), tostring(preset)
+    ))
+end
+
+function FS25E_ModSettings.load()
+    seedDefaults()
     local path = FS25E_ModSettings.getFilePath(SETTINGS_FILE)
-    if loadXMLFile == nil or getXMLString == nil then
-        FS25E_Debug.info("ModSettings", "loadStub session-only (XML APIs unavailable)")
-        return true
-    end
-    local xmlId = loadXMLFile("FS25E_modSettings", path)
-    if xmlId == nil or xmlId == 0 then
-        FS25E_Debug.info("ModSettings", "loadStub no file yet path=" .. tostring(path))
-        return true
-    end
-    local loaded = 0
+    FS25E_Debug.info("ModSettings", "load " .. tostring(path))
+
     local ok, err = pcall(function()
+        if loadXMLFile == nil then
+            return
+        end
+        local xmlId = loadXMLFile("FS25E_modSettings", path)
+        if xmlId == nil or xmlId == 0 then
+            FS25E_Debug.info("ModSettings", "no settings file; defaults (toggles false)")
+            return
+        end
         for id, default in pairs(DEFAULTS) do
-            local raw = getXMLString(xmlId, "settings." .. id)
-            if raw ~= nil and raw ~= "" then
+            local key = "settings#" .. id
+            local raw = nil
+            if type(default) == "boolean" and getXMLBool ~= nil then
+                raw = getXMLBool(xmlId, key)
+            elseif getXMLString ~= nil then
+                raw = getXMLString(xmlId, key)
+            end
+            if raw ~= nil then
                 values[id] = coerceStored(raw, default)
-                loaded = loaded + 1
             end
         end
+        if deleteXMLFile ~= nil then
+            deleteXMLFile(xmlId)
+        end
     end)
-    if deleteXMLFile ~= nil then
-        pcall(deleteXMLFile, xmlId)
-    end
     if not ok then
-        FS25E_Debug.warning("ModSettings", "loadStub parse failed: " .. tostring(err))
-        return false
+        FS25E_Debug.warning("ModSettings", "load soft-failed: " .. tostring(err))
+        seedDefaults()
     end
-    FS25E_Debug.info("ModSettings", string.format("loadStub ok keys=%d path=%s", loaded, tostring(path)))
+
+    FS25E_ModSettings.applyToRuntime()
     return true
 end
 
-function FS25E_ModSettings.saveStub()
-    local path = FS25E_ModSettings.getFilePath(SETTINGS_FILE)
-    if createXMLFile == nil or setXMLString == nil or saveXMLFile == nil then
-        FS25E_Debug.info("ModSettings", "saveStub deferred (XML write APIs unavailable); session values kept")
-        return false
+function FS25E_ModSettings.save()
+    -- sync toggles from runtime
+    if FS25E_GraphicsGovernor ~= nil then
+        if FS25E_GraphicsGovernor.isEnabled ~= nil then
+            values.enabled = FS25E_GraphicsGovernor.isEnabled() == true
+        end
+        if FS25E_GraphicsGovernor.isAutoApply ~= nil then
+            values.autoApply = FS25E_GraphicsGovernor.isAutoApply() == true
+        end
     end
+    if FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.isExpertMode ~= nil then
+        values.expertMode = FS25E_CapabilityRegistry.isExpertMode() == true
+    end
+    if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.isSoftApplyEnabled ~= nil then
+        values.softApply = FS25E_LightDiscovery.isSoftApplyEnabled() == true
+    end
+    if FS25E_ProfileManager ~= nil and FS25E_ProfileManager.getActiveName ~= nil then
+        values.preset = FS25E_ProfileManager.getActiveName() or values.preset
+    end
+
+    local path = FS25E_ModSettings.getFilePath(SETTINGS_FILE)
     local ok, err = pcall(function()
+        if createXMLFile == nil or saveXMLFile == nil then
+            FS25E_Debug.info("ModSettings", "XML save APIs unavailable; skip persist")
+            return
+        end
+        if absolutePath ~= nil and createFolder ~= nil then
+            pcall(createFolder, absolutePath)
+        end
         local xmlId = createXMLFile("FS25E_modSettings", path, "settings")
         if xmlId == nil or xmlId == 0 then
             error("createXMLFile failed")
         end
-        setXMLString(xmlId, "settings#version", "1")
-        for id, _ in pairs(DEFAULTS) do
-            local v = FS25E_ModSettings.get(id)
-            if type(v) == "boolean" then
-                setXMLString(xmlId, "settings." .. id, v and "true" or "false")
-            else
-                setXMLString(xmlId, "settings." .. id, tostring(v))
+        for id, default in pairs(DEFAULTS) do
+            local key = "settings#" .. id
+            local v = values[id]
+            if v == nil then v = default end
+            if type(default) == "boolean" and setXMLBool ~= nil then
+                setXMLBool(xmlId, key, v == true)
+            elseif setXMLString ~= nil then
+                setXMLString(xmlId, key, tostring(v))
             end
         end
         saveXMLFile(xmlId)
@@ -216,17 +286,17 @@ function FS25E_ModSettings.saveStub()
         end
     end)
     if not ok then
-        FS25E_Debug.warning("ModSettings", "saveStub failed: " .. tostring(err) .. " — TODO persist when profile path/XML ready")
+        FS25E_Debug.warning("ModSettings", "save soft-failed: " .. tostring(err))
         return false
     end
-    FS25E_Debug.info("ModSettings", "saveStub ok path=" .. tostring(path))
+    FS25E_Debug.info("ModSettings", "saved " .. tostring(path))
     return true
 end
 
-function FS25E_ModSettings.load()
-    return FS25E_ModSettings.loadStub()
+function FS25E_ModSettings.loadStub()
+    return FS25E_ModSettings.load()
 end
 
-function FS25E_ModSettings.save()
-    return FS25E_ModSettings.saveStub()
+function FS25E_ModSettings.saveStub()
+    return FS25E_ModSettings.save()
 end

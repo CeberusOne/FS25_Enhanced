@@ -436,6 +436,27 @@ local function tryAdd(name, description, fnName)
     return true
 end
 
+
+function FS25E_ConsoleCommands.setAutoApplyFlag(flag)
+    local on = tostring(flag or "") == "1" or tostring(flag or ""):lower() == "true"
+    if FS25E_SettingsAPI ~= nil then
+        FS25E_SettingsAPI.setAutoApply(on)
+    elseif FS25E_GraphicsGovernor ~= nil then
+        FS25E_GraphicsGovernor.setAutoApply(on)
+    end
+    say("autoApply=" .. tostring(on) .. " (DANGER when on; Soft-Apply untouched; defaults false on load)")
+end
+
+function FS25E_ConsoleCommands.setExpertFlag(flag)
+    local on = tostring(flag or "") == "1" or tostring(flag or ""):lower() == "true"
+    if FS25E_SettingsAPI ~= nil then
+        FS25E_SettingsAPI.setExpertMode(on)
+    elseif FS25E_CapabilityRegistry ~= nil then
+        FS25E_CapabilityRegistry.setExpertMode(on)
+    end
+    say("expertMode=" .. tostring(on) .. " (EXPERIMENTAL/GATED only when true; default false)")
+end
+
 function FS25E_ConsoleCommands.register()
     if registered then
         return true
@@ -454,7 +475,11 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eGovernor", "FS25_Enhanced: enable governor observe (1/0); never enables autoApply", "setGovernorEnabled") then n = n + 1 end
     if tryAdd("fs25eOpenSettings", "FS25_Enhanced: open Gen-1 settings dialog", "openSettings") then n = n + 1 end
     if tryAdd("fs25eApplyLightPriority", "FS25_Enhanced: manual setLightShadowPriority (lightId from fs25eLightsDump)", "applyLightPriority") then n = n + 1 end
-    if tryAdd("fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
+    if tryAdd("fs25eAutoApply", "FS25_Enhanced: autoApply 0|1 (DANGER; default 0)", "setAutoApplyFlag") then n = n + 1 end
+    if tryAdd("fs25eExpert", "FS25_Enhanced: expertMode 0|1 (default 0)", "setExpertFlag") then n = n + 1 end
+    if tryAdd("fs25eAutoApply",
+        "fs25eExpert",
+        "fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
     if tryAdd("fs25eApplyLightSoft", "FS25_Enhanced: manual Soft-Shadow size/[distance]/[bias] (lightId from Dump; Soft-Apply untouched)", "applyLightSoft") then n = n + 1 end
     if tryAdd("fs25eMergeLights", "FS25_Enhanced: manual mergeLightShadows (primary first; Dump lightIds)", "mergeLights") then n = n + 1 end
     if tryAdd("fs25eSplitLight", "FS25_Enhanced: manual splitLightShadow", "splitLight") then n = n + 1 end
@@ -480,6 +505,8 @@ function FS25E_ConsoleCommands.unregister()
         "fs25eSelectPreset",
         "fs25eGovernor",
         "fs25eApplyLightPriority",
+        "fs25eAutoApply",
+        "fs25eExpert",
         "fs25eSoftApply",
         "fs25eApplyLightSoft",
         "fs25eMergeLights",
