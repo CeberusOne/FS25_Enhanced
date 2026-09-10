@@ -24,12 +24,22 @@ function FS25E_ConsoleCommands.dumpCaps()
     local n = 0
     for id, entry in pairs(all) do
         n = n + 1
+        local lastResult, lastError = "-", ""
+        if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getCapRuntime ~= nil then
+            local rt = FS25E_Diagnostics.getCapRuntime(id)
+            if rt ~= nil then
+                lastResult = tostring(rt.lastResult or "-")
+                lastError = tostring(rt.lastError or "")
+            end
+        end
         say(string.format(
-            "cap id=%s status=%s setter=%s applyMode=%s",
+            "cap id=%s status=%s setter=%s applyMode=%s lastResult=%s lastError=%s",
             tostring(id),
             tostring(entry.status),
             tostring(entry.setter),
-            tostring(entry.applyMode)
+            tostring(entry.applyMode),
+            lastResult,
+            lastError
         ))
     end
     say(string.format("dumpCaps done count=%d", n))
@@ -396,6 +406,22 @@ function FS25E_ConsoleCommands.setSoftApply(flag)
     ))
 end
 
+function FS25E_ConsoleCommands.capStatus()
+    if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.dumpCapStatus ~= nil then
+        FS25E_Diagnostics.dumpCapStatus(say)
+    else
+        say("Diagnostics missing")
+    end
+end
+
+function FS25E_ConsoleCommands.dumpDiagLog()
+    if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.dumpRing ~= nil then
+        FS25E_Diagnostics.dumpRing(say)
+    else
+        say("Diagnostics missing")
+    end
+end
+
 local function tryAdd(name, description, fnName)
     if addConsoleCommand == nil then
         return false
@@ -433,6 +459,8 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eMergeLights", "FS25_Enhanced: manual mergeLightShadows (primary first; Dump lightIds)", "mergeLights") then n = n + 1 end
     if tryAdd("fs25eSplitLight", "FS25_Enhanced: manual splitLightShadow", "splitLight") then n = n + 1 end
     if tryAdd("fs25eDumpMerges", "FS25_Enhanced: dump ShadowManager tracked merges", "dumpMerges") then n = n + 1 end
+    if tryAdd("fs25eCapStatus", "FS25_Enhanced: dump capability status + lastResult/lastError", "capStatus") then n = n + 1 end
+    if tryAdd("fs25eDumpDiagLog", "FS25_Enhanced: dump diagnostics ring log", "dumpDiagLog") then n = n + 1 end
     registered = n > 0
     FS25E_Debug.info("Console", string.format("registered %d console commands (autoApply never forced on)", n))
     return registered
@@ -457,6 +485,8 @@ function FS25E_ConsoleCommands.unregister()
         "fs25eMergeLights",
         "fs25eSplitLight",
         "fs25eDumpMerges",
+        "fs25eCapStatus",
+        "fs25eDumpDiagLog",
     }
     for i = 1, #names do
         pcall(removeConsoleCommand, names[i])

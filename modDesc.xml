@@ -10,12 +10,12 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-v0.3.2.0: Gen-1 Settings GUI (Simple/Advanced/Expert/Status); ModSettings docking; Expert+Diagnostics status.
-Auto-apply off until user Adaptive/Preset. Soft-Apply off. No EXPERIMENTAL engine setters from GUI.]]></en>
+v0.3.2.0: Gen-1 Settings GUI (Simple/Advanced/Expert/Status) + Diagnostics (CapStatus/ring log).
+Auto-apply off until user Adaptive/Preset. Soft-Apply off. No engine setters from GUI.]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
 Nutzt ausschließlich dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-v0.3.2.0: Gen-1 Settings-GUI (Einfach/Erweitert/Expert/Status); ModSettings-Andockung; Expert+Diagnostics-Status.
-Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Keine EXPERIMENTAL-Engine-Setter aus der GUI.]]></de>
+v0.3.2.0: Gen-1 Settings-GUI (Einfach/Erweitert/Expert/Status) + Diagnostics (CapStatus/Ring-Log).
+Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Keine Engine-Setter aus der GUI.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
@@ -38,6 +38,7 @@ Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Keine EXPERIMENTAL-Engi
         <sourceFile filename="scripts/Core/SettingsCache.lua"/>
         <sourceFile filename="scripts/Core/CapabilityApplier.lua"/>
         <sourceFile filename="scripts/Core/RestoreManager.lua"/>
+        <sourceFile filename="scripts/Core/Diagnostics.lua"/>
         <sourceFile filename="scripts/Core/PerformanceMonitor.lua"/>
         <sourceFile filename="scripts/Shadows/ShadowManager.lua"/>
         <sourceFile filename="scripts/World/LodGovernor.lua"/>
@@ -49,7 +50,6 @@ Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Keine EXPERIMENTAL-Engi
         <sourceFile filename="scripts/Core/ModSettings.lua"/>
         <sourceFile filename="scripts/Core/SettingsSchema.lua"/>
         <sourceFile filename="scripts/Core/ConsoleCommands.lua"/>
-        <sourceFile filename="scripts/Core/Diagnostics.lua"/>
         <sourceFile filename="scripts/UI/FS25E_SettingsController.lua"/>
         <sourceFile filename="scripts/UI/FS25E_SettingsDialog.lua"/>
         <sourceFile filename="scripts/UI/FS25E_GuiLoader.lua"/>
