@@ -171,6 +171,17 @@ function FS25E_Diagnostics.getSnapshot()
         countsByStatus[status] = (countsByStatus[status] or 0) + 1
         local rt = runtime[id]
         local lastResult = rt and rt.lastResult or nil
+        local lastError = rt and rt.lastError or nil
+        -- Prefer Core getLastResult when Diagnostics runtime not yet filled
+        if lastResult == nil and FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.getLastResult ~= nil then
+            local lr = FS25E_CapabilityRegistry.getLastResult(id)
+            if type(lr) == "table" and lr.status ~= nil then
+                lastResult = lr.status
+                if lastError == nil or lastError == "" then
+                    lastError = lr.error ~= nil and tostring(lr.error) or nil
+                end
+            end
+        end
         -- Fallback: session applied table implies APPLIED if no runtime yet
         if lastResult == nil and FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.getApplied ~= nil then
             local applied = FS25E_CapabilityApplier.getApplied()
@@ -190,7 +201,6 @@ function FS25E_Diagnostics.getSnapshot()
         if lastResult ~= nil then
             countsByLastResult[lastResult] = (countsByLastResult[lastResult] or 0) + 1
         end
-        local lastError = rt and rt.lastError or nil
         if entry.status == "REJECTED" and (lastError == nil or lastError == "") and entry.notes ~= nil then
             lastError = tostring(entry.notes)
         end
@@ -308,7 +318,18 @@ local function wrapOnce(tbl, fnName, wrapperFactory)
     return true
 end
 
---- Soft-subscribe Core listener APIs when present (future Settings-API PR).
+--- Soft-subscribe Core listener APIs (Settings-API): payload = { status, error, detail, ts }.
+local function payloadFields(payload)
+    if type(payload) ~= "table" then
+        return payload, nil
+    end
+    local err = payload.error
+    if err == nil or err == "" then
+        err = nil
+    end
+    return err, payload.detail
+end
+
 function FS25E_Diagnostics.trySubscribeListeners()
     if listenersInstalled or FS25E_CapabilityRegistry == nil then
         return listenersInstalled
@@ -316,7 +337,8 @@ function FS25E_Diagnostics.trySubscribeListeners()
     local n = 0
     if type(FS25E_CapabilityRegistry.onApply) == "function" then
         pcall(function()
-            FS25E_CapabilityRegistry.onApply(function(id, detail)
+            FS25E_CapabilityRegistry.onApply(function(id, payload)
+                local _, detail = payloadFields(payload)
                 FS25E_Diagnostics.record(id, FS25E_Diagnostics.RESULT.APPLIED, nil, { source = "listener", detail = detail })
             end)
             n = n + 1
@@ -324,16 +346,18 @@ function FS25E_Diagnostics.trySubscribeListeners()
     end
     if type(FS25E_CapabilityRegistry.onReject) == "function" then
         pcall(function()
-            FS25E_CapabilityRegistry.onReject(function(id, reason)
-                FS25E_Diagnostics.record(id, FS25E_Diagnostics.RESULT.REJECTED, reason, { source = "listener" })
+            FS25E_CapabilityRegistry.onReject(function(id, payload)
+                local err, detail = payloadFields(payload)
+                FS25E_Diagnostics.record(id, FS25E_Diagnostics.RESULT.REJECTED, err, { source = "listener", detail = detail })
             end)
             n = n + 1
         end)
     end
     if type(FS25E_CapabilityRegistry.onSkip) == "function" then
         pcall(function()
-            FS25E_CapabilityRegistry.onSkip(function(id, reason)
-                FS25E_Diagnostics.record(id, FS25E_Diagnostics.RESULT.SKIPPED, reason, { source = "listener" })
+            FS25E_CapabilityRegistry.onSkip(function(id, payload)
+                local err, detail = payloadFields(payload)
+                FS25E_Diagnostics.record(id, FS25E_Diagnostics.RESULT.SKIPPED, err, { source = "listener", detail = detail })
             end)
             n = n + 1
         end)
