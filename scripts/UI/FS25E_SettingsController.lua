@@ -1,5 +1,5 @@
 -- FS25_Enhanced / UI/FS25E_SettingsController.lua
--- Docking: ModSettings.get/set | ProfileManager.selectPreset | Governor setEnabled/setAutoApply.
+-- Final dock: Prefer-Path ModSettings.get/set; SettingsAPI.set for side-effects (facade).
 -- No engine setters from GUI.
 
 FS25E_SettingsController = {}
@@ -20,9 +20,17 @@ local function i18n(key, fallback)
     return fallback or key or ""
 end
 
+local function hasSettingsAPI()
+    return FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.get ~= nil and FS25E_SettingsAPI.set ~= nil
+end
+
+-- Prefer-Path: ModSettings.get/set (SettingsAPI is facade over the same store).
 function FS25E_SettingsController.get(id)
     if FS25E_ModSettings ~= nil and FS25E_ModSettings.get ~= nil then
         return FS25E_ModSettings.get(id)
+    end
+    if hasSettingsAPI() then
+        return FS25E_SettingsAPI.get(id)
     end
     return nil
 end
@@ -31,7 +39,24 @@ function FS25E_SettingsController.getAll()
     if FS25E_ModSettings ~= nil and FS25E_ModSettings.getAll ~= nil then
         return FS25E_ModSettings.getAll()
     end
+    if hasSettingsAPI() and FS25E_SettingsAPI.getAll ~= nil then
+        return FS25E_SettingsAPI.getAll()
+    end
     return {}
+end
+
+local function persist()
+    if hasSettingsAPI() and FS25E_SettingsAPI.save ~= nil then
+        pcall(FS25E_SettingsAPI.save)
+        return
+    end
+    if FS25E_ModSettings ~= nil then
+        if FS25E_ModSettings.save ~= nil then
+            pcall(FS25E_ModSettings.save)
+        elseif FS25E_ModSettings.saveStub ~= nil then
+            pcall(FS25E_ModSettings.saveStub)
+        end
+    end
 end
 
 function FS25E_SettingsController.applyUserChange(id, value, opts)
@@ -39,8 +64,35 @@ function FS25E_SettingsController.applyUserChange(id, value, opts)
     if id == nil then
         return false
     end
+
+    if hasSettingsAPI() then
+        local ok = FS25E_SettingsAPI.set(id, value)
+        if not ok then
+            dbg("SettingsAPI.set rejected id=" .. tostring(id))
+            return false
+        end
+
+        -- adaptive is the user-facing toggle; keep autoApply in sync explicitly
+        if id == "adaptive" then
+            FS25E_SettingsAPI.setAutoApply(value == true)
+        elseif id == "preset" then
+            FS25E_SettingsController.applyPresetSelection(value, opts.explicit == true)
+        elseif id == "targetFps" then
+            FS25E_SettingsController.applyTargetFps(value)
+        end
+
+        if FS25E_SettingsCache ~= nil and FS25E_SettingsCache.setRequested ~= nil then
+            FS25E_SettingsCache.setRequested(id, value)
+        end
+
+        persist()
+        dbg(string.format("applyUserChange(api) id=%s value=%s", tostring(id), tostring(value)))
+        return true
+    end
+
+    -- Fallback path (pre-#14 main): ModSettings + Governor wrappers only
     if FS25E_ModSettings == nil or FS25E_ModSettings.set == nil then
-        dbg("applyUserChange aborted: ModSettings missing")
+        dbg("applyUserChange aborted: ModSettings/SettingsAPI missing")
         return false
     end
 
@@ -68,19 +120,36 @@ function FS25E_SettingsController.applyUserChange(id, value, opts)
         FS25E_SettingsController.applyTargetFps(value)
     end
 
-    if FS25E_ModSettings.saveStub ~= nil then
-        pcall(FS25E_ModSettings.saveStub)
-    end
-
-    dbg(string.format("applyUserChange id=%s value=%s", tostring(id), tostring(value)))
+    persist()
+    dbg(string.format("applyUserChange(fallback) id=%s value=%s", tostring(id), tostring(value)))
     return true
 end
 
 function FS25E_SettingsController.applyPresetSelection(presetName, explicit)
     if presetName == nil or presetName == "" or presetName == "Off" then
-        dbg("preset Off — cache only")
-        if explicit and FS25E_GraphicsGovernor ~= nil and FS25E_GraphicsGovernor.setAutoApply ~= nil then
-            FS25E_GraphicsGovernor.setAutoApply(false)
+        dbg("preset Off — store only")
+        if explicit then
+            if hasSettingsAPI() then
+                FS25E_SettingsAPI.setAutoApply(false)
+            elseif FS25E_GraphicsGovernor ~= nil and FS25E_GraphicsGovernor.setAutoApply ~= nil then
+                FS25E_GraphicsGovernor.setAutoApply(false)
+            end
+        end
+        return true
+    end
+
+    if hasSettingsAPI() then
+        if FS25E_SettingsAPI.selectPreset ~= nil then
+            FS25E_SettingsAPI.selectPreset(presetName)
+        end
+        if explicit then
+            FS25E_SettingsAPI.setAutoApply(true)
+            local enabled = FS25E_SettingsAPI.getEnabled ~= nil and FS25E_SettingsAPI.getEnabled()
+            if enabled and FS25E_SettingsAPI.applySelectedPreset ~= nil then
+                FS25E_SettingsAPI.applySelectedPreset()
+            else
+                dbg("preset selected; applySelectedPreset skipped (governor disabled)")
+            end
         end
         return true
     end
@@ -122,6 +191,9 @@ function FS25E_SettingsController.applyTargetFps(value)
 end
 
 function FS25E_SettingsController.isExpertMode()
+    if hasSettingsAPI() and FS25E_SettingsAPI.getExpertMode ~= nil then
+        return FS25E_SettingsAPI.getExpertMode()
+    end
     return FS25E_SettingsController.get("expertMode") == true
 end
 
