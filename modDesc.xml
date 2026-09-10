@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.3.3.0</version>
+    <version>0.4.0.0</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
