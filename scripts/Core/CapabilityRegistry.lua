@@ -22,7 +22,38 @@ FS25E_CapabilityRegistry.APPLY_MODE = {
     SESSION = "SESSION",
 }
 
+FS25E_CapabilityRegistry.RESULT = {
+    APPLIED = "APPLIED",
+    REJECTED = "REJECTED",
+    SKIPPED = "SKIPPED",
+}
+
 local capabilities = {} -- id -> entry
+local expertMode = false
+local lastResults = {}
+local listeners = { apply = {}, reject = {}, skip = {} }
+
+local function nowTs()
+    if getTime ~= nil then
+        local ok, t = pcall(getTime)
+        if ok then return t end
+    end
+    return nil
+end
+
+local function emit(kind, id, payload)
+    local list = listeners[kind]
+    if list == nil then return end
+    for i = 1, #list do
+        pcall(list[i], id, payload)
+    end
+end
+
+local function storeResult(id, status, err, detail)
+    local payload = { status = status, error = err, detail = detail, ts = nowTs() }
+    lastResults[id] = payload
+    return payload
+end
 
 -- Wave-1 seed (mirrors config/capabilityProfiles.xml). Used outside game / if XML fails.
 local WAVE1_FALLBACK = {
@@ -191,6 +222,7 @@ end
 --- Load capability profiles from XML; seed Wave-1+Expert Lua fallback if soft-fail / empty.
 function FS25E_CapabilityRegistry.load(modDirectory)
     capabilities = {}
+    lastResults = {}
     local path = (modDirectory or "") .. "config/capabilityProfiles.xml"
     FS25E_Debug.info("CapabilityRegistry", "load from " .. path)
 
@@ -243,10 +275,27 @@ local function resolveExpertMode(explicit)
     if explicit ~= nil then
         return explicit == true
     end
+    if expertMode then
+        return true
+    end
+    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.getExpertMode ~= nil then
+        if FS25E_SettingsAPI.getExpertMode() == true then
+            return true
+        end
+    end
     if FS25E_SettingsSchema ~= nil and FS25E_SettingsSchema.get ~= nil then
         return FS25E_SettingsSchema.get("expertMode") == true
     end
     return false
+end
+
+function FS25E_CapabilityRegistry.setExpertMode(enabled)
+    expertMode = enabled == true
+    FS25E_Debug.info("CapabilityRegistry", "expertMode=" .. tostring(expertMode))
+end
+
+function FS25E_CapabilityRegistry.isExpertMode()
+    return expertMode == true or resolveExpertMode(nil)
 end
 
 --- Apply gate.
@@ -310,34 +359,61 @@ function FS25E_CapabilityRegistry.reject(id, reason)
     local c = capabilities[id]
     if c == nil then
         FS25E_CapabilityRegistry.register(id, "REJECTED", nil, reason)
-        return
+    else
+        c.status = FS25E_CapabilityRegistry.STATUS.REJECTED
+        c.notes = reason
     end
-    c.status = FS25E_CapabilityRegistry.STATUS.REJECTED
-    c.notes = reason
+    local payload = storeResult(id, FS25E_CapabilityRegistry.RESULT.REJECTED, reason, nil)
     FS25E_Debug.warning("CapabilityRegistry", string.format(
         "rejected capabilityId=%s reason=%s",
         tostring(id), tostring(reason)
     ))
+    emit("reject", id, payload)
 end
 
---- Mark successful apply as APPLIED (keeps baseStatus for gate logic).
-function FS25E_CapabilityRegistry.markApplied(id)
+--- Mark successful apply as APPLIED (keeps baseStatus for gate logic) + emit hooks.
+function FS25E_CapabilityRegistry.markApplied(id, detail)
     local c = capabilities[id]
-    if c == nil then
-        return false
+    if c ~= nil and c.status ~= FS25E_CapabilityRegistry.STATUS.REJECTED then
+        if c.baseStatus == nil then
+            c.baseStatus = c.status
+        end
+        c.status = FS25E_CapabilityRegistry.STATUS.APPLIED
     end
-    if c.status == FS25E_CapabilityRegistry.STATUS.REJECTED then
-        return false
-    end
-    if c.baseStatus == nil then
-        c.baseStatus = c.status
-    end
-    c.status = FS25E_CapabilityRegistry.STATUS.APPLIED
+    local payload = storeResult(id, FS25E_CapabilityRegistry.RESULT.APPLIED, nil, detail)
     FS25E_Debug.info("CapabilityRegistry", string.format(
-        "APPLIED capabilityId=%s baseStatus=%s",
-        tostring(id), tostring(c.baseStatus)
+        "APPLIED capabilityId=%s baseStatus=%s detail=%s",
+        tostring(id), tostring(c and c.baseStatus), tostring(detail or "")
     ))
-    return true
+    emit("apply", id, payload)
+    return payload
+end
+
+function FS25E_CapabilityRegistry.markSkipped(id, reason)
+    local payload = storeResult(id, FS25E_CapabilityRegistry.RESULT.SKIPPED, reason, nil)
+    FS25E_Debug.info("CapabilityRegistry", string.format("SKIPPED %s: %s", tostring(id), tostring(reason)))
+    emit("skip", id, payload)
+    return payload
+end
+
+function FS25E_CapabilityRegistry.getLastResult(id)
+    return lastResults[id]
+end
+
+function FS25E_CapabilityRegistry.getAllLastResults()
+    return lastResults
+end
+
+function FS25E_CapabilityRegistry.onApply(fn)
+    if type(fn) == "function" then listeners.apply[#listeners.apply + 1] = fn end
+end
+
+function FS25E_CapabilityRegistry.onReject(fn)
+    if type(fn) == "function" then listeners.reject[#listeners.reject + 1] = fn end
+end
+
+function FS25E_CapabilityRegistry.onSkip(fn)
+    if type(fn) == "function" then listeners.skip[#listeners.skip + 1] = fn end
 end
 
 function FS25E_CapabilityRegistry.all()

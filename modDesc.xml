@@ -49,6 +49,7 @@ Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Kein saveHardwareScalab
         <sourceFile filename="scripts/Core/GraphicsGovernor.lua"/>
         <sourceFile filename="scripts/Core/CompatibilityManager.lua"/>
         <sourceFile filename="scripts/Core/ModSettings.lua"/>
+        <sourceFile filename="scripts/Core/SettingsAPI.lua"/>
         <sourceFile filename="scripts/Core/SettingsSchema.lua"/>
         <sourceFile filename="scripts/Core/ConsoleCommands.lua"/>
         <sourceFile filename="scripts/UI/FS25E_SettingsController.lua"/>
