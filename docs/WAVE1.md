@@ -71,3 +71,7 @@ Soft discovery stub returns an **empty** light list until Lights Spec supplies i
 ## Config
 
 See `config/capabilityProfiles.xml` (wave=`1`).
+
+## Casual Adaptive (v0.4.2.2)
+
+See `docs/ADAPTIVE.md`. Adaptive applies only Wave-1 preset targets + fine coeff nudge; never Expert caps.

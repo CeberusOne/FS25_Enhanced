@@ -143,12 +143,18 @@ function FS25E_SettingsController.applyPresetSelection(presetName, explicit)
             FS25E_SettingsAPI.selectPreset(presetName)
         end
         if explicit then
-            FS25E_SettingsAPI.setAutoApply(true)
+            -- Manual preset: turn Adaptive off (one-shot apply, no ongoing auto)
+            if FS25E_SettingsAPI.set ~= nil then
+                FS25E_SettingsAPI.set("adaptive", false)
+            end
+            FS25E_SettingsAPI.setAutoApply(false)
             local enabled = FS25E_SettingsAPI.getEnabled ~= nil and FS25E_SettingsAPI.getEnabled()
-            if enabled and FS25E_SettingsAPI.applySelectedPreset ~= nil then
+            if enabled and FS25E_GraphicsGovernor ~= nil and FS25E_GraphicsGovernor.applyPreset ~= nil then
+                FS25E_GraphicsGovernor.applyPreset(presetName, true)
+            elseif enabled and FS25E_SettingsAPI.applySelectedPreset ~= nil then
                 FS25E_SettingsAPI.applySelectedPreset()
             else
-                dbg("preset selected; applySelectedPreset skipped (governor disabled)")
+                dbg("preset selected; apply skipped (governor disabled)")
             end
         end
         return true
@@ -159,8 +165,12 @@ function FS25E_SettingsController.applyPresetSelection(presetName, explicit)
     end
 
     if explicit and FS25E_GraphicsGovernor ~= nil then
+        if FS25E_ModSettings ~= nil then
+            FS25E_ModSettings.set("adaptive", false)
+            FS25E_ModSettings.set("autoApply", false)
+        end
         if FS25E_GraphicsGovernor.setAutoApply ~= nil then
-            FS25E_GraphicsGovernor.setAutoApply(true)
+            FS25E_GraphicsGovernor.setAutoApply(false)
         end
         local enabled = FS25E_GraphicsGovernor.isEnabled ~= nil and FS25E_GraphicsGovernor.isEnabled()
         if enabled and FS25E_GraphicsGovernor.applyPreset ~= nil then

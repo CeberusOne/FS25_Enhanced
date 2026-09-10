@@ -70,6 +70,6 @@ Gates: `expertMode` + `liveTuningEnabled` (unchanged).
 - No fake telemetry numbers
 - No Giants Slider widgets
 
-## Hover-help (v0.4.2.2)
+## Hover-help (v0.4.2.3)
 
 Selected row shows Schema tooltip help under the list (see `docs/hover-help.md`). Cost/warn badges unchanged.

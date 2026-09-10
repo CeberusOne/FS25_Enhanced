@@ -1,4 +1,4 @@
-# Hover-help / tooltips (v0.4.2.2)
+# Hover-help / tooltips (v0.4.2.3)
 
 **Branch:** `feature/hover-help-tooltips`  
 **Goal:** Player-friendly explanations in Settings Dialog and Expert Live-Overlay — no API jargon.

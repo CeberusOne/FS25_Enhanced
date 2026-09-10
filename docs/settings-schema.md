@@ -69,7 +69,7 @@ Zusätzlich: **Client-only**-Hinweis (Info, kein Engine-Setter).
 | `enabled` | bool | `true` | — | `FS25E_SETTING_ENABLED` | `FS25E_SETTING_ENABLED_TOOLTIP` | false | MED | On/Off → `ui_on`/`ui_off` |
 | `preset` | enum | `balanced` | `off`, `balanced`, `quality`, `performance`, `cinematic` | `FS25E_SETTING_PRESET` | `FS25E_SETTING_PRESET_TOOLTIP` | false | SLOW | — (eigene Option-Keys) |
 | `targetFps` | enum | `60` | `30`, `40`, `50`, `60`, `unlimited` | `FS25E_SETTING_TARGET_FPS` | `FS25E_SETTING_TARGET_FPS_TOOLTIP` | false | MED | — |
-| `adaptive` | bool | `true` | — | `FS25E_SETTING_ADAPTIVE` | `FS25E_SETTING_ADAPTIVE_TOOLTIP` | false | MED | On/Off → `ui_on`/`ui_off` |
+| `adaptive` | bool | `false` | — | `FS25E_SETTING_ADAPTIVE` | `FS25E_SETTING_ADAPTIVE_TOOLTIP` | false | MED | On/Off → `ui_on`/`ui_off` |
 
 **Preset-Option i18n:**  
 `FS25E_PRESET_OFF`, `FS25E_PRESET_BALANCED`, `FS25E_PRESET_QUALITY`, `FS25E_PRESET_PERFORMANCE`, `FS25E_PRESET_CINEMATIC`

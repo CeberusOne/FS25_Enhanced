@@ -179,7 +179,13 @@ end
 --- Push toggles into live modules (no engine quality setters here).
 function FS25E_ModSettings.applyToRuntime()
     local enabled = FS25E_ModSettings.get("enabled") == true
+    local adaptive = FS25E_ModSettings.get("adaptive") == true
     local autoApply = FS25E_ModSettings.get("autoApply") == true
+    -- Simple UX: Adaptive is the user-facing auto toggle; keep autoApply in sync
+    if adaptive ~= autoApply then
+        autoApply = adaptive
+        FS25E_ModSettings.set("autoApply", autoApply)
+    end
     local softApply = FS25E_ModSettings.get("softApply") == true
     local expert = FS25E_ModSettings.get("expertMode") == true
     local preset = FS25E_ModSettings.get("preset") or "Balanced"
@@ -202,8 +208,8 @@ function FS25E_ModSettings.applyToRuntime()
         FS25E_ProfileManager.selectPreset(tostring(preset))
     end
     FS25E_Debug.info("ModSettings", string.format(
-        "runtime applied enabled=%s autoApply=%s soft=%s expert=%s preset=%s",
-        tostring(enabled), tostring(autoApply), tostring(softApply), tostring(expert), tostring(preset)
+        "runtime applied enabled=%s adaptive=%s autoApply=%s soft=%s expert=%s preset=%s",
+        tostring(enabled), tostring(adaptive), tostring(autoApply), tostring(softApply), tostring(expert), tostring(preset)
     ))
 end
 
