@@ -302,3 +302,83 @@ end
 function FS25E_SettingsController.t(key, fallback)
     return i18n(key, fallback)
 end
+
+--- Resolve player-facing tooltip for a schema field table or setting id.
+--- Prefer Schema.tooltip i18n key; fall back to l10n.."_TOOLTIP".
+function FS25E_SettingsController.getTooltipText(fieldOrId)
+    local field = fieldOrId
+    if type(fieldOrId) == "string" then
+        field = nil
+        if FS25E_SettingsSchema ~= nil and FS25E_SettingsSchema.getField ~= nil then
+            field = FS25E_SettingsSchema.getField(fieldOrId)
+        end
+        if field == nil then
+            local asKey = i18n(fieldOrId, "")
+            if asKey ~= nil and asKey ~= "" and asKey ~= fieldOrId then
+                return asKey
+            end
+            return ""
+        end
+    end
+    if type(field) ~= "table" then
+        return ""
+    end
+    local key = field.tooltip
+    if key ~= nil and key ~= "" then
+        local tip = i18n(key, nil)
+        if tip ~= nil and tip ~= "" and tip ~= key then
+            return tip
+        end
+    end
+    if field.l10n ~= nil and field.l10n ~= "" then
+        local alt = tostring(field.l10n) .. "_TOOLTIP"
+        local tip = i18n(alt, nil)
+        if tip ~= nil and tip ~= "" and tip ~= alt then
+            return tip
+        end
+    end
+    if field.warningL10n ~= nil and field.warningL10n ~= "" then
+        local tip = i18n(field.warningL10n, nil)
+        if tip ~= nil and tip ~= "" and tip ~= field.warningL10n then
+            return tip
+        end
+    end
+    return ""
+end
+
+--- Resolve help by settingId and/or capability id (Schema first, then CostCatalog notes).
+function FS25E_SettingsController.getHelpForSettingOrCap(settingId, capId)
+    local tip = ""
+    if settingId ~= nil and settingId ~= "" then
+        tip = FS25E_SettingsController.getTooltipText(settingId)
+    end
+    if (tip == nil or tip == "") and capId ~= nil and FS25E_SettingsSchema ~= nil and FS25E_SettingsSchema.getSchema ~= nil then
+        local schema = FS25E_SettingsSchema.getSchema()
+        for i = 1, #schema do
+            local f = schema[i]
+            if f.capId ~= nil and tostring(f.capId) == tostring(capId) then
+                tip = FS25E_SettingsController.getTooltipText(f)
+                break
+            end
+        end
+    end
+    if tip ~= nil and tip ~= "" then
+        return tip
+    end
+    if capId ~= nil and FS25E_CostCatalog ~= nil and FS25E_CostCatalog.get ~= nil then
+        local e = FS25E_CostCatalog.get(capId)
+        if e ~= nil then
+            if e.helpL10n ~= nil and e.helpL10n ~= "" then
+                local h = i18n(e.helpL10n, nil)
+                if h ~= nil and h ~= "" and h ~= e.helpL10n then
+                    return h
+                end
+            end
+            if e.notes ~= nil and e.notes ~= "" then
+                return tostring(e.notes)
+            end
+        end
+    end
+    return ""
+end
+
