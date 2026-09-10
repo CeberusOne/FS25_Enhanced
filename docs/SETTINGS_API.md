@@ -1,24 +1,27 @@
 # Settings API (GUI / Core facade)
 
 **Version:** 0.3.2.0  
-**Module:** `scripts/Core/SettingsAPI.lua`  
-**Defaults:** `governorEnabled`, `autoApply`, `softApply`, `expertMode`, `adaptive` = **false**
+**Modules:** `SettingsAPI.lua` + `ModSettings.lua`  
+**Defaults:** `enabled`, `autoApply`, `softApply`, `expertMode`, `adaptive` = **false**
 
-## GUI may call only
+## GUI contract
 
-| API | Purpose |
-|-----|---------|
-| `FS25E_SettingsAPI.get/set(key, value)` | Persistable keys via ModSettings |
-| `FS25E_SettingsAPI.load/save()` | `modSettings/FS25_Enhanced/settings.xml` |
-| `FS25E_SettingsAPI.selectPreset(name)` | Cache requested slots |
-| `FS25E_SettingsAPI.applySelectedPreset()` | Wave-1 apply if governor enabled |
-| `FS25E_SettingsAPI.setEnabled/getEnabled` | GraphicsGovernor |
-| `FS25E_SettingsAPI.setAutoApply/getAutoApply` | GraphicsGovernor |
-| `FS25E_SettingsAPI.setExpertMode/getExpertMode` | CapabilityRegistry gate |
-| `FS25E_SettingsAPI.getActivePreset/listPresets` | Presets |
+GUI calls only:
+- `FS25E_ModSettings.get/set` (or `FS25E_SettingsAPI.get/set`)
+- `FS25E_ProfileManager.selectPreset` (+ `SettingsAPI.applySelectedPreset` when applying)
+- `FS25E_GraphicsGovernor.setEnabled` / `setAutoApply` (or SettingsAPI wrappers)
 
-**No engine setters from GUI.** Experimental caps only when `expertMode=true`.
+**No engine setters from GUI.**
 
-## Keys
+## Key aliases
 
-`governorEnabled`, `autoApply`, `softApply`, `expertMode`, `adaptive`, `activePreset`, `targetFps`
+| GUI key | Alias |
+|---------|-------|
+| `enabled` | `governorEnabled` |
+| `preset` | `activePreset` |
+
+Also: `autoApply`, `softApply`, `expertMode`, `adaptive`, `targetFps`, plus GUI visual option keys from Gen-1 schema.
+
+## Docs
+
+See `CAPABILITY_HOOKS.md` for APPLIED/REJECTED/SKIPPED listeners.

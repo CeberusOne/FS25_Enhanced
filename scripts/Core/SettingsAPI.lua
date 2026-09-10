@@ -1,19 +1,28 @@
 -- FS25_Enhanced / Core/SettingsAPI.lua
--- Facade for GUI / Experimental / Diagnostics. No direct engine setters here.
+-- Facade for GUI / Experimental / Diagnostics. No direct engine setters.
 
 FS25E_SettingsAPI = {}
 
-function FS25E_SettingsAPI.get(key)
-    if FS25E_ModSettings == nil then return nil end
-    return FS25E_ModSettings.get(key)
+function FS25E_SettingsAPI.get(id)
+    if FS25E_ModSettings ~= nil then
+        return FS25E_ModSettings.get(id)
+    end
+    return nil
 end
 
-function FS25E_SettingsAPI.set(key, value)
-    if FS25E_ModSettings == nil then return false end
-    local ok = FS25E_ModSettings.set(key, value)
-    if not ok then return false end
-    -- live-apply toggles
-    if key == "governorEnabled" and FS25E_GraphicsGovernor ~= nil then
+function FS25E_SettingsAPI.set(id, value)
+    if FS25E_ModSettings == nil then
+        return false
+    end
+    local ok = FS25E_ModSettings.set(id, value)
+    if not ok then
+        return false
+    end
+    local key = id
+    if key == "governorEnabled" then key = "enabled" end
+    if key == "activePreset" then key = "preset" end
+
+    if key == "enabled" and FS25E_GraphicsGovernor ~= nil then
         FS25E_GraphicsGovernor.setEnabled(value == true)
     elseif key == "autoApply" and FS25E_GraphicsGovernor ~= nil then
         FS25E_GraphicsGovernor.setAutoApply(value == true)
@@ -21,10 +30,20 @@ function FS25E_SettingsAPI.set(key, value)
         FS25E_CapabilityRegistry.setExpertMode(value == true)
     elseif key == "softApply" and FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.setSoftApplyEnabled ~= nil then
         FS25E_LightDiscovery.setSoftApplyEnabled(value == true)
-    elseif key == "activePreset" and FS25E_ProfileManager ~= nil then
+    elseif key == "preset" and FS25E_ProfileManager ~= nil then
         FS25E_ProfileManager.selectPreset(tostring(value))
     end
     return true
+end
+
+function FS25E_SettingsAPI.getAll()
+    if FS25E_ModSettings ~= nil then return FS25E_ModSettings.getAll() end
+    return {}
+end
+
+function FS25E_SettingsAPI.getDefaults()
+    if FS25E_ModSettings ~= nil then return FS25E_ModSettings.getDefaults() end
+    return {}
 end
 
 function FS25E_SettingsAPI.load()
@@ -39,7 +58,9 @@ end
 
 function FS25E_SettingsAPI.selectPreset(name)
     if FS25E_ProfileManager == nil then return false end
-    return FS25E_ProfileManager.selectPreset(name)
+    local ok = FS25E_ProfileManager.selectPreset(name)
+    if FS25E_ModSettings ~= nil then FS25E_ModSettings.set("preset", name) end
+    return ok
 end
 
 function FS25E_SettingsAPI.applySelectedPreset()
@@ -50,46 +71,31 @@ function FS25E_SettingsAPI.applySelectedPreset()
 end
 
 function FS25E_SettingsAPI.setEnabled(v)
-    if FS25E_GraphicsGovernor == nil then return end
-    FS25E_GraphicsGovernor.setEnabled(v == true)
-    if FS25E_ModSettings ~= nil then FS25E_ModSettings.set("governorEnabled", v == true) end
+    return FS25E_SettingsAPI.set("enabled", v == true)
 end
 
 function FS25E_SettingsAPI.getEnabled()
-    if FS25E_GraphicsGovernor == nil then return false end
-    return FS25E_GraphicsGovernor.isEnabled() == true
+    return FS25E_SettingsAPI.get("enabled") == true
 end
 
 function FS25E_SettingsAPI.setAutoApply(v)
-    if FS25E_GraphicsGovernor == nil then return end
-    FS25E_GraphicsGovernor.setAutoApply(v == true)
-    if FS25E_ModSettings ~= nil then FS25E_ModSettings.set("autoApply", v == true) end
+    return FS25E_SettingsAPI.set("autoApply", v == true)
 end
 
 function FS25E_SettingsAPI.getAutoApply()
-    if FS25E_GraphicsGovernor == nil then return false end
-    return FS25E_GraphicsGovernor.isAutoApply() == true
+    return FS25E_SettingsAPI.get("autoApply") == true
 end
 
 function FS25E_SettingsAPI.setExpertMode(v)
-    if FS25E_CapabilityRegistry ~= nil then
-        FS25E_CapabilityRegistry.setExpertMode(v == true)
-    end
-    if FS25E_ModSettings ~= nil then FS25E_ModSettings.set("expertMode", v == true) end
+    return FS25E_SettingsAPI.set("expertMode", v == true)
 end
 
 function FS25E_SettingsAPI.getExpertMode()
-    if FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.isExpertMode ~= nil then
-        return FS25E_CapabilityRegistry.isExpertMode() == true
-    end
-    return false
+    return FS25E_SettingsAPI.get("expertMode") == true
 end
 
 function FS25E_SettingsAPI.getActivePreset()
-    if FS25E_ProfileManager ~= nil and FS25E_ProfileManager.getActiveName ~= nil then
-        return FS25E_ProfileManager.getActiveName()
-    end
-    return FS25E_SettingsAPI.get("activePreset")
+    return FS25E_SettingsAPI.get("preset")
 end
 
 function FS25E_SettingsAPI.listPresets()
