@@ -100,7 +100,7 @@
         <!-- Expert Live Overlay -->
         <text name="FS25E_LIVE_OVERLAY_TITLE" text="FS25E Expert Live Overlay"/>
         <text name="FS25E_LIVE_OVERLAY_OPEN" text="Open Live Overlay"/>
-        <text name="FS25E_LIVE_OVERLAY_HINT" text="Wheel/click bar | +/- | Esc close | Ctrl+Shift+E"/>
+        <text name="FS25E_LIVE_OVERLAY_HINT" text="Wheel/click bar | +/- | R restore | Esc | Ctrl+Shift+E"/>
         <text name="FS25E_LIVE_OVERLAY_GATE_REQUIRED" text="Expert Mode + Live Tuning required"/>
         <text name="FS25E_LIVE_OVERLAY_UNAVAILABLE" text="Live Overlay unavailable"/>
         <text name="FS25E_LIVE_OVERLAY_SESSION" text="Values: session via SettingsCache (persist optional)"/>
@@ -118,6 +118,17 @@
         <text name="FS25E_LIVE_OVERLAY_FAST_SHADOW" text="Fast Shadow Update"/>
         <text name="FS25E_LIVE_OVERLAY_RAIN_SHALLOW" text="Rain Shallow Water"/>
         <text name="input_FS25E_TOGGLE_LIVE_OVERLAY" text="Toggle FS25 Enhanced Live Overlay"/>
+
+        <!-- Pro Live HUD -->
+        <text name="FS25E_HUD_TITLE_MINI" text="FS25E HUD"/>
+        <text name="FS25E_HUD_ENGINE" text="Engine"/>
+        <text name="FS25E_HUD_SYSTEM" text="System"/>
+        <text name="FS25E_HUD_DISCONNECTED" text="DISCONNECTED"/>
+        <text name="FS25E_HUD_MS" text="ms"/>
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_SHADOWS" text="Allow Foliage Shadows"/>
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_QUALITY" text="Shadow Quality"/>
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_DIST_Q" text="Shadow Distance Quality"/>
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_FILTER" text="Shadow Filter Quality"/>
         <text name="FS25E_SETTING_SOFT_SHADOWS" text="Soft Shadows"/>
         <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="Shadow filter / soft-shadow quality tier (setShadowFilterQuality)."/>
         <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box"/>

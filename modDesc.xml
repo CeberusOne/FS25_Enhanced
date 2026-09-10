@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.4.2.0</version>
+    <version>0.4.2.1</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -58,6 +58,7 @@ Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Kein saveHardwareScalab
         <sourceFile filename="scripts/UI/FS25E_SettingsDialog.lua"/>
         <sourceFile filename="scripts/UI/FS25E_GuiLoader.lua"/>
         <sourceFile filename="scripts/UI/FS25E_Input.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_HudOverlay.lua"/>
         <sourceFile filename="scripts/UI/FS25E_LiveOverlay.lua"/>
         <sourceFile filename="scripts/FS25_Enhanced.lua"/>
     </extraSourceFiles>
