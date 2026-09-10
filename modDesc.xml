@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.4.0.1</version>
+    <version>0.4.1.0</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -56,16 +56,21 @@ Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Kein saveHardwareScalab
         <sourceFile filename="scripts/UI/FS25E_SettingsDialog.lua"/>
         <sourceFile filename="scripts/UI/FS25E_GuiLoader.lua"/>
         <sourceFile filename="scripts/UI/FS25E_Input.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_LiveOverlay.lua"/>
         <sourceFile filename="scripts/FS25_Enhanced.lua"/>
     </extraSourceFiles>
 
     <actions>
         <action name="FS25E_OPEN_SETTINGS" category="SYSTEM" ignoreComboMask="false" />
+        <action name="FS25E_TOGGLE_LIVE_OVERLAY" category="SYSTEM" ignoreComboMask="false" />
         <action name="FS25E_LIVE_HINT" category="SYSTEM" ignoreComboMask="false" />
     </actions>
     <inputBinding>
         <actionBinding action="FS25E_OPEN_SETTINGS">
             <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_e" />
+        </actionBinding>
+        <actionBinding action="FS25E_TOGGLE_LIVE_OVERLAY">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lshift KEY_e" />
         </actionBinding>
     </inputBinding>
 </modDesc>

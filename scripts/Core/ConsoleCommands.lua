@@ -564,6 +564,29 @@ function FS25E_ConsoleCommands.setExpertFlag(flag)
     say("expertMode=" .. tostring(on) .. " (EXPERIMENTAL/GATED only when true; default false)")
 end
 
+
+function FS25E_ConsoleCommands.liveOverlay(flag)
+    if FS25E_LiveOverlay == nil then
+        say("LiveOverlay module missing")
+        return
+    end
+    if flag == nil or flag == "" then
+        FS25E_LiveOverlay.toggle(nil)
+        say("liveOverlay toggled visible=" .. tostring(FS25E_LiveOverlay.isVisible and FS25E_LiveOverlay.isVisible()))
+        return
+    end
+    local on = tostring(flag) == "1" or tostring(flag):lower() == "on" or tostring(flag):lower() == "true"
+    if on then
+        if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.set ~= nil then
+            FS25E_SettingsAPI.set("liveTuningEnabled", true)
+        end
+        FS25E_LiveOverlay.toggle(true)
+    else
+        FS25E_LiveOverlay.toggle(false)
+    end
+    say("liveOverlay visible=" .. tostring(FS25E_LiveOverlay.isVisible and FS25E_LiveOverlay.isVisible()))
+end
+
 function FS25E_ConsoleCommands.register()
     if registered then
         return true
@@ -597,6 +620,7 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eApplyRainShallow", "FS25_Enhanced: manual applyRainShallowWater (requires expertMode)", "applyRainShallow") then n = n + 1 end
     if tryAdd("fs25eApplyGated", "FS25_Enhanced: manual gated quality apply (ssr|atmosphere|drs)", "applyGated") then n = n + 1 end
     if tryAdd("fs25eApplyIes", "FS25_Enhanced: manual IES profile apply (requires expertMode)", "applyIes") then n = n + 1 end
+    if tryAdd("fs25eLiveOverlay", "FS25_Enhanced: toggle Expert Live-Overlay (1/0; requires expertMode+liveTuning)", "liveOverlay") then n = n + 1 end
     registered = n > 0
     FS25E_Debug.info("Console", string.format("registered %d console commands (autoApply never forced on)", n))
     return registered
