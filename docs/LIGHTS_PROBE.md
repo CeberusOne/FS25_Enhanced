@@ -1,7 +1,7 @@
 # Lights Spec Probe — RealLight discovery
 
 **Branch:** `feature/lights-spec-probe`  
-**Version:** 0.2.1.0  
+**Version:** 0.3.1.1  
 **Source of truth:** [wave2-candidates.md](wave2-candidates.md) §1 · Optimalplan EnhancedLightsProbe  
 **GDN:** Lights class **691** · PlaceableLights class **746** (Script v1.20.0.0)
 
@@ -72,9 +72,15 @@ Placeable onLoad / onFinalizePlacement
 
 | Command | Effect |
 |---------|--------|
-| `fs25eLightsDump` | Print discovered counts + up to 64 nodes; **no apply** |
+| `fs25eLightsDump` | Print discovered counts + up to 64 nodes (**active first**); lines include `lightId=<node>`; **no apply** |
+| `fs25eApplyLightPriority <lightId> <priority>` | Manual `ShadowManager.setLightShadowPriority` (id from dump); does not enable Soft-Apply/autoApply |
+| `fs25eSoftApply` `0` or `1` | **DANGER:** toggle Soft-Apply; **default 0**; never enables `autoApply` |
 
-Registered via `addConsoleCommand` when available.
+Registered via `addConsoleCommand` when available. Soft-Apply / autoApply stay **OFF** unless explicitly enabled.
+
+## Smoke
+
+Ingame Wave-1 smoke: after map load with lit vehicles/placeables, run `fs25eLightsDump`, take **active** `lightId=` / `node=` values for per-light caps. If `total=0`, SKIP per-light (log, not FAIL). Full steps: [`wave1-smoke-checklist.md`](wave1-smoke-checklist.md) §1.4 / §2.2.
 
 ## Files
 

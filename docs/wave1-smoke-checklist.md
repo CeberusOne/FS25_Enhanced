@@ -36,6 +36,36 @@ Jeder Schritt muss im Log mit Prefix `[FS25_Enhanced]` erscheinen:
 
 ---
 
+## 1.4 Lights-Discovery Voraussetzung
+
+Nach Map-Load mit Fahrzeugen/Placeables, die Lights haben:
+
+1. Console: `fs25eLightsDump`
+2. Erwartung im Log (`[FS25_Enhanced]`): `total` / `active` / `vehicle` / `placeable` Counts (+ `lightsProfile`, `softApply=false`)
+3. Für §2.2 / §3: **`lightId` = `node=` / `lightId=` der Zeilen mit `active=true`** (aktive RealLight-Nodes aus Spec-Discovery)
+4. Wenn **`total=0`**: Per-Light Caps (§2.2 / §3) **SKIP** mit Log-Notiz — **nicht FAIL**. Kein globaler World-Node-Scan (WAVE1 / LIGHTS_PROBE).
+
+Details: [`docs/LIGHTS_PROBE.md`](LIGHTS_PROBE.md). Soft-Apply / `autoApply` bleiben **OFF** (Default).
+
+### Console-Befehle (Referenz)
+
+| Command | Zweck |
+|---------|--------|
+| `fs25eDumpCaps` | Capability-Registry dump |
+| `fs25eDumpScene` | Scene / Governor / Perf Snapshot |
+| `fs25eApplyLodCoeff <float>` | Manuell `setViewDistanceCoeff` (LodGovernor) |
+| `fs25eApplyMaxShadowLights <int>` | Manuell `setMaxNumShadowLights` |
+| `fs25eRestore` | Session-Restore (`RestoreManager.restoreAll`) |
+| `fs25eSelectPreset <name>` | Preset nur in SettingsCache (kein Engine-Apply) |
+| `fs25eGovernor` `0`/`1` | Governor observe enable; **setzt nie** `autoApply=true` |
+| `fs25eLightsDump` | Discoverte RealLight-Nodes (read-only; `lightId` für §2.2) |
+| `fs25eApplyLightPriority <lightId> <priority>` | Manuell `setLightShadowPriority` (Id aus Dump) |
+| `fs25eSoftApply` `0`/`1` | **DANGER:** Soft-Apply an/aus — Default **0**; aktiviert **nicht** `autoApply` |
+
+Keiner dieser Befehle aktiviert `autoApply`. Soft-Apply nur explizit mit `fs25eSoftApply 1`.
+
+---
+
 ## 2. Pro Cap — Getter vor Apply, Erwartung nach Apply, Restore, Fail
 
 **Gemeinsame Regel (Research Freeze):**  
@@ -92,7 +122,8 @@ Jeder Schritt muss im Log mit Prefix `[FS25_Enhanced]` erscheinen:
 
 ### 2.2 Per-Light (Engine Lighting) — gültige `lightId` erforderlich
 
-Ohne gültige `lightId` (Lights-Spec / Dev-Pick): Cap **SKIP** mit Log — kein Blind-Scan der World-Nodes (WAVE1).
+**`lightId` = `node` / `lightId=` aus `fs25eLightsDump`** (bevorzugt `active=true`; siehe §1.4).  
+Ohne gültige `lightId` (Dump `total=0` / kein Dev-Pick): Cap **SKIP** mit Log — kein Blind-Scan der World-Nodes (WAVE1).
 
 #### `light-shadow-priority` — `getLightShadowPriority` / `setLightShadowPriority`
 
@@ -204,4 +235,5 @@ Metriken sind **Hilfsmittel** für Fail bei spürbarer Regression; Pass/Fail der
 
 - Matrix: `docs/capability-matrix.md`  
 - Wave-1 Wiring: `docs/WAVE1.md`  
-- Wave-2 (explizit außerhalb): `docs/wave2-candidates.md`
+- Wave-2 (explizit außerhalb): `docs/wave2-candidates.md`  
+- Lights discovery / Dump: [`docs/LIGHTS_PROBE.md`](LIGHTS_PROBE.md)
