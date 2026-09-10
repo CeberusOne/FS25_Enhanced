@@ -24,8 +24,16 @@ function FS25E_SettingsAPI.set(id, value)
 
     if key == "enabled" and FS25E_GraphicsGovernor ~= nil then
         FS25E_GraphicsGovernor.setEnabled(value == true)
+    elseif key == "adaptive" then
+        -- Casual Simple: Adaptive ↔ autoApply (Wave-1 governor only)
+        FS25E_ModSettings.set("autoApply", value == true)
+        if FS25E_GraphicsGovernor ~= nil and FS25E_GraphicsGovernor.setAutoApply ~= nil then
+            FS25E_GraphicsGovernor.setAutoApply(value == true)
+        end
     elseif key == "autoApply" and FS25E_GraphicsGovernor ~= nil then
         FS25E_GraphicsGovernor.setAutoApply(value == true)
+        -- Keep adaptive mirror in sync when autoApply is set directly
+        FS25E_ModSettings.set("adaptive", value == true)
     elseif key == "expertMode" and FS25E_CapabilityRegistry ~= nil then
         FS25E_CapabilityRegistry.setExpertMode(value == true)
     elseif key == "softApply" and FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.setSoftApplyEnabled ~= nil then

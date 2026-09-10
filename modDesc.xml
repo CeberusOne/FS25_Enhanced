@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.4.2.1</version>
+    <version>0.4.2.2</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -10,11 +10,11 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-v0.4.2.1: Settings GUI tabs + Wave-1 confirmed managers; Expert live overlay custom bars; Pro HUD FPS/frametime + sidecar DISCONNECTED; Diagnostics (CapStatus/ring log); experimental caps behind expertMode; adaptive/autoApply default off.
+v0.4.2.2: Settings GUI tabs + Wave-1 confirmed managers; Expert live overlay custom bars; Pro HUD FPS/frametime + sidecar DISCONNECTED; Diagnostics (CapStatus/ring log); experimental caps behind expertMode; adaptive/autoApply default off.
 Soft-Apply off by default. No saveHardwareScalability / setTerrainQuality without opt-in. No engine setters from GUI. Multiplayer: client-local only (not synced).]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
 Nutzt ausschließlich dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-v0.4.2.1: Settings-GUI-Tabs + Wave-1 bestätigte Manager; Expert Live-Overlay mit Custom-Bars; Pro-HUD FPS/Frametime + Sidecar DISCONNECTED; Diagnostics (CapStatus/Ring-Log); experimentelle Caps hinter expertMode; adaptive/autoApply standardmäßig aus.
+v0.4.2.2: Settings-GUI-Tabs + Wave-1 bestätigte Manager; Expert Live-Overlay mit Custom-Bars; Pro-HUD FPS/Frametime + Sidecar DISCONNECTED; Diagnostics (CapStatus/Ring-Log); experimentelle Caps hinter expertMode; adaptive/autoApply standardmäßig aus.
 Soft-Apply standardmäßig aus. Kein saveHardwareScalability / setTerrainQuality ohne Opt-in. Keine Engine-Setter aus der GUI. Multiplayer: nur client-lokal (nicht synchronisiert).]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
