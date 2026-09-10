@@ -1,25 +1,26 @@
 # FS25_Enhanced
 
 **Autor:** CeberusOne  
-**Version:** 0.2.0.0 (Wave 1 CONFIRMED setters)
+**Version:** 0.3.0.0 (Phase 2 Governor + Scene on Wave 1)
 
 Adaptives Graphics-/Optimierungs-Mod für Farming Simulator 25 (Giants Engine 10 / Lua). Der Mod steuert Grafik- und Performance-Einstellungen über dokumentierte Engine-Setter (kein Binary-Hooking).
 
 ## Status
 
-**v0.2 Wave 1 CONFIRMED** — builds on Phase 1 skeleton:
+**v0.3 Phase 2** — Wave 1 CONFIRMED managers + Governor/Scene stubs:
 
-- CapabilityRegistry loads Wave-1 profiles from XML (+ Lua fallback)
-- CapabilityApplier: session-only apply/restore for CONFIRMED caps (`pcall`, reject on fail)
-- ShadowManager + LodGovernor manager APIs (auto-apply **OFF**)
-- RestoreManager invokes manager/applier restore on deleteMap (no `saveHardwareScalability`)
-- GraphicsGovernor: `wave1 registered, auto-apply off`
+- SceneAnalyzer (read-only mission/environment snapshot; Medium/Slow cadence)
+- GraphicsGovernor hysteresis bands + desired preset/tier (default **disabled**, **autoApply off**)
+- ProfileManager presets Performance/Balanced/Quality/Cinematic → SettingsCache requested only
+- Optional console commands for manual Manager API tests (never force autoApply)
+- CapabilityApplier / ShadowManager / LodGovernor from Wave 1 (session-only; auto-apply **OFF**)
 - EN+DE l10n keys (`FS25E_*`)
 
-**Excluded:** EXPERIMENTAL (`setShadowFocusBox`, `setFastShadowUpdate`, `setRainShallowWaterSimulation`), GATED SSR/Atmosphere/DRS, `setTerrainQuality` (RESTART), `saveHardwareScalability` / `applyPerformanceClass`. See [docs/WAVE1.md](docs/WAVE1.md).
+**Not automatic:** live adaptive apply of engine setters. Governor computes desired state only unless `autoApply` is explicitly enabled later. No EXPERIMENTAL/GATED/RESTART writers; no `saveHardwareScalability` without opt-in.
 
 ## Dokumentation
 
+- [Phase 2 Governor + Scene](docs/PHASE2.md)
 - [Wave 1 CONFIRMED wiring](docs/WAVE1.md)
 - [Phase 1 notes](docs/PHASE1.md)
 - [Capability matrix](docs/capability-matrix.md)
@@ -32,4 +33,4 @@ Adaptives Graphics-/Optimierungs-Mod für Farming Simulator 25 (Giants Engine 10
 
 ## Install (dev)
 
-Copy or symlink this folder into your FS25 `mods/` directory as `FS25_Enhanced`. Enable in the mod selection screen. Check `log.txt` for `[FS25_Enhanced]` lines on mission start/end.
+Copy or symlink this folder into your FS25 `mods/` directory as `FS25_Enhanced`. Enable in the mod selection screen. Check `log.txt` for `[FS25_Enhanced]` lines on mission start/end (SceneAnalyzer / GraphicsGovernor slow ticks).
