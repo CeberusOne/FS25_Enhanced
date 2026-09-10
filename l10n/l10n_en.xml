@@ -142,5 +142,18 @@
         <text name="FS25E_STATUS_APPLIED" text="APPLIED — works"/>
         <text name="FS25E_STATUS_REJECTED" text="REJECTED — does not work"/>
         <text name="FS25E_STATUS_SKIPPED" text="SKIPPED — idle/ready"/>
+
+        <!-- Expert schema keys (v0.4.2.1) -->
+        <text name="FS25E_SETTING_EXPERT_SOFT_APPLY" text="Soft Apply (Expert): apply experimental changes live when enabled"/>
+        <text name="FS25E_SETTING_PERSIST_HW" text="Persist hardware: write hardware scalability (dangerous)"/>
+        <text name="FS25E_WARN_PERSIST_HW" text="Warn persist: may overwrite vanilla hardware settings"/>
+        <text name="FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX" text="Expert Shadow Focus Box"/>
+        <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE" text="Expert Fast Shadow Update"/>
+        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW" text="Expert Rain Shallow Water"/>
+        <text name="FS25E_SETTING_EXPERT_SSR" text="Expert SSR"/>
+        <text name="FS25E_SETTING_EXPERT_ATMOSPHERE" text="Expert Atmosphere"/>
+        <text name="FS25E_SETTING_EXPERT_DRS" text="Expert DRS"/>
+        <text name="FS25E_SETTING_EXPERT_RAIN_SUITE" text="Expert Rain Suite"/>
+
     </texts>
 </l10n>
