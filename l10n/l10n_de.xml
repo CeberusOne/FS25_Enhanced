@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<l10n>
+    <texts>
+        <!-- Meta / chrome -->
+        <text name="FS25E_MOD_NAME" text="FS25 Enhanced"/>
+        <text name="FS25E_SETTINGS_TITLE" text="FS25 Enhanced Einstellungen"/>
+        <text name="FS25E_SETTINGS_SIMPLE" text="Einfach"/>
+        <text name="FS25E_SETTINGS_ADVANCED" text="Erweitert"/>
+
+        <!-- Simple Auto Panel -->
+        <text name="FS25E_SETTING_ENABLED" text="Mod aktiv"/>
+        <text name="FS25E_SETTING_ENABLED_TOOLTIP" text="Schaltet FS25 Enhanced ein oder aus. Beim Ausschalten werden zwischengespeicherte Vanilla-Grafikeinstellungen wiederhergestellt."/>
+        <text name="FS25E_SETTING_PRESET" text="Modus / Preset"/>
+        <text name="FS25E_SETTING_PRESET_TOOLTIP" text="Grafik-Preset. Aus deaktiviert Governor-Presets; andere Modi balancieren Qualität und Frame-Zeit."/>
+        <text name="FS25E_SETTING_TARGET_FPS" text="Ziel-FPS"/>
+        <text name="FS25E_SETTING_TARGET_FPS_TOOLTIP" text="Ziel-Framerate, die der adaptive Governor schützen soll. Nur Stufen, kein freier Wert."/>
+        <text name="FS25E_SETTING_ADAPTIVE" text="Adaptiv"/>
+        <text name="FS25E_SETTING_ADAPTIVE_TOOLTIP" text="Passt bestätigte Grafik-Caps automatisch an, um die Ziel-FPS zu halten."/>
+
+        <!-- Preset options -->
+        <text name="FS25E_PRESET_OFF" text="Aus"/>
+        <text name="FS25E_PRESET_BALANCED" text="Ausgewogen"/>
+        <text name="FS25E_PRESET_QUALITY" text="Qualität"/>
+        <text name="FS25E_PRESET_PERFORMANCE" text="Leistung"/>
+        <text name="FS25E_PRESET_CINEMATIC" text="Kinematisch"/>
+
+        <!-- Target FPS options -->
+        <text name="FS25E_FPS_30" text="30"/>
+        <text name="FS25E_FPS_40" text="40"/>
+        <text name="FS25E_FPS_50" text="50"/>
+        <text name="FS25E_FPS_60" text="60"/>
+        <text name="FS25E_FPS_UNLIMITED" text="Unbegrenzt"/>
+
+        <!-- Shared quality tiers -->
+        <text name="FS25E_OPT_OFF" text="Aus"/>
+        <text name="FS25E_OPT_LOW" text="Niedrig"/>
+        <text name="FS25E_OPT_MED" text="Mittel"/>
+        <text name="FS25E_OPT_HIGH" text="Hoch"/>
+        <text name="FS25E_OPT_ULTRA" text="Ultra"/>
+
+        <!-- Advanced sections -->
+        <text name="FS25E_SECTION_SHADOWS" text="Schatten"/>
+        <text name="FS25E_SECTION_LIGHTING" text="Beleuchtung"/>
+        <text name="FS25E_SECTION_LOD" text="LOD / Vegetation"/>
+
+        <!-- Advanced: Shadows -->
+        <text name="FS25E_SETTING_SHADOW_QUALITY" text="Schattenqualität"/>
+        <text name="FS25E_SETTING_SHADOW_QUALITY_TOOLTIP" text="Globale Schattenqualität (CONFIRMED SettingsModel). Höhere Stufen kosten mehr GPU-Zeit."/>
+        <text name="FS25E_SETTING_SHADOW_DISTANCE" text="Schattenreichweite"/>
+        <text name="FS25E_SETTING_SHADOW_DISTANCE_TOOLTIP" text="Wie weit Schatten gezeichnet werden. Stufen bevorzugen statt extreme Reichweite."/>
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS" text="Max. Schattenlichter"/>
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS_TOOLTIP" text="Maximale Lichter mit Schattenwurf. Entspricht setMaxNumShadowLights-Stufen."/>
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS" text="Vegetationsschatten"/>
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS_TOOLTIP" text="Erlaubt Schattenwurf durch Vegetation (setAllowFoliageShadows). Kann in dichten Feldern teuer sein."/>
+
+        <!-- Advanced: Lighting -->
+        <text name="FS25E_SETTING_MAX_LIGHTS" text="Max. Lichter"/>
+        <text name="FS25E_SETTING_MAX_LIGHTS_TOOLTIP" text="Beleuchtungs-Budgetstufe für aktive Lichter. Platzhalter für bestätigte Capability."/>
+        <text name="FS25E_SETTING_LIGHT_SCATTERING" text="Lichtstreuung"/>
+        <text name="FS25E_SETTING_LIGHT_SCATTERING_TOOLTIP" text="Stufen für Lichtstreuung (setLightUseLightScattering / Intensität)."/>
+        <text name="FS25E_SETTING_SHADOW_MERGE" text="Schatten zusammenführen"/>
+        <text name="FS25E_SETTING_SHADOW_MERGE_TOOLTIP" text="Führt ähnliche Fahrzeug-Lichtschatten zusammen, wenn sicher (mergeLightShadows). Beim Deaktivieren wieder splitten."/>
+
+        <!-- Advanced: LOD / Foliage -->
+        <text name="FS25E_SETTING_VIEW_DISTANCE" text="Sichtweite"/>
+        <text name="FS25E_SETTING_VIEW_DISTANCE_TOOLTIP" text="Objekt-Sichtweiten-Koeffizient als Stufe (setViewDistanceCoeff). Blindes Ultra kann die CPU belasten."/>
+        <text name="FS25E_SETTING_LOD_DISTANCE" text="LOD-Distanz"/>
+        <text name="FS25E_SETTING_LOD_DISTANCE_TOOLTIP" text="LOD-Distanz-Koeffizient als Stufe (setLODDistanceCoeff)."/>
+        <text name="FS25E_SETTING_FOLIAGE_VIEW" text="Vegetation Sichtweite"/>
+        <text name="FS25E_SETTING_FOLIAGE_VIEW_TOOLTIP" text="Vegetations-Sichtweiten-Koeffizient als Stufe (setFoliageViewDistanceCoeff)."/>
+        <text name="FS25E_SETTING_FOLIAGE_LOD" text="Vegetation LOD-Distanz"/>
+        <text name="FS25E_SETTING_FOLIAGE_LOD_TOOLTIP" text="Vegetations-LOD-Koeffizient als Stufe (setFoliageLODDistanceCoeff)."/>
+        <text name="FS25E_SETTING_TERRAIN_LOD" text="Terrain LOD-Distanz"/>
+        <text name="FS25E_SETTING_TERRAIN_LOD_TOOLTIP" text="Terrain-LOD-Koeffizient als Stufe (setTerrainLODDistanceCoeff)."/>
+
+        <!-- Live Tuning -->
+        <text name="FS25E_LIVE_TUNING_TITLE" text="Live-Tuning"/>
+        <text name="FS25E_HOTKEY_LIVE_TUNING" text="Live-Tuning umschalten"/>
+        <text name="FS25E_SETTING_LIVE_TUNING" text="Live-Tuning-Panel"/>
+        <text name="FS25E_SETTING_LIVE_TUNING_TOOLTIP" text="Öffnet das Live-Tuning-Overlay für LIVE-Apply-Caps. Volle Optionen erst nach Core-Interfaces."/>
+
+        <!-- Expert / client -->
+        <text name="FS25E_EXPERT_MODE" text="Expertenmodus"/>
+        <text name="FS25E_EXPERT_MODE_TOOLTIP" text="Zeigt experimentelle Capabilities. Standard aus — Experimental bleibt ausgeblendet."/>
+        <text name="FS25E_CLIENT_ONLY_HINT" text="Grafikänderungen gelten nur clientseitig"/>
+        <text name="FS25E_CLIENT_ONLY_HINT_TOOLTIP" text="Der Graphics-Governor läuft lokal pro Client. Qualitätswerte werden nicht übers Netz synchronisiert."/>
+
+        <!-- Warnings -->
+        <text name="FS25E_WARN_EXTREME_COST" text="Diese Einstellung kann die Leistung stark belasten."/>
+        <text name="FS25E_KEY_CONFLICT" text="Tastenkonflikt erkannt. Bitte unter Steuerung neu belegen oder die konkurrierende Aktion deaktivieren."/>
+    </texts>
+</l10n>

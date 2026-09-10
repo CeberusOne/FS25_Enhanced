@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<l10n>
+    <texts>
+        <!-- Meta / chrome -->
+        <text name="FS25E_MOD_NAME" text="FS25 Enhanced"/>
+        <text name="FS25E_SETTINGS_TITLE" text="FS25 Enhanced Settings"/>
+        <text name="FS25E_SETTINGS_SIMPLE" text="Simple"/>
+        <text name="FS25E_SETTINGS_ADVANCED" text="Advanced"/>
+
+        <!-- Simple Auto Panel -->
+        <text name="FS25E_SETTING_ENABLED" text="Enable Mod"/>
+        <text name="FS25E_SETTING_ENABLED_TOOLTIP" text="Turns FS25 Enhanced on or off. When off, cached vanilla graphics settings are restored."/>
+        <text name="FS25E_SETTING_PRESET" text="Mode / Preset"/>
+        <text name="FS25E_SETTING_PRESET_TOOLTIP" text="Graphics preset. Off disables governor presets; other modes balance quality vs. frame time."/>
+        <text name="FS25E_SETTING_TARGET_FPS" text="Target FPS"/>
+        <text name="FS25E_SETTING_TARGET_FPS_TOOLTIP" text="Target frame rate the adaptive governor tries to protect. Choose a step, not a free value."/>
+        <text name="FS25E_SETTING_ADAPTIVE" text="Adaptive"/>
+        <text name="FS25E_SETTING_ADAPTIVE_TOOLTIP" text="Automatically raise or lower confirmed graphics caps to hold the target FPS."/>
+
+        <!-- Preset options -->
+        <text name="FS25E_PRESET_OFF" text="Off"/>
+        <text name="FS25E_PRESET_BALANCED" text="Balanced"/>
+        <text name="FS25E_PRESET_QUALITY" text="Quality"/>
+        <text name="FS25E_PRESET_PERFORMANCE" text="Performance"/>
+        <text name="FS25E_PRESET_CINEMATIC" text="Cinematic"/>
+
+        <!-- Target FPS options -->
+        <text name="FS25E_FPS_30" text="30"/>
+        <text name="FS25E_FPS_40" text="40"/>
+        <text name="FS25E_FPS_50" text="50"/>
+        <text name="FS25E_FPS_60" text="60"/>
+        <text name="FS25E_FPS_UNLIMITED" text="Unlimited"/>
+
+        <!-- Shared quality tiers -->
+        <text name="FS25E_OPT_OFF" text="Off"/>
+        <text name="FS25E_OPT_LOW" text="Low"/>
+        <text name="FS25E_OPT_MED" text="Medium"/>
+        <text name="FS25E_OPT_HIGH" text="High"/>
+        <text name="FS25E_OPT_ULTRA" text="Ultra"/>
+
+        <!-- Advanced sections -->
+        <text name="FS25E_SECTION_SHADOWS" text="Shadows"/>
+        <text name="FS25E_SECTION_LIGHTING" text="Lighting"/>
+        <text name="FS25E_SECTION_LOD" text="LOD / Foliage"/>
+
+        <!-- Advanced: Shadows -->
+        <text name="FS25E_SETTING_SHADOW_QUALITY" text="Shadow Quality"/>
+        <text name="FS25E_SETTING_SHADOW_QUALITY_TOOLTIP" text="Global shadow quality (CONFIRMED SettingsModel). Higher tiers cost more GPU time."/>
+        <text name="FS25E_SETTING_SHADOW_DISTANCE" text="Shadow Distance"/>
+        <text name="FS25E_SETTING_SHADOW_DISTANCE_TOOLTIP" text="How far shadows are drawn. Prefer steps over extreme draw distance."/>
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS" text="Max Shadow Lights"/>
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS_TOOLTIP" text="Maximum lights casting shadows. Maps to setMaxNumShadowLights tiers."/>
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS" text="Foliage Shadows"/>
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS_TOOLTIP" text="Allow foliage to cast shadows (setAllowFoliageShadows). Can be expensive in dense fields."/>
+
+        <!-- Advanced: Lighting -->
+        <text name="FS25E_SETTING_MAX_LIGHTS" text="Max Lights"/>
+        <text name="FS25E_SETTING_MAX_LIGHTS_TOOLTIP" text="Lighting budget tier for active lights. Confirmed capability placeholder."/>
+        <text name="FS25E_SETTING_LIGHT_SCATTERING" text="Light Scattering"/>
+        <text name="FS25E_SETTING_LIGHT_SCATTERING_TOOLTIP" text="Light scattering intensity tiers (setLightUseLightScattering / intensity)."/>
+        <text name="FS25E_SETTING_SHADOW_MERGE" text="Shadow Merge"/>
+        <text name="FS25E_SETTING_SHADOW_MERGE_TOOLTIP" text="Merge similar vehicle light shadows when safe (mergeLightShadows). Restored via split on disable."/>
+
+        <!-- Advanced: LOD / Foliage -->
+        <text name="FS25E_SETTING_VIEW_DISTANCE" text="View Distance"/>
+        <text name="FS25E_SETTING_VIEW_DISTANCE_TOOLTIP" text="Object view-distance coefficient tier (setViewDistanceCoeff). Blind ultra boosts can bottleneck CPU."/>
+        <text name="FS25E_SETTING_LOD_DISTANCE" text="LOD Distance"/>
+        <text name="FS25E_SETTING_LOD_DISTANCE_TOOLTIP" text="LOD distance coefficient tier (setLODDistanceCoeff)."/>
+        <text name="FS25E_SETTING_FOLIAGE_VIEW" text="Foliage View Distance"/>
+        <text name="FS25E_SETTING_FOLIAGE_VIEW_TOOLTIP" text="Foliage view-distance coefficient tier (setFoliageViewDistanceCoeff)."/>
+        <text name="FS25E_SETTING_FOLIAGE_LOD" text="Foliage LOD Distance"/>
+        <text name="FS25E_SETTING_FOLIAGE_LOD_TOOLTIP" text="Foliage LOD coefficient tier (setFoliageLODDistanceCoeff)."/>
+        <text name="FS25E_SETTING_TERRAIN_LOD" text="Terrain LOD Distance"/>
+        <text name="FS25E_SETTING_TERRAIN_LOD_TOOLTIP" text="Terrain LOD coefficient tier (setTerrainLODDistanceCoeff)."/>
+
+        <!-- Live Tuning -->
+        <text name="FS25E_LIVE_TUNING_TITLE" text="Live Tuning"/>
+        <text name="FS25E_HOTKEY_LIVE_TUNING" text="Toggle Live Tuning"/>
+        <text name="FS25E_SETTING_LIVE_TUNING" text="Live Tuning Panel"/>
+        <text name="FS25E_SETTING_LIVE_TUNING_TOOLTIP" text="Opens the live tuning overlay for LIVE-apply caps. Full options come after Core interfaces."/>
+
+        <!-- Expert / client -->
+        <text name="FS25E_EXPERT_MODE" text="Expert Mode"/>
+        <text name="FS25E_EXPERT_MODE_TOOLTIP" text="Show experimental capabilities. Default off — experimental options stay hidden."/>
+        <text name="FS25E_CLIENT_ONLY_HINT" text="Graphics changes are client-only"/>
+        <text name="FS25E_CLIENT_ONLY_HINT_TOOLTIP" text="The graphics governor runs locally on each client. Quality values are not synced over the network."/>
+
+        <!-- Warnings -->
+        <text name="FS25E_WARN_EXTREME_COST" text="This setting can heavily impact performance."/>
+        <text name="FS25E_KEY_CONFLICT" text="Key binding conflict detected. Rebind in Controls or disable the conflicting action."/>
+    </texts>
+</l10n>
