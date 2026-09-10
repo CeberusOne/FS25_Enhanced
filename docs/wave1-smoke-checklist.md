@@ -60,9 +60,13 @@ Details: [`docs/LIGHTS_PROBE.md`](LIGHTS_PROBE.md). Soft-Apply / `autoApply` ble
 | `fs25eGovernor` `0`/`1` | Governor observe enable; **setzt nie** `autoApply=true` |
 | `fs25eLightsDump` | Discoverte RealLight-Nodes (read-only; `lightId` für §2.2) |
 | `fs25eApplyLightPriority <lightId> <priority>` | Manuell `setLightShadowPriority` (Id aus Dump) |
+| `fs25eApplyLightSoft <lightId> <size> [distance] [bias]` | Manuell Soft-Shadow-Setter (Id aus Dump); **setzt Soft-Apply nicht** |
+| `fs25eMergeLights <idA> <idB> [more…]` | Manuell `mergeLightShadows` (Primary zuerst) |
+| `fs25eSplitLight <lightId>` | Manuell `splitLightShadow` |
+| `fs25eDumpMerges` | Tracked `mergedLights` dump |
 | `fs25eSoftApply` `0`/`1` | **DANGER:** Soft-Apply an/aus — Default **0**; aktiviert **nicht** `autoApply` |
 
-Keiner dieser Befehle aktiviert `autoApply`. Soft-Apply nur explizit mit `fs25eSoftApply 1`.
+Keiner dieser Befehle aktiviert `autoApply`. Soft-Apply nur explizit mit `fs25eSoftApply 1` — Soft/Merge-Console-Befehle lassen Soft-Apply **aus**.
 
 ---
 
@@ -99,7 +103,7 @@ Keiner dieser Befehle aktiviert `autoApply`. Soft-Apply nur explizit mit `fs25eS
 | Schritt | Aktion / Erwartung |
 |---------|-------------------|
 | VOR | Je Cap Getter loggen + cachen |
-| Apply | Nur hinter Calibration-Flag; Core-Clamp **[0.5, 2.0]** (WAVE1) respektieren — Werte außerhalb verwerfen/clampen, nicht blind hochdrehen |
+| Apply | Nur hinter Calibration-Flag; Core-Clamp **[0.5, 2.0]** (WAVE1; siehe [`docs/calibration-notes.md`](calibration-notes.md)) respektieren — Werte außerhalb verwerfen/clampen, nicht blind hochdrehen |
 | NACH | Readback = angewandter (ggf. geclampter) Wert |
 | Restore | Readback = Cache je Cap |
 | Fail | Apply ohne Cache; Clamp ignoriert; einzelner Cap bleibt nach Restore ≠ Cache |
@@ -161,6 +165,13 @@ Ohne gültige `lightId` (Dump `total=0` / kein Dev-Pick): Cap **SKIP** mit Log �
 | Restore | = Cache je Cap |
 | Fail | Teil-Restore; Error ohne `REJECTED`+Restore |
 
+**Console-Rezept (manuell; Soft-Apply bleibt OFF):**
+
+1. `fs25eLightsDump` → **1 active** `lightId=` notieren  
+2. `fs25eApplyLightSoft <id> <size> [distance] [bias]` → Log: VOR-Getter → Apply ok → NACH-Readback (= gesetzt erwartet)  
+3. `fs25eRestore` → Readback wieder = Cache  
+4. **Nicht** `fs25eSoftApply 1` für diesen Smoke — Default Soft-Apply **false**; `autoApply` **nie** ON  
+
 **Szene:** Farmyard Night, ein bekanntes RealLight.
 
 #### Merge / Split — siehe §3
@@ -180,6 +191,15 @@ Ohne gültige `lightId` (Dump `total=0` / kein Dev-Pick): Cap **SKIP** mit Log �
 | 5 | **Restore:** `splitLightShadow` für getrackte Merges (ShadowManager-Pfad / `RestoreManager`) |
 | 6 | **NACH Split:** `hasMergedShadow` wieder = Pre-Merge-Cache; keine hängenden Merges |
 | Fail | Merge ohne Membership-Cache; Restore ohne `splitLightShadow`; Query nach Restore noch merged; Apply auf untracked Lights |
+
+**Console-Rezept (manuell; Soft-Apply bleibt OFF):**
+
+1. `fs25eLightsDump` → **2 active** `lightId=` notieren (`idA`, `idB`)  
+2. `fs25eMergeLights idA idB` → Log: VOR `hasMergedShadow` → merge ok → NACH `hasMergedShadow=true` erwartet (wenn Engine-Merge ok)  
+3. `fs25eDumpMerges` → tracked Membership sichtbar  
+4. Restore-Pfad A: `fs25eRestore` **oder** B: `fs25eSplitLight idA` (ggf. weitere tracked Ids)  
+5. Erwartung: `hasMergedShadow` wieder = Pre-Merge; `fs25eDumpMerges` leer / ohne hängende Merges  
+6. **Kein** Default Soft-Apply; `autoApply` untouched  
 
 `deleteMap` / `restoreAll`: zuerst tracked Merges splitten, danach Setter-Restores — Hooks bleiben installiert (WAVE1 Runtime).
 
@@ -236,4 +256,5 @@ Metriken sind **Hilfsmittel** für Fail bei spürbarer Regression; Pass/Fail der
 - Matrix: `docs/capability-matrix.md`  
 - Wave-1 Wiring: `docs/WAVE1.md`  
 - Wave-2 (explizit außerhalb): `docs/wave2-candidates.md`  
-- Lights discovery / Dump: [`docs/LIGHTS_PROBE.md`](LIGHTS_PROBE.md)
+- Lights discovery / Dump: [`docs/LIGHTS_PROBE.md`](LIGHTS_PROBE.md)  
+- Distanz-Coeffs Clamp / Kalibrierung: [`docs/calibration-notes.md`](calibration-notes.md)

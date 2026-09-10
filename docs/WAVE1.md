@@ -22,7 +22,7 @@
 | terrain-lod-distance-coeff | set/getTerrainLODDistanceCoeff | LodGovernor |
 | allow-foliage-shadows | set/getAllowFoliageShadows | LodGovernor |
 
-Distance coefficients are clamped to **[0.5, 2.0]** (placeholder range; calibrate later).
+Distance coefficients are clamped to **[0.5, 2.0]** (placeholder range; calibrate later — see [`docs/calibration-notes.md`](calibration-notes.md)).
 
 ### Per-light (Engine Lighting) — `lightId` required
 
@@ -38,6 +38,17 @@ Distance coefficients are clamped to **[0.5, 2.0]** (placeholder range; calibrat
 | has-merged-shadow | hasMergedShadow | Query only (no setter) |
 
 Soft discovery stub returns an **empty** light list until Lights Spec supplies ids. No blind world-node scan.
+
+### Console smoke helpers (manual; Soft-Apply / autoApply OFF)
+
+| Command | Manager API |
+|---|---|
+| `fs25eApplyLightSoft <lightId> <size> [distance] [bias]` | Soft-Shadow setters |
+| `fs25eMergeLights <idA> <idB> [more…]` | `mergeLightShadows` |
+| `fs25eSplitLight <lightId>` | `splitLightShadow` |
+| `fs25eDumpMerges` | tracked merges dump |
+
+`lightId` from `fs25eLightsDump` only. These commands do **not** enable Soft-Apply or `autoApply`.
 
 ## Explicitly excluded (Wave 1)
 
