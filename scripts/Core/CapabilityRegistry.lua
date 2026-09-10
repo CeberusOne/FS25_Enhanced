@@ -10,6 +10,7 @@ FS25E_CapabilityRegistry.STATUS = {
     ASSET_DEPENDENT = "ASSET_DEPENDENT",
     UNSUPPORTED = "UNSUPPORTED",
     REJECTED = "REJECTED",
+    APPLIED = "APPLIED",
 }
 
 FS25E_CapabilityRegistry.APPLY_MODE = {
