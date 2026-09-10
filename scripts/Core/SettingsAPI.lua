@@ -108,3 +108,155 @@ function FS25E_SettingsAPI.listPresets()
     end
     return { "Performance", "Balanced", "Quality", "Cinematic" }
 end
+
+
+-- =============================================================================
+-- Expert Live-Overlay API (no dialog; no engine setters from GUI)
+-- Gates: CapabilityRegistry.allowsApply / expertMode / Soft-Apply unchanged.
+-- opts = { prefixArgs = { lightId, ... }, keySuffix = "..." }
+-- =============================================================================
+
+local function liveCacheKey(capabilityId, opts)
+    opts = opts or {}
+    if opts.keySuffix ~= nil and opts.keySuffix ~= "" then
+        return tostring(capabilityId) .. "|" .. tostring(opts.keySuffix)
+    end
+    local prefix = opts.prefixArgs
+    if prefix ~= nil and prefix[1] ~= nil then
+        return tostring(capabilityId) .. "|" .. tostring(prefix[1])
+    end
+    return tostring(capabilityId)
+end
+
+function FS25E_SettingsAPI.liveGet(capabilityId, opts)
+    local key = liveCacheKey(capabilityId, opts)
+    local e = nil
+    if FS25E_SettingsCache ~= nil then
+        e = FS25E_SettingsCache.get(key)
+    end
+    local status = nil
+    if FS25E_CapabilityRegistry ~= nil then
+        status = FS25E_CapabilityRegistry.getStatus(capabilityId)
+    end
+    local last = nil
+    if FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.getLastResult ~= nil then
+        last = FS25E_CapabilityRegistry.getLastResult(capabilityId)
+    end
+    return {
+        key = key,
+        capabilityId = capabilityId,
+        requested = e ~= nil and e.requested or nil,
+        current = e ~= nil and e.current or nil,
+        original = e ~= nil and e.original or nil,
+        locked = e ~= nil and e.locked == true or false,
+        status = status,
+        lastResult = last,
+    }
+end
+
+function FS25E_SettingsAPI.liveSetRequested(capabilityId, number, opts)
+    if FS25E_SettingsCache == nil then
+        return false
+    end
+    local key = liveCacheKey(capabilityId, opts)
+    local ok = FS25E_SettingsCache.setRequestedNumber(key, number)
+    if ok and FS25E_SettingsCache.get ~= nil then
+        local e = FS25E_SettingsCache.get(key)
+        if e ~= nil then
+            e.capabilityId = capabilityId
+        end
+    end
+    return ok
+end
+
+local function liveApplyViaManagers(capabilityId, n, opts)
+    opts = opts or {}
+    local prefix = opts.prefixArgs or {}
+    local lightId = prefix[1]
+
+    -- Global Wave-1 managers when available
+    if FS25E_LodGovernor ~= nil then
+        if capabilityId == "view-distance-coeff" and FS25E_LodGovernor.setViewDistanceCoeff ~= nil then
+            return FS25E_LodGovernor.setViewDistanceCoeff(n)
+        elseif capabilityId == "lod-distance-coeff" and FS25E_LodGovernor.setLODDistanceCoeff ~= nil then
+            return FS25E_LodGovernor.setLODDistanceCoeff(n)
+        elseif capabilityId == "foliage-view-distance-coeff" and FS25E_LodGovernor.setFoliageViewDistanceCoeff ~= nil then
+            return FS25E_LodGovernor.setFoliageViewDistanceCoeff(n)
+        elseif capabilityId == "foliage-lod-distance-coeff" and FS25E_LodGovernor.setFoliageLODDistanceCoeff ~= nil then
+            return FS25E_LodGovernor.setFoliageLODDistanceCoeff(n)
+        elseif capabilityId == "terrain-lod-distance-coeff" and FS25E_LodGovernor.setTerrainLODDistanceCoeff ~= nil then
+            return FS25E_LodGovernor.setTerrainLODDistanceCoeff(n)
+        end
+    end
+    if FS25E_ShadowManager ~= nil then
+        if capabilityId == "max-num-shadow-lights" and FS25E_ShadowManager.setMaxNumShadowLights ~= nil then
+            return FS25E_ShadowManager.setMaxNumShadowLights(n)
+        elseif lightId ~= nil then
+            if capabilityId == "light-shadow-priority" and FS25E_ShadowManager.setLightShadowPriority ~= nil then
+                return FS25E_ShadowManager.setLightShadowPriority(lightId, n)
+            elseif capabilityId == "light-soft-shadow-size" and FS25E_ShadowManager.setLightSoftShadowSize ~= nil then
+                return FS25E_ShadowManager.setLightSoftShadowSize(lightId, n)
+            elseif capabilityId == "light-soft-shadow-distance" and FS25E_ShadowManager.setLightSoftShadowDistance ~= nil then
+                return FS25E_ShadowManager.setLightSoftShadowDistance(lightId, n)
+            elseif capabilityId == "light-soft-shadow-depth-bias" and FS25E_ShadowManager.setLightSoftShadowDepthBiasFactor ~= nil then
+                return FS25E_ShadowManager.setLightSoftShadowDepthBiasFactor(lightId, n)
+            end
+        end
+    end
+    return nil -- fall through to CapabilityApplier
+end
+
+--- Live apply: optional number updates requested, then applies through managers/Applier.
+--- Returns ok, err
+function FS25E_SettingsAPI.liveApply(capabilityId, number, opts)
+    opts = opts or {}
+    local n = number
+    if n ~= nil then
+        if not FS25E_SettingsAPI.liveSetRequested(capabilityId, n, opts) then
+            return false, "invalid number"
+        end
+        n = tonumber(n)
+    else
+        local snap = FS25E_SettingsAPI.liveGet(capabilityId, opts)
+        n = tonumber(snap.requested)
+        if n == nil then
+            return false, "no requested value"
+        end
+    end
+
+    local via = liveApplyViaManagers(capabilityId, n, opts)
+    if via ~= nil then
+        if via == true then
+            return true, nil
+        end
+        return false, "manager apply failed"
+    end
+
+    if FS25E_CapabilityApplier == nil or FS25E_CapabilityApplier.apply == nil then
+        return false, "CapabilityApplier missing"
+    end
+    return FS25E_CapabilityApplier.apply(capabilityId, {
+        prefixArgs = opts.prefixArgs,
+        values = { n },
+        keySuffix = opts.keySuffix,
+    })
+end
+
+function FS25E_SettingsAPI.liveApplyRequested(capabilityId, opts)
+    return FS25E_SettingsAPI.liveApply(capabilityId, nil, opts)
+end
+
+function FS25E_SettingsAPI.liveRestore(capabilityId, opts)
+    if FS25E_CapabilityApplier == nil then
+        return false, "CapabilityApplier missing"
+    end
+    local key = liveCacheKey(capabilityId, opts)
+    if FS25E_CapabilityApplier.restoreOne ~= nil then
+        return FS25E_CapabilityApplier.restoreOne(key)
+    end
+    if FS25E_RestoreManager ~= nil and FS25E_RestoreManager.restoreAll ~= nil then
+        FS25E_RestoreManager.restoreAll()
+        return true
+    end
+    return false, "no restore path"
+end

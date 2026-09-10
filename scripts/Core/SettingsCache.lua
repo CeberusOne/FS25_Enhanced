@@ -107,3 +107,25 @@ function FS25E_SettingsCache.restoreToOriginal()
         e.requested = e.original
     end
 end
+
+
+function FS25E_SettingsCache.getRequested(key)
+    local e = entries[key]
+    if e == nil then return nil end
+    return e.requested
+end
+
+function FS25E_SettingsCache.getCurrent(key)
+    local e = entries[key]
+    if e == nil then return nil end
+    return e.current
+end
+
+--- Store a numeric requested value (float/int). Rejects nil/NaN.
+function FS25E_SettingsCache.setRequestedNumber(key, value)
+    local n = tonumber(value)
+    if n == nil or n ~= n then -- NaN check
+        return false
+    end
+    return FS25E_SettingsCache.setRequested(key, n)
+end
