@@ -21,7 +21,7 @@ function FS25E_ShadowManager.init()
     initialized = true
     discoveredLights = {}
     mergedLights = {}
-    FS25E_Debug.info("ShadowManager", "init (wave1 registered; discovery stub empty; auto-apply off)")
+    FS25E_Debug.info("ShadowManager", "init (wave1 registered; lights via LightDiscovery when present; auto-apply off)")
 end
 
 function FS25E_ShadowManager.reset()
@@ -30,8 +30,20 @@ function FS25E_ShadowManager.reset()
     initialized = false
 end
 
---- Soft discovery stub — returns empty list until Lights Spec supplies ids.
+--- Discovered light ids: prefer LightDiscovery registry when present; else local stub.
 function FS25E_ShadowManager.getDiscoveredLights()
+    if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.getEntries ~= nil then
+        local out = {}
+        local seen = {}
+        local entries = FS25E_LightDiscovery.getEntries()
+        for _, e in pairs(entries) do
+            if e ~= nil and e.node ~= nil and not seen[e.node] then
+                seen[e.node] = true
+                out[#out + 1] = e.node
+            end
+        end
+        return out
+    end
     return discoveredLights
 end
 

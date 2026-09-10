@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.2.0.0</version>
+    <version>0.2.1.0</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -10,12 +10,12 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-Wave 1 (v0.2): CONFIRMED capability wiring (shadows/LOD/per-light APIs) with session-only apply+restore.
-Auto-apply off by default. No EXPERIMENTAL/GATED/RESTART setters. No saveHardwareScalability without opt-in.]]></en>
+v0.2.1: Spec-based Lights discovery (Lights / PlaceableLights) — read-only registry, Soft-Apply off.
+Wave 1 CONFIRMED capability wiring retained. Auto-apply off. No EXPERIMENTAL/GATED/RESTART setters.]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
 Nutzt ausschließlich dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-Welle 1 (v0.2): CONFIRMED-Capability-Verdrahtung (Schatten/LOD/per-Light-APIs) mit session-only Apply+Restore.
-Auto-Apply standardmäßig aus. Keine EXPERIMENTAL/GATED/RESTART-Setter. Kein saveHardwareScalability ohne Opt-in.]]></de>
+v0.2.1: Spec-basierte Lights-Discovery (Lights / PlaceableLights) — Read-only-Registry, Soft-Apply aus.
+Welle-1-CONFIRMED-Capability-Verdrahtung bleibt. Auto-Apply aus. Keine EXPERIMENTAL/GATED/RESTART-Setter.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
@@ -25,6 +25,12 @@ Auto-Apply standardmäßig aus. Keine EXPERIMENTAL/GATED/RESTART-Setter. Kein sa
             <de>FS25 Enhanced</de>
         </text>
     </l10n>
+    <specializations>
+        <specialization name="enhancedLightsProbe" className="EnhancedLightsProbe" filename="scripts/Specializations/EnhancedLightsProbe.lua"/>
+    </specializations>
+    <placeableSpecializations>
+        <specialization name="enhancedPlaceableLightsProbe" className="EnhancedPlaceableLightsProbe" filename="scripts/Placeables/EnhancedPlaceableLightsProbe.lua"/>
+    </placeableSpecializations>
     <extraSourceFiles>
         <sourceFile filename="scripts/Core/Debug.lua"/>
         <sourceFile filename="scripts/Core/HookManager.lua"/>
@@ -35,6 +41,7 @@ Auto-Apply standardmäßig aus. Keine EXPERIMENTAL/GATED/RESTART-Setter. Kein sa
         <sourceFile filename="scripts/Core/PerformanceMonitor.lua"/>
         <sourceFile filename="scripts/Shadows/ShadowManager.lua"/>
         <sourceFile filename="scripts/World/LodGovernor.lua"/>
+        <sourceFile filename="scripts/Lighting/LightDiscovery.lua"/>
         <sourceFile filename="scripts/Core/GraphicsGovernor.lua"/>
         <sourceFile filename="scripts/Core/CompatibilityManager.lua"/>
         <sourceFile filename="scripts/Core/ModSettings.lua"/>

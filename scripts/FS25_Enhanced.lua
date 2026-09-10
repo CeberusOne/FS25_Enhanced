@@ -1,6 +1,7 @@
--- FS25_Enhanced.lua — Bootstrap (Wave 1 CONFIRMED capability wiring)
+-- FS25_Enhanced.lua — Bootstrap (Wave 1 + Lights Spec Probe)
 -- Mission-level service only. Client-local. Auto-apply OFF by default.
 -- Session-only apply + restore (no saveHardwareScalability / applyPerformanceClass).
+-- Lights: Spec-based RealLight discovery (no global scan); Soft-Apply off by default.
 
 local modName = g_currentModName
 local modDirectory = g_currentModDirectory
@@ -8,7 +9,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.2.0.0"
+FS25_Enhanced.VERSION = "0.2.1.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -50,6 +51,9 @@ local function onLoadMap(mission)
         if FS25E_LodGovernor ~= nil then
             FS25E_LodGovernor.init()
         end
+        if FS25E_LightDiscovery ~= nil then
+            FS25E_LightDiscovery.init() -- softApply=false; profile subscribe; console
+        end
         if FS25E_PerformanceMonitor ~= nil then
             local target = 60
             if FS25E_SettingsSchema ~= nil then
@@ -71,7 +75,8 @@ local function onLoadMap(mission)
             capCount = FS25E_CapabilityRegistry.count()
         end
         FS25E_Debug.info("Bootstrap", string.format(
-            "loadMap complete wave1 caps=%d auto-apply off (session-only; no saveHardwareScalability)",
+            "loadMap complete v%s caps=%d lightsProbe=on softApply=off auto-apply off (no global scan; no EXPERIMENTAL)",
+            FS25_Enhanced.VERSION,
             capCount
         ))
     end)
@@ -89,6 +94,11 @@ local function onDeleteMap()
         end
         if FS25E_PerformanceMonitor ~= nil then
             FS25E_PerformanceMonitor.reset()
+        end
+
+        if FS25E_LightDiscovery ~= nil then
+            FS25E_LightDiscovery.unsubscribeProfileChanges()
+            FS25E_LightDiscovery.reset()
         end
 
         if FS25E_RestoreManager ~= nil then
@@ -182,6 +192,10 @@ safeCall("bootstrap", function()
         tostring(modDirectory)
     ))
     registerMissionHooks()
+    -- Mileage-pattern: inject Lights probe specs during TypeManager.finalizeTypes (early).
+    if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.registerTypeInjection ~= nil then
+        FS25E_LightDiscovery.registerTypeInjection()
+    end
     local count = 0
     if FS25E_HookManager ~= nil then
         count = FS25E_HookManager.count()
