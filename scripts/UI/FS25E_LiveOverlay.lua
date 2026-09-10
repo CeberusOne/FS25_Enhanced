@@ -1,8 +1,10 @@
 -- FS25_Enhanced / UI/FS25E_LiveOverlay.lua
 -- Expert Live-Overlay: drawn over the world (no fullscreen dialog).
+-- Caps primary source: FS25E_SettingsAPI.liveListCaps() (+ ROW_META for ranges/labels).
 -- Apply path: FS25E_SettingsAPI.live* only (no engine setters / no direct Applier).
 -- Status: Diagnostics.getSnapshot on open + Registry onApply/onReject/onSkip per row.
--- Widgets: custom bars / toggles — NEVER GuiSlider / MultiTextOption-Slider.
+-- Cost/warn: getCapCost / liveListCaps fields. Custom bars — NEVER GuiSlider.
+-- HUD: FS25E_HudOverlay telemetry in header via getHudTelemetry().
 
 FS25E_LiveOverlay = {}
 
@@ -12,44 +14,67 @@ local visible = false
 local hooksRegistered = false
 local listenersInstalled = false
 local selectedIndex = 1
+local scrollOffset = 0
 local dragRow = nil
 local lastNotifyAt = 0
+local cachedCapList = nil
+local cachedCapListAt = 0
 
 -- Layout (normalized 0..1 screen space)
 local PANEL = {
-    x = 0.62,
-    y = 0.12,
-    w = 0.36,
-    h = 0.76,
+    x = 0.58,
+    y = 0.08,
+    w = 0.40,
+    h = 0.84,
     pad = 0.012,
-    rowH = 0.038,
-    titleSize = 0.018,
-    textSize = 0.014,
-    smallSize = 0.012,
+    rowH = 0.036,
+    titleSize = 0.017,
+    textSize = 0.013,
+    smallSize = 0.011,
+    headerHudH = 0.072,
 }
 
---- Row defs: Wave-1 always listed when overlay open; Expert rows when soft-apply path allows.
---- kind: "float" | "int" | "bool"
---- applyKind: "wave1" | "expert"
-local ROW_DEFS = {
-    { id = "viewDistance", settingId = "viewDistance", capabilityId = "view-distance-coeff", labelKey = "FS25E_LIVE_OVERLAY_VIEW_DISTANCE", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00 },
-    { id = "lodDistance", settingId = "lodDistance", capabilityId = "lod-distance-coeff", labelKey = "FS25E_LIVE_OVERLAY_LOD_DISTANCE", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00 },
-    { id = "foliageViewDistance", settingId = "foliageViewDistance", capabilityId = "foliage-view-distance-coeff", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_VIEW", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00 },
-    { id = "foliageLodDistance", settingId = "foliageLodDistance", capabilityId = "foliage-lod-distance-coeff", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_LOD", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00 },
-    { id = "terrainLodDistance", settingId = "terrainLodDistance", capabilityId = "terrain-lod-distance-coeff", labelKey = "FS25E_LIVE_OVERLAY_TERRAIN_LOD", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00 },
-    { id = "maxShadowLights", settingId = "maxShadowLights", capabilityId = "max-num-shadow-lights", labelKey = "FS25E_LIVE_OVERLAY_MAX_SHADOW_LIGHTS", min = 1, max = 8, step = 1, kind = "int", applyKind = "wave1", default = 4 },
-    -- Expert (Soft-Apply gated for live apply; values still editable → SKIPPED without soft)
-    { id = "rainAmountMult", settingId = "rainAmountMult", capabilityId = "rain-amount-mult", labelKey = "FS25E_LIVE_OVERLAY_RAIN_AMOUNT", min = 0.00, max = 2.00, step = 0.01, kind = "float", applyKind = "expert", default = 1.00 },
-    { id = "ssrQuality", settingId = "ssrQuality", capabilityId = "ssr-quality", labelKey = "FS25E_LIVE_OVERLAY_SSR_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1 },
-    { id = "atmosphereQuality", settingId = "atmosphereQuality", capabilityId = "atmosphere-quality", labelKey = "FS25E_LIVE_OVERLAY_ATMOSPHERE_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1 },
-    { id = "drsQuality", settingId = "drsQuality", capabilityId = "drs-quality", labelKey = "FS25E_LIVE_OVERLAY_DRS_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1 },
-    { id = "shadowFocus", settingId = "shadowFocus", capabilityId = "shadow-focus-box", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_FOCUS", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0 },
-    { id = "fastShadowUpdate", settingId = "fastShadowUpdate", capabilityId = "fast-shadow-update", labelKey = "FS25E_LIVE_OVERLAY_FAST_SHADOW", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0 },
-    { id = "rainShallowWater", settingId = "rainShallowWater", capabilityId = "rain-shallow-water-simulation", labelKey = "FS25E_LIVE_OVERLAY_RAIN_SHALLOW", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0 },
+--- Preferred Wave-1 / Expert ordering + widget metadata (ranges).
+--- Primary cap list still comes from liveListCaps(); meta fills min/max/step/kind/label.
+local ROW_META = {
+    ["view-distance-coeff"] = { id = "viewDistance", settingId = "viewDistance", labelKey = "FS25E_LIVE_OVERLAY_VIEW_DISTANCE", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 10 },
+    ["lod-distance-coeff"] = { id = "lodDistance", settingId = "lodDistance", labelKey = "FS25E_LIVE_OVERLAY_LOD_DISTANCE", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 20 },
+    ["foliage-view-distance-coeff"] = { id = "foliageViewDistance", settingId = "foliageViewDistance", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_VIEW", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 30 },
+    ["foliage-lod-distance-coeff"] = { id = "foliageLodDistance", settingId = "foliageLodDistance", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_LOD", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 40 },
+    ["terrain-lod-distance-coeff"] = { id = "terrainLodDistance", settingId = "terrainLodDistance", labelKey = "FS25E_LIVE_OVERLAY_TERRAIN_LOD", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 50 },
+    ["max-num-shadow-lights"] = { id = "maxShadowLights", settingId = "maxShadowLights", labelKey = "FS25E_LIVE_OVERLAY_MAX_SHADOW_LIGHTS", min = 1, max = 8, step = 1, kind = "int", applyKind = "wave1", default = 4, order = 60 },
+    ["allow-foliage-shadows"] = { id = "allowFoliageShadows", settingId = "allowFoliageShadows", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_SHADOWS", min = 0, max = 1, step = 1, kind = "bool", applyKind = "wave1", default = 1, order = 70 },
+    ["shadow-quality"] = { id = "shadowQuality", settingId = "shadowQuality", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 80 },
+    ["shadow-distance-quality"] = { id = "shadowDistanceQuality", settingId = "shadowDistanceQuality", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_DIST_Q", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 90 },
+    ["shadow-filter-quality"] = { id = "shadowFilterQuality", settingId = "softShadows", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_FILTER", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 100 },
+    -- Expert Soft-Apply path
+    ["rain-amount-mult"] = { id = "rainAmountMult", settingId = "rainAmountMult", labelKey = "FS25E_LIVE_OVERLAY_RAIN_AMOUNT", min = 0.00, max = 2.00, step = 0.01, kind = "float", applyKind = "expert", default = 1.00, order = 200 },
+    ["ssr-quality"] = { id = "ssrQuality", settingId = "ssrQuality", labelKey = "FS25E_LIVE_OVERLAY_SSR_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1, order = 210 },
+    ["atmosphere-quality"] = { id = "atmosphereQuality", settingId = "atmosphereQuality", labelKey = "FS25E_LIVE_OVERLAY_ATMOSPHERE_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1, order = 220 },
+    ["drs-quality"] = { id = "drsQuality", settingId = "drsQuality", labelKey = "FS25E_LIVE_OVERLAY_DRS_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1, order = 230 },
+    ["shadow-focus-box"] = { id = "shadowFocus", settingId = "shadowFocus", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_FOCUS", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0, order = 240 },
+    ["fast-shadow-update"] = { id = "fastShadowUpdate", settingId = "fastShadowUpdate", labelKey = "FS25E_LIVE_OVERLAY_FAST_SHADOW", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0, order = 250 },
+    ["rain-shallow-water-simulation"] = { id = "rainShallowWater", settingId = "rainShallowWater", labelKey = "FS25E_LIVE_OVERLAY_RAIN_SHALLOW", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0, order = 260 },
 }
 
--- Runtime row state keyed by id
-local rows = {} -- { id -> { def, value, lastResult, lastError, sessionOnly } }
+-- Caps that need multi-arg / lightId / path — not fine-tunable as single float in Gen-1 overlay
+local SKIP_IDS = {
+    ["rain-spawn-box-parameters"] = true,
+    ["rain-turbulence-parameters"] = true,
+    ["rain-forward-direction"] = true,
+    ["has-merged-shadow"] = true,
+    ["split-light-shadow"] = true,
+    ["merge-light-shadows"] = true,
+    ["supports-ssr-quality"] = true,
+    ["supports-atmosphere-quality"] = true,
+    ["supports-drs-quality"] = true,
+    ["light-ies-profile"] = true,
+    ["light-ies-cone-angle"] = true,
+    ["foliage-bending-create"] = true,
+}
+
+-- Runtime row state keyed by capabilityId
+local rows = {} -- { capabilityId -> { def, value, lastResult, lastError, sessionOnly, cost, warn, notes } }
 
 local function dbg(msg)
     if FS25E_Debug ~= nil then
@@ -137,7 +162,6 @@ local function clamp(v, minV, maxV, step)
         n = minV + steps * step
         if n < minV then n = minV end
         if n > maxV then n = maxV end
-        -- avoid float noise for 0.01 steps
         if step < 1 then
             n = math.floor(n * 100 + 0.5) / 100
         else
@@ -151,7 +175,7 @@ local function formatValue(def, value)
     if def.kind == "bool" then
         return (tonumber(value) or 0) >= 0.5 and "ON" or "OFF"
     end
-    if def.kind == "int" or def.step >= 1 then
+    if def.kind == "int" or (def.step ~= nil and def.step >= 1) then
         return string.format("%d", math.floor((tonumber(value) or 0) + 0.5))
     end
     return string.format("%.2f", tonumber(value) or 0)
@@ -165,7 +189,7 @@ local function barText(def, value)
     end
     if t01 < 0 then t01 = 0 end
     if t01 > 1 then t01 = 1 end
-    local width = 16
+    local width = 14
     local filled = math.floor(t01 * width + 0.5)
     local s = "["
     for i = 1, width do
@@ -178,51 +202,253 @@ local function barText(def, value)
     return s .. "]"
 end
 
+local function inferKind(capId, status)
+    local id = tostring(capId)
+    if id:find("quality", 1, true) or id:find("max%-num") or id:find("max%-bounces") then
+        return "int", 0, 3, 1, 1
+    end
+    if id:find("shadow%-focus") or id:find("fast%-shadow") or id:find("shallow%-water")
+        or id:find("allow%-") or id:find("behind%-camera") then
+        return "bool", 0, 1, 1, 0
+    end
+    if id:find("coeff", 1, true) or id:find("mult", 1, true) or id:find("multiplier", 1, true) then
+        return "float", 0.00, 2.00, 0.01, 1.00
+    end
+    -- default float fine-tune
+    local _ = status
+    return "float", 0.00, 2.00, 0.01, 1.00
+end
+
+local function classifyApplyKind(capId, status, meta)
+    if meta ~= nil and meta.applyKind ~= nil then
+        return meta.applyKind
+    end
+    local st = tostring(status or "")
+    if st == "EXPERIMENTAL" or st == "GATED" or st == "ASSET_DEPENDENT" then
+        return "expert"
+    end
+    if tostring(capId):find("^rain%-") then
+        return "expert"
+    end
+    return "wave1"
+end
+
+local function idToLabel(capId)
+    return tostring(capId):gsub("%-", " ")
+end
+
+local function camelFromCap(capId)
+    local parts = {}
+    for part in string.gmatch(tostring(capId), "[^%-]+") do
+        if #parts == 0 then
+            parts[#parts + 1] = part
+        else
+            parts[#parts + 1] = part:sub(1, 1):upper() .. part:sub(2)
+        end
+    end
+    return table.concat(parts)
+end
+
+--- Build def from liveListCaps entry + ROW_META.
+local function buildDefFromCap(cap)
+    local capId = cap.id
+    local meta = ROW_META[capId]
+    local kind, minV, maxV, step, default
+    local labelKey, settingId, rowId, order
+    if meta ~= nil then
+        kind, minV, maxV, step, default = meta.kind, meta.min, meta.max, meta.step, meta.default
+        labelKey, settingId, rowId, order = meta.labelKey, meta.settingId, meta.id, meta.order
+    else
+        kind, minV, maxV, step, default = inferKind(capId, cap.status)
+        rowId = camelFromCap(capId)
+        settingId = rowId
+        labelKey = nil
+        order = 500
+    end
+    local applyKind = classifyApplyKind(capId, cap.status, meta)
+    return {
+        id = rowId,
+        settingId = settingId,
+        capabilityId = capId,
+        labelKey = labelKey,
+        labelFallback = idToLabel(capId),
+        min = minV,
+        max = maxV,
+        step = step,
+        kind = kind,
+        applyKind = applyKind,
+        default = default,
+        order = order or 500,
+        status = cap.status,
+        allowsApply = cap.allowsApply == true,
+        cost = cap.cost,
+        warn = cap.warn == true,
+        scope = cap.scope,
+        setter = cap.setter,
+    }
+end
+
+local function shouldIncludeCap(cap, expertMode)
+    if cap == nil or cap.id == nil then
+        return false
+    end
+    if SKIP_IDS[cap.id] then
+        return false
+    end
+    local setter = tostring(cap.setter or "")
+    if setter == "" or setter == "NONE" or setter == "nil" then
+        return false
+    end
+    local scope = tostring(cap.scope or "global")
+    if scope ~= "global" then
+        return false -- Gen-1: no per-light / scene fine-tune without lightId UI
+    end
+    local st = tostring(cap.status or "")
+    if st == "REJECTED" or st == "UNSUPPORTED" then
+        return false
+    end
+    -- Filter by allowsApply / expertMode
+    if cap.allowsApply == true then
+        return true
+    end
+    -- Expert mode: still list EXPERIMENTAL/GATED even if allowsApply momentarily false
+    if expertMode then
+        if st == "EXPERIMENTAL" or st == "GATED" or st == "ASSET_DEPENDENT" or st == "CONFIRMED" or st == "APPLIED" then
+            return true
+        end
+    end
+    return false
+end
+
+local function fetchLiveListCaps()
+    local now = (g_time ~= nil and g_time) or (os.clock() * 1000)
+    if cachedCapList ~= nil and (now - cachedCapListAt) < 1500 then
+        return cachedCapList
+    end
+    local list = {}
+    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.liveListCaps ~= nil then
+        local ok, caps = pcall(FS25E_SettingsAPI.liveListCaps)
+        if ok and type(caps) == "table" then
+            list = caps
+        end
+    end
+    -- Fallback: hardcoded Wave-1/Expert meta only if API empty
+    if #list == 0 then
+        for capId, meta in pairs(ROW_META) do
+            list[#list + 1] = {
+                id = capId,
+                status = meta.applyKind == "expert" and "EXPERIMENTAL" or "CONFIRMED",
+                cost = "med",
+                warn = false,
+                allowsApply = true,
+                scope = "global",
+                setter = "fallback",
+            }
+        end
+    end
+    cachedCapList = list
+    cachedCapListAt = now
+    return list
+end
+
+local function enrichCost(def)
+    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.getCapCost ~= nil then
+        local ok, c = pcall(FS25E_SettingsAPI.getCapCost, def.capabilityId)
+        if ok and type(c) == "table" then
+            if c.cost ~= nil then def.cost = c.cost end
+            if c.warn ~= nil then def.warn = c.warn == true end
+            if c.notes ~= nil then def.notes = c.notes end
+        end
+    end
+end
+
+local function rebuildDefs()
+    local expert = settingsGet("expertMode") == true
+    local caps = fetchLiveListCaps()
+    local defs = {}
+    local seen = {}
+    for i = 1, #caps do
+        local cap = caps[i]
+        if shouldIncludeCap(cap, expert) and not seen[cap.id] then
+            seen[cap.id] = true
+            local def = buildDefFromCap(cap)
+            enrichCost(def)
+            defs[#defs + 1] = def
+        end
+    end
+    table.sort(defs, function(a, b)
+        if a.order ~= b.order then
+            return a.order < b.order
+        end
+        return tostring(a.capabilityId) < tostring(b.capabilityId)
+    end)
+    return defs
+end
+
 local function ensureRows()
-    for i = 1, #ROW_DEFS do
-        local def = ROW_DEFS[i]
-        if rows[def.id] == nil then
-            rows[def.id] = {
+    local defs = rebuildDefs()
+    local keep = {}
+    for i = 1, #defs do
+        local def = defs[i]
+        keep[def.capabilityId] = true
+        local row = rows[def.capabilityId]
+        if row == nil then
+            rows[def.capabilityId] = {
                 def = def,
                 value = def.default,
                 lastResult = nil,
                 lastError = nil,
                 sessionOnly = true,
             }
+        else
+            -- refresh def (cost/warn/allowsApply may change)
+            local prev = row.value
+            row.def = def
+            if prev == nil then
+                row.value = def.default
+            end
         end
     end
+    -- drop stale
+    for id in pairs(rows) do
+        if not keep[id] then
+            rows[id] = nil
+        end
+    end
+    return defs
 end
 
 local function refreshRowStatus(capabilityId, payload)
     ensureRows()
-    for id, row in pairs(rows) do
-        if row.def.capabilityId == capabilityId then
-            if type(payload) == "table" then
-                row.lastResult = payload.status or row.lastResult
-                if payload.error ~= nil then
-                    row.lastError = tostring(payload.error)
-                end
-            end
-            -- Prefer Diagnostics helper when available
-            if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getStatusForSetting ~= nil then
-                local st = FS25E_Diagnostics.getStatusForSetting(row.def.settingId)
-                if st ~= nil then
-                    if st.lastResult ~= nil then row.lastResult = st.lastResult end
-                    if st.lastError ~= nil then row.lastError = st.lastError end
-                end
-            elseif FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getCapRuntime ~= nil then
-                local rt = FS25E_Diagnostics.getCapRuntime(capabilityId)
-                if rt ~= nil then
-                    if rt.lastResult ~= nil then row.lastResult = rt.lastResult end
-                    if rt.lastError ~= nil then row.lastError = rt.lastError end
-                end
-            elseif FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.getLastResult ~= nil then
-                local lr = FS25E_CapabilityRegistry.getLastResult(capabilityId)
-                if type(lr) == "table" then
-                    row.lastResult = lr.status
-                    if lr.error ~= nil then row.lastError = tostring(lr.error) end
-                end
-            end
+    local row = rows[capabilityId]
+    if row == nil then
+        return
+    end
+    if type(payload) == "table" then
+        row.lastResult = payload.status or row.lastResult
+        if payload.error ~= nil then
+            row.lastError = tostring(payload.error)
+        end
+    end
+    if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getStatusForSetting ~= nil and row.def.settingId ~= nil then
+        local st = FS25E_Diagnostics.getStatusForSetting(row.def.settingId)
+        if st ~= nil then
+            if st.lastResult ~= nil then row.lastResult = st.lastResult end
+            if st.lastError ~= nil then row.lastError = st.lastError end
+        end
+    end
+    if (row.lastResult == nil) and FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getCapRuntime ~= nil then
+        local rt = FS25E_Diagnostics.getCapRuntime(capabilityId)
+        if rt ~= nil then
+            if rt.lastResult ~= nil then row.lastResult = rt.lastResult end
+            if rt.lastError ~= nil then row.lastError = rt.lastError end
+        end
+    end
+    if row.lastResult == nil and FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.getLastResult ~= nil then
+        local lr = FS25E_CapabilityRegistry.getLastResult(capabilityId)
+        if type(lr) == "table" then
+            row.lastResult = lr.status
+            if lr.error ~= nil then row.lastError = tostring(lr.error) end
         end
     end
 end
@@ -234,8 +460,8 @@ local function refreshAllStatusesFromSnapshot()
             FS25E_Diagnostics.getSnapshot()
         end)
     end
-    for _, row in pairs(rows) do
-        refreshRowStatus(row.def.capabilityId, nil)
+    for id, _ in pairs(rows) do
+        refreshRowStatus(id, nil)
     end
 end
 
@@ -244,7 +470,6 @@ local function loadInitialValues()
     for _, row in pairs(rows) do
         local def = row.def
         local v = nil
-        -- Prefer liveGet requested/current
         if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.liveGet ~= nil then
             local ok, snap = pcall(FS25E_SettingsAPI.liveGet, def.capabilityId, nil)
             if ok and type(snap) == "table" then
@@ -268,18 +493,13 @@ local function loadInitialValues()
 end
 
 local function visibleRowList()
-    ensureRows()
+    local defs = ensureRows()
     local list = {}
-    local soft = isExpertSoftApplyOn()
-    local expert = settingsGet("expertMode") == true
-    for i = 1, #ROW_DEFS do
-        local def = ROW_DEFS[i]
-        if def.applyKind == "wave1" then
-            list[#list + 1] = rows[def.id]
-        elseif expert then
-            -- show expert rows whenever expertMode; soft-apply gates apply, not visibility
-            list[#list + 1] = rows[def.id]
-            local _ = soft -- keep local used for clarity / future filter
+    for i = 1, #defs do
+        local def = defs[i]
+        local row = rows[def.capabilityId]
+        if row ~= nil then
+            list[#list + 1] = row
         end
     end
     return list
@@ -361,6 +581,36 @@ local function nudgeSelected(dir)
     applyRow(row, nextV)
 end
 
+local function restoreSelected()
+    local list = visibleRowList()
+    if #list == 0 or selectedIndex < 1 or selectedIndex > #list then
+        return
+    end
+    local row = list[selectedIndex]
+    if FS25E_SettingsAPI == nil or FS25E_SettingsAPI.liveRestore == nil then
+        return
+    end
+    local ok, err = pcall(function()
+        return FS25E_SettingsAPI.liveRestore(row.def.capabilityId, nil)
+    end)
+    if ok then
+        row.lastResult = "APPLIED"
+        row.lastError = nil
+        loadInitialValues()
+        refreshRowStatus(row.def.capabilityId, nil)
+        dbg("liveRestore " .. row.def.capabilityId)
+    else
+        row.lastResult = "REJECTED"
+        row.lastError = tostring(err)
+    end
+end
+
+local function clampScroll(listLen, maxVisible)
+    local maxOff = math.max(0, listLen - maxVisible)
+    if scrollOffset < 0 then scrollOffset = 0 end
+    if scrollOffset > maxOff then scrollOffset = maxOff end
+end
+
 function FS25E_LiveOverlay.isVisible()
     return visible == true
 end
@@ -395,12 +645,14 @@ function FS25E_LiveOverlay.show()
         notify(t("FS25E_LIVE_OVERLAY_GATE_REQUIRED", "Expert Mode + Live Tuning required"))
         return false
     end
+    cachedCapList = nil
     ensureRows()
     loadInitialValues()
     refreshAllStatusesFromSnapshot()
     FS25E_LiveOverlay.installListeners()
     visible = true
     selectedIndex = 1
+    scrollOffset = 0
     dbg("overlay shown")
     return true
 end
@@ -467,6 +719,21 @@ local function drawLabel(x, y, size, text, r, g, b, a, align, bold)
     end
 end
 
+local function costColor(cost, warn)
+    if warn then
+        return 1.0, 0.45, 0.25, 1
+    end
+    local c = tostring(cost or "med"):lower()
+    if c == "extreme" then
+        return 0.95, 0.35, 0.35, 1
+    elseif c == "high" then
+        return 0.95, 0.7, 0.3, 1
+    elseif c == "low" then
+        return 0.45, 0.85, 0.55, 1
+    end
+    return 0.75, 0.8, 0.9, 1
+end
+
 function FS25E_LiveOverlay.draw()
     if not visible or not FS25E_LiveOverlay.canShow() then
         if visible and not FS25E_LiveOverlay.canShow() then
@@ -479,30 +746,62 @@ function FS25E_LiveOverlay.draw()
     local soft = isExpertSoftApplyOn()
     local px, py, pw, ph = PANEL.x, PANEL.y, PANEL.w, PANEL.h
 
-    fillRect(px, py, pw, ph, 0.05, 0.07, 0.10, 0.72)
+    fillRect(px, py, pw, ph, 0.05, 0.07, 0.10, 0.78)
 
     local title = t("FS25E_LIVE_OVERLAY_TITLE", "FS25E Expert Live Overlay")
-    drawLabel(px + PANEL.pad, py + ph - PANEL.pad - 0.01, PANEL.titleSize, title, 1, 0.92, 0.55, 1, nil, true)
+    drawLabel(px + PANEL.pad, py + ph - PANEL.pad - 0.008, PANEL.titleSize, title, 1, 0.92, 0.55, 1, nil, true)
 
+    -- HUD telemetry in header (engine + system DISCONNECTED or real sidecar)
+    local hudTop = py + ph - PANEL.pad - 0.028
+    local hudH = 0.055
+    if FS25E_HudOverlay ~= nil and FS25E_HudOverlay.drawAt ~= nil then
+        hudH = FS25E_HudOverlay.drawAt(px + PANEL.pad * 0.5, hudTop, pw - PANEL.pad, {
+            compact = false,
+            background = true,
+            alpha = 0.45,
+            pad = 0.005,
+        })
+    end
+
+    local gateY = hudTop - hudH - 0.006
     local gate = string.format(
-        "Gates: expertMode=ON liveTuning=ON softApply=%s",
-        soft and "ON" or "OFF"
+        "Gates: expertMode=ON liveTuning=ON softApply=%s  caps=%d",
+        soft and "ON" or "OFF",
+        #list
     )
-    drawLabel(px + PANEL.pad, py + ph - PANEL.pad - 0.035, PANEL.smallSize, gate, 0.75, 0.85, 1, 1)
+    drawLabel(px + PANEL.pad, gateY, PANEL.smallSize, gate, 0.75, 0.85, 1, 1)
 
-    local hint = t("FS25E_LIVE_OVERLAY_HINT", "Wheel/click bar | +/- | Esc close | Ctrl+Shift+E")
-    drawLabel(px + PANEL.pad, py + ph - PANEL.pad - 0.055, PANEL.smallSize, hint, 0.65, 0.65, 0.65, 1)
+    local hint = t("FS25E_LIVE_OVERLAY_HINT", "Wheel/click bar | +/- | R restore | Esc | Ctrl+Shift+E")
+    drawLabel(px + PANEL.pad, gateY - 0.016, PANEL.smallSize, hint, 0.65, 0.65, 0.65, 1)
 
-    local y = py + ph - PANEL.pad - 0.085
-    for i = 1, #list do
+    local listTop = gateY - 0.032
+    local listBottom = py + PANEL.pad + 0.028
+    local avail = listTop - listBottom
+    local maxVisible = math.max(1, math.floor(avail / PANEL.rowH))
+    clampScroll(#list, maxVisible)
+
+    -- ensure selection visible
+    if selectedIndex < scrollOffset + 1 then
+        scrollOffset = math.max(0, selectedIndex - 1)
+    elseif selectedIndex > scrollOffset + maxVisible then
+        scrollOffset = selectedIndex - maxVisible
+    end
+    clampScroll(#list, maxVisible)
+
+    local y = listTop
+    local endIdx = math.min(#list, scrollOffset + maxVisible)
+    for i = scrollOffset + 1, endIdx do
         local row = list[i]
         local def = row.def
         local selected = (i == selectedIndex)
+        local warn = def.warn == true
         if selected then
-            fillRect(px + 0.004, y - 0.006, pw - 0.008, PANEL.rowH, 0.20, 0.35, 0.55, 0.35)
+            fillRect(px + 0.004, y - 0.006, pw - 0.008, PANEL.rowH, 0.20, 0.35, 0.55, 0.40)
+        elseif warn then
+            fillRect(px + 0.004, y - 0.006, pw - 0.008, PANEL.rowH, 0.35, 0.18, 0.08, 0.28)
         end
 
-        local label = t(def.labelKey, def.id)
+        local label = def.labelKey ~= nil and t(def.labelKey, def.labelFallback or def.id) or (def.labelFallback or def.id)
         local badge = row.lastResult or "—"
         local badgeColor = { 0.7, 0.7, 0.7, 1 }
         if badge == "APPLIED" then
@@ -514,8 +813,13 @@ function FS25E_LiveOverlay.draw()
         end
 
         local valStr = formatValue(def, row.value)
+        local costStr = string.upper(tostring(def.cost or "med"))
+        if warn then
+            costStr = costStr .. "!"
+        end
+        local cr, cg, cb = costColor(def.cost, warn)
         local line1 = string.format("%s  %s", label, valStr)
-        drawLabel(px + PANEL.pad, y + 0.016, PANEL.textSize, line1, 1, 1, 1, 1)
+        drawLabel(px + PANEL.pad, y + 0.014, PANEL.textSize, line1, warn and 1 or 1, warn and 0.85 or 1, warn and 0.7 or 1, 1)
 
         if def.kind == "bool" then
             local tog = (tonumber(row.value) or 0) >= 0.5 and "[ ON ]" or "[ OFF ]"
@@ -524,19 +828,30 @@ function FS25E_LiveOverlay.draw()
             drawLabel(px + PANEL.pad, y - 0.002, PANEL.textSize, barText(def, row.value), 0.7, 0.85, 1, 1)
         end
 
-        drawLabel(px + pw - PANEL.pad, y + 0.016, PANEL.smallSize, badge, badgeColor[1], badgeColor[2], badgeColor[3], badgeColor[4], (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
+        -- cost beside row (right of bar area)
+        drawLabel(px + pw - PANEL.pad - 0.08, y + 0.014, PANEL.smallSize, costStr, cr, cg, cb, 1, (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
+        drawLabel(px + pw - PANEL.pad, y + 0.014, PANEL.smallSize, badge, badgeColor[1], badgeColor[2], badgeColor[3], badgeColor[4], (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
 
-        if row.lastError ~= nil and row.lastError ~= "" and selected then
-            drawLabel(px + PANEL.pad, y - 0.014, PANEL.smallSize, tostring(row.lastError), 0.9, 0.55, 0.4, 1)
+        if selected then
+            local note = def.notes
+            if (note == nil or note == "") and row.lastError ~= nil and row.lastError ~= "" then
+                note = row.lastError
+            elseif row.lastError ~= nil and row.lastError ~= "" then
+                note = tostring(row.lastError)
+            end
+            if note ~= nil and note ~= "" then
+                drawLabel(px + PANEL.pad + 0.12, y - 0.002, PANEL.smallSize, tostring(note), warn and 1 or 0.9, warn and 0.55 or 0.55, warn and 0.35 or 0.4, 1)
+            end
         end
 
-        -- store hitbox for mouse
         row._hit = { x = px + PANEL.pad, y = y - 0.006, w = pw - 0.02, h = PANEL.rowH, index = i }
 
         y = y - PANEL.rowH
-        if y < py + PANEL.pad + 0.04 then
-            break
-        end
+    end
+
+    if #list > maxVisible then
+        local scrollHint = string.format("[%d-%d / %d]", scrollOffset + 1, endIdx, #list)
+        drawLabel(px + pw - PANEL.pad, listBottom + 0.012, PANEL.smallSize, scrollHint, 0.6, 0.6, 0.6, 1, (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
     end
 
     local foot = t("FS25E_LIVE_OVERLAY_SESSION", "Values: session via SettingsCache (persist optional)")
@@ -576,7 +891,6 @@ function FS25E_LiveOverlay.mouseEvent(posX, posY, isDown, isUp, button)
     if not visible or not FS25E_LiveOverlay.canShow() then
         return
     end
-    -- Left button typically 1 in Giants
     local left = (button == 1 or button == nil)
     if not left then
         return
@@ -593,7 +907,6 @@ function FS25E_LiveOverlay.mouseEvent(posX, posY, isDown, isUp, button)
     elseif isUp then
         dragRow = nil
     else
-        -- move while held
         if dragRow ~= nil and dragRow._hit ~= nil then
             local v = valueFromBarClick(dragRow, dragRow._hit, posX)
             applyRow(dragRow, v)
@@ -609,6 +922,8 @@ function FS25E_LiveOverlay.mouseWheel(delta)
     if d == 0 then
         return
     end
+    -- With Shift: scroll list; else nudge selected
+    -- Giants may not expose modifier here — nudge by default; PgUp/Dn scroll via keys
     nudgeSelected(d > 0 and 1 or -1)
 end
 
@@ -616,13 +931,11 @@ function FS25E_LiveOverlay.keyEvent(unicode, sym, modifier, isDown)
     if not visible or not isDown then
         return false
     end
-    -- ESC
     if sym == 27 or (Input ~= nil and Input.KEY_esc ~= nil and sym == Input.KEY_esc) then
         FS25E_LiveOverlay.hide()
         return true
     end
-    -- +/-
-    if sym == 43 or sym == 61 or unicode == 43 then -- + or =
+    if sym == 43 or sym == 61 or unicode == 43 then
         nudgeSelected(1)
         return true
     end
@@ -630,17 +943,20 @@ function FS25E_LiveOverlay.keyEvent(unicode, sym, modifier, isDown)
         nudgeSelected(-1)
         return true
     end
-    -- arrows up/down select
-    if sym == 273 or sym == 265 then -- up
+    -- R = restore selected
+    if sym == 114 or sym == 82 or unicode == 114 or unicode == 82 then
+        restoreSelected()
+        return true
+    end
+    if sym == 273 or sym == 265 then
         selectedIndex = math.max(1, selectedIndex - 1)
         return true
     end
-    if sym == 274 or sym == 264 then -- down
+    if sym == 274 or sym == 264 then
         local list = visibleRowList()
         selectedIndex = math.min(#list, selectedIndex + 1)
         return true
     end
-    -- left/right nudge
     if sym == 276 or sym == 263 then
         nudgeSelected(-1)
         return true
@@ -649,11 +965,20 @@ function FS25E_LiveOverlay.keyEvent(unicode, sym, modifier, isDown)
         nudgeSelected(1)
         return true
     end
+    -- Page up / down scroll
+    if sym == 280 or sym == 266 then
+        scrollOffset = scrollOffset - 5
+        return true
+    end
+    if sym == 281 or sym == 267 then
+        scrollOffset = scrollOffset + 5
+        return true
+    end
     return false
 end
 
 function FS25E_LiveOverlay.update(dt)
-    -- reserved (debounce etc.)
+    -- reserved
 end
 
 function FS25E_LiveOverlay.registerHooks()
@@ -670,6 +995,7 @@ function FS25E_LiveOverlay.registerHooks()
             if FS25E_LiveOverlay ~= nil then
                 FS25E_LiveOverlay.draw()
             end
+            -- Mini HUD when overlay closed is handled by FS25E_HudOverlay.registerHooks
         end)
     end
 
@@ -681,7 +1007,6 @@ function FS25E_LiveOverlay.registerHooks()
         end)
     end
 
-    -- Best-effort mouse wheel + key hooks
     if FSBaseMission.mouseWheelEvent ~= nil then
         FS25E_HookManager.register(FSBaseMission, "mouseWheelEvent", "appended", function(self, ...)
             local args = { ... }
@@ -712,5 +1037,6 @@ function FS25E_LiveOverlay.reset()
     visible = false
     dragRow = nil
     rows = {}
-    -- listeners stay (idempotent install); hooks stay for session
+    cachedCapList = nil
+    scrollOffset = 0
 end

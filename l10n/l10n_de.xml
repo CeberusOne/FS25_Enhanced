@@ -100,7 +100,7 @@
         <!-- Expert Live Overlay -->
         <text name="FS25E_LIVE_OVERLAY_TITLE" text="FS25E Expert Live-Overlay"/>
         <text name="FS25E_LIVE_OVERLAY_OPEN" text="Live-Overlay öffnen"/>
-        <text name="FS25E_LIVE_OVERLAY_HINT" text="Mausrad/Klick Balken | +/- | Esc schließen | Strg+Umschalt+E"/>
+        <text name="FS25E_LIVE_OVERLAY_HINT" text="Mausrad/Klick Balken | +/- | R Restore | Esc | Strg+Umschalt+E"/>
         <text name="FS25E_LIVE_OVERLAY_GATE_REQUIRED" text="Expertenmodus + Live-Tuning erforderlich"/>
         <text name="FS25E_LIVE_OVERLAY_UNAVAILABLE" text="Live-Overlay nicht verfügbar"/>
         <text name="FS25E_LIVE_OVERLAY_SESSION" text="Werte: Session über SettingsCache (Persistenz optional)"/>
@@ -118,6 +118,17 @@
         <text name="FS25E_LIVE_OVERLAY_FAST_SHADOW" text="Schnelles Schatten-Update"/>
         <text name="FS25E_LIVE_OVERLAY_RAIN_SHALLOW" text="Regen Flachwasser-Sim"/>
         <text name="input_FS25E_TOGGLE_LIVE_OVERLAY" text="FS25 Enhanced Live-Overlay umschalten"/>
+
+        <!-- Pro Live HUD -->
+        <text name="FS25E_HUD_TITLE_MINI" text="FS25E HUD"/>
+        <text name="FS25E_HUD_ENGINE" text="Engine"/>
+        <text name="FS25E_HUD_SYSTEM" text="System"/>
+        <text name="FS25E_HUD_DISCONNECTED" text="GETRENNT"/>
+        <text name="FS25E_HUD_MS" text="ms"/>
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_SHADOWS" text="Laubschatten erlauben"/>
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_QUALITY" text="Schattenqualität"/>
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_DIST_Q" text="Schatten-Distanzqualität"/>
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_FILTER" text="Schattenfilter-Qualität"/>
         <text name="FS25E_SETTING_SOFT_SHADOWS" text="Weiche Schatten"/>
         <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="Schattenfilter-/Soft-Shadow-Qualitätsstufe (setShadowFilterQuality)."/>
         <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box"/>

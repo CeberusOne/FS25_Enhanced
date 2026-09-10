@@ -1,6 +1,6 @@
 # Expert Live-Overlay (GUI)
 
-**Version:** 0.4.1.0  
+**Version:** 0.4.2.1  
 **Module:** `scripts/UI/FS25E_LiveOverlay.lua`  
 **Depends on Core:** `SettingsAPI.live*` (merged via PR #21) + `Diagnostics.getStatusForSetting` (PR #22)
 
@@ -57,6 +57,9 @@ Status badges per row: `APPLIED` / `REJECTED` / `SKIPPED`.
 
 ## Parameters (0.01 float steps unless noted)
 
+> **v0.4.2.1:** Primary list from `SettingsAPI.liveListCaps()`; table below is preferred Wave-1/Expert meta/order. Additional global caps appear with inferred ranges.
+
+
 | Overlay id | capabilityId | Range | Kind |
 |------------|--------------|-------|------|
 | viewDistance | view-distance-coeff | 0.50–1.50 / 0.01 | Wave-1 |
@@ -85,3 +88,7 @@ Status badges per row: `APPLIED` / `REJECTED` / `SKIPPED`.
 - `docs/LIVE_OVERLAY_API.md` — Core live* contract
 - `docs/EXPERT_CAPS.md` — Expert capability list
 - `docs/CAPABILITY_HOOKS.md` — APPLIED/REJECTED/SKIPPED listeners
+
+## Pro Live HUD (v0.4.2.1)
+
+See `docs/pro-live-hud-gui.md` for `liveListCaps` / cost-warn / `getHudTelemetry` docks and mini HUD behavior.
