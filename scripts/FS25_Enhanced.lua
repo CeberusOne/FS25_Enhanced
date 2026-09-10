@@ -1,7 +1,8 @@
--- FS25_Enhanced.lua — Bootstrap (Phase 2 + Lights Spec Probe)
+-- FS25_Enhanced.lua — Bootstrap (Phase 2 + Lights Spec Probe + Gen-1 Settings GUI)
 -- Mission-level service only. Client-local. Auto-apply OFF by default.
 -- Phase 2: SceneAnalyzer + hysteresis + preset stubs; no new automatic engine setters.
 -- Lights: Spec-based RealLight discovery (no global scan); Soft-Apply off by default.
+-- GUI Gen-1: MessageDialog settings; values via ModSettings; Expert+Status tabs.
 -- Session-only apply + restore (no saveHardwareScalability / applyPerformanceClass).
 
 local modName = g_currentModName
@@ -32,6 +33,9 @@ local function onLoadMap(mission)
         end
         if FS25E_SettingsSchema ~= nil then
             FS25E_SettingsSchema.init()
+        end
+        if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.init ~= nil then
+            FS25E_Diagnostics.init()
         end
         if FS25E_CapabilityRegistry ~= nil then
             FS25E_CapabilityRegistry.load(FS25_Enhanced.modDirectory)
@@ -81,6 +85,10 @@ local function onLoadMap(mission)
         if FS25E_ConsoleCommands ~= nil then
             FS25E_ConsoleCommands.register()
         end
+        if FS25E_Input ~= nil and FS25E_Input.register ~= nil then
+            FS25E_Input.register()
+        end
+        -- Lazy GUI: do not force loadGui here; hotkey/console triggers ensureSettingsDialog.
 
         FS25_Enhanced.initialized = true
         local capCount = 0
@@ -88,7 +96,7 @@ local function onLoadMap(mission)
             capCount = FS25E_CapabilityRegistry.count()
         end
         FS25E_Debug.info("Bootstrap", string.format(
-            "loadMap complete v%s caps=%d lightsProbe=on softApply=off auto-apply off (phase2+lights; no global scan)",
+            "loadMap complete v%s caps=%d lightsProbe=on softApply=off auto-apply off gui=gen1 (phase2+lights+settings; no global scan)",
             FS25_Enhanced.VERSION,
             capCount
         ))
@@ -100,6 +108,15 @@ local function onDeleteMap()
         FS25E_Debug.info("Bootstrap", "deleteMap begin — restore path")
         FS25_Enhanced.missionActive = false
 
+        if FS25E_Input ~= nil and FS25E_Input.unregister ~= nil then
+            FS25E_Input.unregister()
+        end
+        if FS25E_GuiLoader ~= nil and FS25E_GuiLoader.reset ~= nil then
+            FS25E_GuiLoader.reset()
+        end
+        if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.reset ~= nil then
+            FS25E_Diagnostics.reset()
+        end
         if FS25E_GraphicsGovernor ~= nil then
             FS25E_GraphicsGovernor.setEnabled(false)
             FS25E_GraphicsGovernor.reset()
