@@ -449,25 +449,44 @@ function FS25E_LightDiscovery.getCounts()
     }
 end
 
---- Console dump — list discovered counts/nodes; no apply.
+local function dumpLine(e)
+    return string.format(
+        "  lightId=%s node=%s kind=%s profile=%s active=%s bucket=%s group=%s",
+        tostring(e.node), tostring(e.node), tostring(e.kind), tostring(e.profile),
+        tostring(e.active), tostring(e.bucket), tostring(e.groupIndex)
+    )
+end
+
+--- Console dump — list discovered counts/nodes; prefer active first; no apply.
 function FS25E_LightDiscovery.dump()
     local c = FS25E_LightDiscovery.getCounts()
+    local lightsProfile = resolveLightsProfileValue()
     local msg = string.format(
-        "lightsDump total=%d active=%d vehicle=%d placeable=%d softApply=%s (read-only; no apply)",
-        c.total, c.active, c.vehicle, c.placeable, tostring(c.softApply)
+        "lightsDump total=%d active=%d vehicle=%d placeable=%d softApply=%s lightsProfile=%s (read-only; no apply)",
+        c.total, c.active, c.vehicle, c.placeable, tostring(c.softApply), tostring(lightsProfile)
     )
     FS25E_Debug.info(LOG, msg)
     if print ~= nil then
         print("[FS25_Enhanced] " .. msg)
     end
-    local shown = 0
+
+    -- Prefer active entries first (still max 64); inactive fill remaining slots.
+    local activeList, inactiveList = {}, {}
     for _, e in pairs(entries) do
-        if shown < 64 then
-            local line = string.format(
-                "  node=%s kind=%s profile=%s active=%s bucket=%s group=%s",
-                tostring(e.node), tostring(e.kind), tostring(e.profile),
-                tostring(e.active), tostring(e.bucket), tostring(e.groupIndex)
-            )
+        if e.active then
+            activeList[#activeList + 1] = e
+        else
+            inactiveList[#inactiveList + 1] = e
+        end
+    end
+
+    local shown = 0
+    local function emit(list)
+        for i = 1, #list do
+            if shown >= 64 then
+                return
+            end
+            local line = dumpLine(list[i])
             FS25E_Debug.info(LOG, line)
             if print ~= nil then
                 print("[FS25_Enhanced] " .. line)
@@ -475,8 +494,11 @@ function FS25E_LightDiscovery.dump()
             shown = shown + 1
         end
     end
+    emit(activeList)
+    emit(inactiveList)
+
     if c.total > shown then
-        local more = string.format("  ... %d more (truncated)", c.total - shown)
+        local more = string.format("  ... %d more (truncated; active listed first)", c.total - shown)
         FS25E_Debug.info(LOG, more)
         if print ~= nil then
             print("[FS25_Enhanced] " .. more)

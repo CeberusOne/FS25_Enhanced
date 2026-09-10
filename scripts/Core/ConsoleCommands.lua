@@ -134,6 +134,61 @@ function FS25E_ConsoleCommands.setGovernorEnabled(flag)
     say(string.format("governor enabled=%s autoApply=false", tostring(on)))
 end
 
+function FS25E_ConsoleCommands.applyLightPriority(lightIdStr, priorityStr)
+    local lightId = tonumber(lightIdStr)
+    local priority = tonumber(priorityStr)
+    if lightId == nil or priority == nil then
+        say("usage: fs25eApplyLightPriority <lightId> <priority>  (manual; lightId = node from fs25eLightsDump)")
+        return
+    end
+    if FS25E_ShadowManager == nil or FS25E_ShadowManager.setLightShadowPriority == nil then
+        say("ShadowManager.setLightShadowPriority missing")
+        return
+    end
+    -- Require a known discovered id when registry has entries (no blind apply).
+    if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.getEntries ~= nil then
+        local found = false
+        local entries = FS25E_LightDiscovery.getEntries()
+        local n = 0
+        local want = tostring(lightId)
+        for _, e in pairs(entries) do
+            n = n + 1
+            if e ~= nil and e.node ~= nil and tostring(e.node) == want then
+                found = true
+                break
+            end
+        end
+        if n > 0 and not found then
+            say(string.format("applyLightPriority rejected: lightId=%s not in LightDiscovery (run fs25eLightsDump)", tostring(lightId)))
+            return
+        end
+    end
+    local ok, err = FS25E_ShadowManager.setLightShadowPriority(lightId, priority)
+    say(string.format(
+        "applyLightPriority lightId=%s priority=%s ok=%s err=%s (manual; softApply/autoApply untouched)",
+        tostring(lightId), tostring(priority), tostring(ok), tostring(err)
+    ))
+end
+
+--- DANGER: enables Soft-Apply (CONFIRMED ShadowManager per-light APIs). Default OFF.
+--- Does NOT enable GraphicsGovernor.autoApply.
+function FS25E_ConsoleCommands.setSoftApply(flag)
+    if FS25E_LightDiscovery == nil or FS25E_LightDiscovery.setSoftApplyEnabled == nil then
+        say("LightDiscovery missing")
+        return
+    end
+    if flag ~= "0" and flag ~= "1" then
+        say("usage: fs25eSoftApply 0|1  (DANGER: 1 enables Soft-Apply of CONFIRMED per-light APIs; default 0; does NOT enable autoApply)")
+        return
+    end
+    local on = flag == "1"
+    FS25E_LightDiscovery.setSoftApplyEnabled(on)
+    say(string.format(
+        "softApply=%s (DANGER when on: may mutate per-light shadow caps; autoApply stays false; use fs25eRestore / owner delete to restore)",
+        tostring(on)
+    ))
+end
+
 local function tryAdd(name, description, fnName)
     if addConsoleCommand == nil then
         return false
@@ -164,6 +219,8 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eRestore", "FS25_Enhanced: force session restore", "forceRestore") then n = n + 1 end
     if tryAdd("fs25eSelectPreset", "FS25_Enhanced: select preset into SettingsCache (no engine apply)", "selectPreset") then n = n + 1 end
     if tryAdd("fs25eGovernor", "FS25_Enhanced: enable governor observe (1/0); never enables autoApply", "setGovernorEnabled") then n = n + 1 end
+    if tryAdd("fs25eApplyLightPriority", "FS25_Enhanced: manual setLightShadowPriority (lightId from fs25eLightsDump)", "applyLightPriority") then n = n + 1 end
+    if tryAdd("fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
     registered = n > 0
     FS25E_Debug.info("Console", string.format("registered %d console commands (autoApply never forced on)", n))
     return registered
@@ -182,6 +239,8 @@ function FS25E_ConsoleCommands.unregister()
         "fs25eRestore",
         "fs25eSelectPreset",
         "fs25eGovernor",
+        "fs25eApplyLightPriority",
+        "fs25eSoftApply",
     }
     for i = 1, #names do
         pcall(removeConsoleCommand, names[i])
