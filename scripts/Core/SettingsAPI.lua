@@ -70,6 +70,10 @@ function FS25E_SettingsAPI.applySelectedPreset()
     return false, "applySelected missing"
 end
 
+function FS25E_SettingsAPI.applySelected()
+    return FS25E_SettingsAPI.applySelectedPreset()
+end
+
 function FS25E_SettingsAPI.setEnabled(v)
     return FS25E_SettingsAPI.set("enabled", v == true)
 end
