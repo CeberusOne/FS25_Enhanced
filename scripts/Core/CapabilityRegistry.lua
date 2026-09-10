@@ -20,7 +20,38 @@ FS25E_CapabilityRegistry.APPLY_MODE = {
     SESSION = "SESSION",
 }
 
+FS25E_CapabilityRegistry.RESULT = {
+    APPLIED = "APPLIED",
+    REJECTED = "REJECTED",
+    SKIPPED = "SKIPPED",
+}
+
 local capabilities = {} -- id -> entry
+local expertMode = false
+local lastResults = {}
+local listeners = { apply = {}, reject = {}, skip = {} }
+
+local function nowTs()
+    if getTime ~= nil then
+        local ok, t = pcall(getTime)
+        if ok then return t end
+    end
+    return nil
+end
+
+local function emit(kind, id, payload)
+    local list = listeners[kind]
+    if list == nil then return end
+    for i = 1, #list do
+        pcall(list[i], id, payload)
+    end
+end
+
+local function storeResult(id, status, err, detail)
+    local payload = { status = status, error = err, detail = detail, ts = nowTs() }
+    lastResults[id] = payload
+    return payload
+end
 
 -- Wave-1 seed (mirrors config/capabilityProfiles.xml). Used outside game / if XML fails.
 local WAVE1_FALLBACK = {
@@ -193,9 +224,31 @@ function FS25E_CapabilityRegistry.isConfirmed(id)
     return FS25E_CapabilityRegistry.getStatus(id) == FS25E_CapabilityRegistry.STATUS.CONFIRMED
 end
 
---- Wave 1 apply gate: CONFIRMED only (no EXPERIMENTAL / GATED auto-apply).
+function FS25E_CapabilityRegistry.setExpertMode(enabled)
+    expertMode = enabled == true
+    FS25E_Debug.info("CapabilityRegistry", "expertMode=" .. tostring(expertMode))
+end
+
+function FS25E_CapabilityRegistry.isExpertMode()
+    return expertMode
+end
+
+--- CONFIRMED always; with expertMode also EXPERIMENTAL/GATED/ASSET_DEPENDENT.
+--- GATED needs getSupports* at apply site; ASSET_DEPENDENT needs lightId/asset.
 function FS25E_CapabilityRegistry.allowsApply(id)
-    return FS25E_CapabilityRegistry.isConfirmed(id)
+    local s = FS25E_CapabilityRegistry.getStatus(id)
+    if s == FS25E_CapabilityRegistry.STATUS.REJECTED then
+        return false
+    end
+    if s == FS25E_CapabilityRegistry.STATUS.CONFIRMED then
+        return true
+    end
+    if not expertMode then
+        return false
+    end
+    return s == FS25E_CapabilityRegistry.STATUS.EXPERIMENTAL
+        or s == FS25E_CapabilityRegistry.STATUS.GATED
+        or s == FS25E_CapabilityRegistry.STATUS.ASSET_DEPENDENT
 end
 
 function FS25E_CapabilityRegistry.isUsable(id)
@@ -210,11 +263,47 @@ function FS25E_CapabilityRegistry.reject(id, reason)
     local c = capabilities[id]
     if c == nil then
         FS25E_CapabilityRegistry.register(id, "REJECTED", nil, reason)
-        return
+    else
+        c.status = FS25E_CapabilityRegistry.STATUS.REJECTED
+        c.notes = reason
     end
-    c.status = FS25E_CapabilityRegistry.STATUS.REJECTED
-    c.notes = reason
-    FS25E_Debug.warning("CapabilityRegistry", string.format("rejected %s: %s", tostring(id), tostring(reason)))
+    local payload = storeResult(id, FS25E_CapabilityRegistry.RESULT.REJECTED, reason, nil)
+    FS25E_Debug.warning("CapabilityRegistry", string.format("REJECTED %s: %s", tostring(id), tostring(reason)))
+    emit("reject", id, payload)
+end
+
+function FS25E_CapabilityRegistry.markApplied(id, detail)
+    local payload = storeResult(id, FS25E_CapabilityRegistry.RESULT.APPLIED, nil, detail)
+    FS25E_Debug.info("CapabilityRegistry", string.format("APPLIED %s %s", tostring(id), tostring(detail or "")))
+    emit("apply", id, payload)
+    return payload
+end
+
+function FS25E_CapabilityRegistry.markSkipped(id, reason)
+    local payload = storeResult(id, FS25E_CapabilityRegistry.RESULT.SKIPPED, reason, nil)
+    FS25E_Debug.info("CapabilityRegistry", string.format("SKIPPED %s: %s", tostring(id), tostring(reason)))
+    emit("skip", id, payload)
+    return payload
+end
+
+function FS25E_CapabilityRegistry.getLastResult(id)
+    return lastResults[id]
+end
+
+function FS25E_CapabilityRegistry.getAllLastResults()
+    return lastResults
+end
+
+function FS25E_CapabilityRegistry.onApply(fn)
+    if type(fn) == "function" then listeners.apply[#listeners.apply + 1] = fn end
+end
+
+function FS25E_CapabilityRegistry.onReject(fn)
+    if type(fn) == "function" then listeners.reject[#listeners.reject + 1] = fn end
+end
+
+function FS25E_CapabilityRegistry.onSkip(fn)
+    if type(fn) == "function" then listeners.skip[#listeners.skip + 1] = fn end
 end
 
 function FS25E_CapabilityRegistry.all()

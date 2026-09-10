@@ -265,3 +265,63 @@ end
 function FS25E_ProfileManager.reset()
     activeName = "Balanced"
 end
+
+
+--- Apply active preset via Wave-1 managers when governor is enabled (or force=true).
+--- Does not enable autoApply. Session-only; no saveHardwareScalability.
+function FS25E_ProfileManager.applySelected(force)
+    local name = activeName or "Balanced"
+    local preset = presets[name]
+    if preset == nil then
+        return false, "unknown preset"
+    end
+    local govOn = force == true
+    if not govOn and FS25E_GraphicsGovernor ~= nil and FS25E_GraphicsGovernor.isEnabled ~= nil then
+        govOn = FS25E_GraphicsGovernor.isEnabled() == true
+    end
+    if not govOn then
+        FS25E_Debug.info("ProfileManager", "applySelected skipped (governor disabled); use selectPreset only")
+        return false, "governor disabled"
+    end
+
+    local t = preset.targets or {}
+    local okAny = false
+
+    if FS25E_LodGovernor ~= nil then
+        if t.viewDistanceCoeff ~= nil and FS25E_LodGovernor.setViewDistanceCoeff ~= nil then
+            local ok = FS25E_LodGovernor.setViewDistanceCoeff(t.viewDistanceCoeff)
+            okAny = okAny or ok
+        end
+        if t.lodDistanceCoeff ~= nil and FS25E_LodGovernor.setLODDistanceCoeff ~= nil then
+            local ok = FS25E_LodGovernor.setLODDistanceCoeff(t.lodDistanceCoeff)
+            okAny = okAny or ok
+        end
+        if t.foliageViewDistanceCoeff ~= nil and FS25E_LodGovernor.setFoliageViewDistanceCoeff ~= nil then
+            local ok = FS25E_LodGovernor.setFoliageViewDistanceCoeff(t.foliageViewDistanceCoeff)
+            okAny = okAny or ok
+        end
+        if t.foliageLodDistanceCoeff ~= nil and FS25E_LodGovernor.setFoliageLODDistanceCoeff ~= nil then
+            local ok = FS25E_LodGovernor.setFoliageLODDistanceCoeff(t.foliageLodDistanceCoeff)
+            okAny = okAny or ok
+        end
+        if t.terrainLodDistanceCoeff ~= nil and FS25E_LodGovernor.setTerrainLODDistanceCoeff ~= nil then
+            local ok = FS25E_LodGovernor.setTerrainLODDistanceCoeff(t.terrainLodDistanceCoeff)
+            okAny = okAny or ok
+        end
+        if t.allowFoliageShadows ~= nil and FS25E_LodGovernor.setAllowFoliageShadows ~= nil then
+            local ok = FS25E_LodGovernor.setAllowFoliageShadows(t.allowFoliageShadows)
+            okAny = okAny or ok
+        end
+    end
+
+    if FS25E_ShadowManager ~= nil and t.maxNumShadowLights ~= nil and FS25E_ShadowManager.setMaxNumShadowLights ~= nil then
+        local ok = FS25E_ShadowManager.setMaxNumShadowLights(t.maxNumShadowLights)
+        okAny = okAny or ok
+    end
+
+    if FS25E_ModSettings ~= nil then
+        FS25E_ModSettings.set("activePreset", name)
+    end
+    FS25E_Debug.info("ProfileManager", string.format("applySelected preset=%s okAny=%s", tostring(name), tostring(okAny)))
+    return okAny, nil
+end

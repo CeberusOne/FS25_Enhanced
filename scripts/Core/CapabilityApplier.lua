@@ -77,7 +77,10 @@ function FS25E_CapabilityApplier.apply(capabilityId, opts)
         return false, "unknown capability"
     end
     if FS25E_CapabilityRegistry.allowsApply == nil or not FS25E_CapabilityRegistry.allowsApply(capabilityId) then
-        return false, "not CONFIRMED / not allowed"
+        if FS25E_CapabilityRegistry.markSkipped ~= nil then
+            FS25E_CapabilityRegistry.markSkipped(capabilityId, "not allowed (expertMode/status)")
+        end
+        return false, "not allowed"
     end
     if cap.setter == nil or cap.setter == "" or cap.setter == "NONE" then
         return false, "no setter (query-only)"
@@ -157,6 +160,10 @@ function FS25E_CapabilityApplier.apply(capabilityId, opts)
         appliedValue = values[1],
         restoreStrategy = cap.restoreStrategy,
     }
+
+    if FS25E_CapabilityRegistry.markApplied ~= nil then
+        FS25E_CapabilityRegistry.markApplied(capabilityId, key)
+    end
 
     if not opts.skipRestoreRegister and FS25E_RestoreManager ~= nil and FS25E_RestoreManager.registerCapabilityRestore ~= nil then
         FS25E_RestoreManager.registerCapabilityRestore(key)

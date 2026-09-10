@@ -10,7 +10,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.3.1.2"
+FS25_Enhanced.VERSION = "0.3.2.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -28,7 +28,7 @@ local function onLoadMap(mission)
 
         if FS25E_ModSettings ~= nil then
             FS25E_ModSettings.init()
-            FS25E_ModSettings.loadStub()
+            FS25E_ModSettings.load()
         end
         if FS25E_SettingsSchema ~= nil then
             FS25E_SettingsSchema.init()
@@ -94,6 +94,11 @@ end
 local function onDeleteMap()
     safeCall("onDeleteMap", function()
         FS25E_Debug.info("Bootstrap", "deleteMap begin — restore path")
+        if FS25E_ModSettings ~= nil and FS25E_ModSettings.save ~= nil then
+            safeCall("ModSettings.save", function()
+                FS25E_ModSettings.save()
+            end)
+        end
         FS25_Enhanced.missionActive = false
 
         if FS25E_GraphicsGovernor ~= nil then
