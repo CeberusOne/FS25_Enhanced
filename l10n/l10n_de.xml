@@ -96,6 +96,28 @@
         <text name="input_FS25E_OPEN_SETTINGS" text="FS25 Enhanced Einstellungen öffnen"/>
         <text name="input_FS25E_LIVE_HINT" text="FS25 Enhanced Live-Tuning-Hinweis"/>
         <text name="FS25E_LIVE_HINT_LATER" text="Live-Tuning kommt später"/>
+
+        <!-- Expert Live Overlay -->
+        <text name="FS25E_LIVE_OVERLAY_TITLE" text="FS25E Expert Live-Overlay"/>
+        <text name="FS25E_LIVE_OVERLAY_OPEN" text="Live-Overlay öffnen"/>
+        <text name="FS25E_LIVE_OVERLAY_HINT" text="Mausrad/Klick Balken | +/- | Esc schließen | Strg+Umschalt+E"/>
+        <text name="FS25E_LIVE_OVERLAY_GATE_REQUIRED" text="Expertenmodus + Live-Tuning erforderlich"/>
+        <text name="FS25E_LIVE_OVERLAY_UNAVAILABLE" text="Live-Overlay nicht verfügbar"/>
+        <text name="FS25E_LIVE_OVERLAY_SESSION" text="Werte: Session über SettingsCache (Persistenz optional)"/>
+        <text name="FS25E_LIVE_OVERLAY_VIEW_DISTANCE" text="Sichtweite-Koeff."/>
+        <text name="FS25E_LIVE_OVERLAY_LOD_DISTANCE" text="LOD-Distanz-Koeff."/>
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_VIEW" text="Laub-Sichtweite-Koeff."/>
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_LOD" text="Laub-LOD-Koeff."/>
+        <text name="FS25E_LIVE_OVERLAY_TERRAIN_LOD" text="Terrain-LOD-Koeff."/>
+        <text name="FS25E_LIVE_OVERLAY_MAX_SHADOW_LIGHTS" text="Max. Schattenlichter"/>
+        <text name="FS25E_LIVE_OVERLAY_RAIN_AMOUNT" text="Regenmenge-Mult."/>
+        <text name="FS25E_LIVE_OVERLAY_SSR_QUALITY" text="SSR-Qualität"/>
+        <text name="FS25E_LIVE_OVERLAY_ATMOSPHERE_QUALITY" text="Atmosphären-Qualität"/>
+        <text name="FS25E_LIVE_OVERLAY_DRS_QUALITY" text="DRS-Qualität"/>
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_FOCUS" text="Schatten-Fokusbox"/>
+        <text name="FS25E_LIVE_OVERLAY_FAST_SHADOW" text="Schnelles Schatten-Update"/>
+        <text name="FS25E_LIVE_OVERLAY_RAIN_SHALLOW" text="Regen Flachwasser-Sim"/>
+        <text name="input_FS25E_TOGGLE_LIVE_OVERLAY" text="FS25 Enhanced Live-Overlay umschalten"/>
         <text name="FS25E_SETTING_SOFT_SHADOWS" text="Weiche Schatten"/>
         <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="Schattenfilter-/Soft-Shadow-Qualitätsstufe (setShadowFilterQuality)."/>
         <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box"/>

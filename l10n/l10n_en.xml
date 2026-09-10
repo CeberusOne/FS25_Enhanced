@@ -96,6 +96,28 @@
         <text name="input_FS25E_OPEN_SETTINGS" text="Open FS25 Enhanced Settings"/>
         <text name="input_FS25E_LIVE_HINT" text="FS25 Enhanced Live Tuning Hint"/>
         <text name="FS25E_LIVE_HINT_LATER" text="Live Tuning coming later"/>
+
+        <!-- Expert Live Overlay -->
+        <text name="FS25E_LIVE_OVERLAY_TITLE" text="FS25E Expert Live Overlay"/>
+        <text name="FS25E_LIVE_OVERLAY_OPEN" text="Open Live Overlay"/>
+        <text name="FS25E_LIVE_OVERLAY_HINT" text="Wheel/click bar | +/- | Esc close | Ctrl+Shift+E"/>
+        <text name="FS25E_LIVE_OVERLAY_GATE_REQUIRED" text="Expert Mode + Live Tuning required"/>
+        <text name="FS25E_LIVE_OVERLAY_UNAVAILABLE" text="Live Overlay unavailable"/>
+        <text name="FS25E_LIVE_OVERLAY_SESSION" text="Values: session via SettingsCache (persist optional)"/>
+        <text name="FS25E_LIVE_OVERLAY_VIEW_DISTANCE" text="View Distance Coeff"/>
+        <text name="FS25E_LIVE_OVERLAY_LOD_DISTANCE" text="LOD Distance Coeff"/>
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_VIEW" text="Foliage View Coeff"/>
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_LOD" text="Foliage LOD Coeff"/>
+        <text name="FS25E_LIVE_OVERLAY_TERRAIN_LOD" text="Terrain LOD Coeff"/>
+        <text name="FS25E_LIVE_OVERLAY_MAX_SHADOW_LIGHTS" text="Max Shadow Lights"/>
+        <text name="FS25E_LIVE_OVERLAY_RAIN_AMOUNT" text="Rain Amount Mult"/>
+        <text name="FS25E_LIVE_OVERLAY_SSR_QUALITY" text="SSR Quality"/>
+        <text name="FS25E_LIVE_OVERLAY_ATMOSPHERE_QUALITY" text="Atmosphere Quality"/>
+        <text name="FS25E_LIVE_OVERLAY_DRS_QUALITY" text="DRS Quality"/>
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_FOCUS" text="Shadow Focus Box"/>
+        <text name="FS25E_LIVE_OVERLAY_FAST_SHADOW" text="Fast Shadow Update"/>
+        <text name="FS25E_LIVE_OVERLAY_RAIN_SHALLOW" text="Rain Shallow Water"/>
+        <text name="input_FS25E_TOGGLE_LIVE_OVERLAY" text="Toggle FS25 Enhanced Live Overlay"/>
         <text name="FS25E_SETTING_SOFT_SHADOWS" text="Soft Shadows"/>
         <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="Shadow filter / soft-shadow quality tier (setShadowFilterQuality)."/>
         <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box"/>

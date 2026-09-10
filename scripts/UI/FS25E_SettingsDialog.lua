@@ -240,6 +240,22 @@ function FS25E_SettingsDialog:onClickShadowFocus(state) self:_onOptionChanged("s
 function FS25E_SettingsDialog:onClickFastShadowUpdate(state) self:_onOptionChanged("fastShadowUpdate", state) end
 function FS25E_SettingsDialog:onClickRainShallowWater(state) self:_onOptionChanged("rainShallowWater", state) end
 
+
+--- Expert-tab: enable liveTuning + open overlay (gates still checked inside overlay).
+function FS25E_SettingsDialog:onClickLiveOverlay()
+    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.set ~= nil then
+        FS25E_SettingsAPI.set("liveTuningEnabled", true)
+    elseif FS25E_ModSettings ~= nil and FS25E_ModSettings.set ~= nil then
+        FS25E_ModSettings.set("liveTuningEnabled", true)
+    end
+    -- Ensure expertMode remains as-is; overlay.canShow requires both.
+    if FS25E_LiveOverlay ~= nil and FS25E_LiveOverlay.toggle ~= nil then
+        -- Close settings so overlay draws over world
+        self:close()
+        FS25E_LiveOverlay.toggle(true)
+    end
+end
+
 function FS25E_SettingsDialog:onClickOk()
     self:close()
 end

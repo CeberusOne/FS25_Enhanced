@@ -164,6 +164,7 @@
                 <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_RAIN_SHALLOW_WATER" />
             </MultiTextOption>
             </GuiElement>
+            <Button name="liveOverlayButton" id="liveOverlayButton" profile="buttonOK" position="0px -200px" size="320px 40px" text="$l10n_FS25E_LIVE_OVERLAY_OPEN" onClick="onClickLiveOverlay" />
             </GuiElement>
 
             <GuiElement name="statusPanel" id="statusPanel" position="0px -110px" size="640px 420px" visible="false">

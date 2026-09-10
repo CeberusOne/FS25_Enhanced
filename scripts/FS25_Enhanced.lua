@@ -12,7 +12,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.4.0.1"
+FS25_Enhanced.VERSION = "0.4.1.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -98,6 +98,14 @@ local function onLoadMap(mission)
         if FS25E_Input ~= nil and FS25E_Input.register ~= nil then
             FS25E_Input.register()
         end
+        if FS25E_LiveOverlay ~= nil then
+            if FS25E_LiveOverlay.registerHooks ~= nil then
+                FS25E_LiveOverlay.registerHooks()
+            end
+            if FS25E_LiveOverlay.installListeners ~= nil then
+                FS25E_LiveOverlay.installListeners()
+            end
+        end
         -- Lazy GUI: do not force loadGui here; hotkey/console triggers ensureSettingsDialog.
 
         FS25_Enhanced.initialized = true
@@ -125,6 +133,9 @@ local function onDeleteMap()
 
         if FS25E_Input ~= nil and FS25E_Input.unregister ~= nil then
             FS25E_Input.unregister()
+        end
+        if FS25E_LiveOverlay ~= nil and FS25E_LiveOverlay.reset ~= nil then
+            FS25E_LiveOverlay.reset()
         end
         if FS25E_GuiLoader ~= nil and FS25E_GuiLoader.reset ~= nil then
             FS25E_GuiLoader.reset()
@@ -257,6 +268,9 @@ safeCall("bootstrap", function()
         tostring(modDirectory)
     ))
     registerMissionHooks()
+    if FS25E_LiveOverlay ~= nil and FS25E_LiveOverlay.registerHooks ~= nil then
+        FS25E_LiveOverlay.registerHooks()
+    end
     -- Mileage-pattern: inject Lights probe specs during TypeManager.finalizeTypes (early).
     if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.registerTypeInjection ~= nil then
         FS25E_LightDiscovery.registerTypeInjection()

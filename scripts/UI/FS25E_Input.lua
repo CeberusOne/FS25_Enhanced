@@ -1,5 +1,5 @@
 -- FS25_Enhanced / UI/FS25E_Input.lua
--- ActionEvents: open settings + live-hint (no full live-tuning UI).
+-- ActionEvents: open settings + toggle Expert Live-Overlay (Ctrl+Shift+E).
 
 FS25E_Input = {}
 
@@ -25,6 +25,21 @@ local function notify(text)
     end
 end
 
+local function t(key, fallback)
+    if FS25E_SettingsController ~= nil and FS25E_SettingsController.t ~= nil then
+        return FS25E_SettingsController.t(key, fallback)
+    end
+    if g_i18n ~= nil and g_i18n.getText ~= nil then
+        local ok, text = pcall(function()
+            return g_i18n:getText(key)
+        end)
+        if ok and text ~= nil and text ~= "" and text ~= key then
+            return text
+        end
+    end
+    return fallback or key
+end
+
 function FS25E_Input.onOpenSettings(actionName, inputValue, callbackState, isAnalog)
     if FS25E_GuiLoader ~= nil and FS25E_GuiLoader.showSettingsDialog ~= nil then
         FS25E_GuiLoader.showSettingsDialog()
@@ -33,12 +48,18 @@ function FS25E_Input.onOpenSettings(actionName, inputValue, callbackState, isAna
     end
 end
 
-function FS25E_Input.onLiveHint(actionName, inputValue, callbackState, isAnalog)
-    local msg = "Live Tuning später"
-    if FS25E_SettingsController ~= nil and FS25E_SettingsController.t ~= nil then
-        msg = FS25E_SettingsController.t("FS25E_LIVE_HINT_LATER", msg)
+--- Toggle Live Overlay when expertMode + liveTuningEnabled; otherwise gate hint.
+function FS25E_Input.onToggleLiveOverlay(actionName, inputValue, callbackState, isAnalog)
+    if FS25E_LiveOverlay ~= nil and FS25E_LiveOverlay.toggle ~= nil then
+        FS25E_LiveOverlay.toggle(nil)
+        return
     end
-    notify(msg)
+    notify(t("FS25E_LIVE_OVERLAY_UNAVAILABLE", "Live Overlay unavailable"))
+end
+
+--- Legacy LIVE_HINT action → same as toggle (opens overlay when gates ok).
+function FS25E_Input.onLiveHint(actionName, inputValue, callbackState, isAnalog)
+    FS25E_Input.onToggleLiveOverlay(actionName, inputValue, callbackState, isAnalog)
 end
 
 local function resolveAction(name)
@@ -86,6 +107,8 @@ function FS25E_Input.register()
 
     local n = 0
     if tryRegister("FS25E_OPEN_SETTINGS", FS25E_Input.onOpenSettings) then n = n + 1 end
+    if tryRegister("FS25E_TOGGLE_LIVE_OVERLAY", FS25E_Input.onToggleLiveOverlay) then n = n + 1 end
+    -- Keep LIVE_HINT registered for older bindings; routes to toggle
     if tryRegister("FS25E_LIVE_HINT", FS25E_Input.onLiveHint) then n = n + 1 end
     registered = n > 0
     dbg(string.format("ActionEvents registered count=%d", n))
