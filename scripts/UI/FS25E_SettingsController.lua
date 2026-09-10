@@ -1,5 +1,5 @@
 -- FS25_Enhanced / UI/FS25E_SettingsController.lua
--- Final dock: prefer FS25E_SettingsAPI (PR #14); fallback ModSettings + Governor.
+-- Final dock: Prefer-Path ModSettings.get/set; SettingsAPI.set for side-effects (facade).
 -- No engine setters from GUI.
 
 FS25E_SettingsController = {}
@@ -24,22 +24,23 @@ local function hasSettingsAPI()
     return FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.get ~= nil and FS25E_SettingsAPI.set ~= nil
 end
 
+-- Prefer-Path: ModSettings.get/set (SettingsAPI is facade over the same store).
 function FS25E_SettingsController.get(id)
-    if hasSettingsAPI() then
-        return FS25E_SettingsAPI.get(id)
-    end
     if FS25E_ModSettings ~= nil and FS25E_ModSettings.get ~= nil then
         return FS25E_ModSettings.get(id)
+    end
+    if hasSettingsAPI() then
+        return FS25E_SettingsAPI.get(id)
     end
     return nil
 end
 
 function FS25E_SettingsController.getAll()
-    if hasSettingsAPI() and FS25E_SettingsAPI.getAll ~= nil then
-        return FS25E_SettingsAPI.getAll()
-    end
     if FS25E_ModSettings ~= nil and FS25E_ModSettings.getAll ~= nil then
         return FS25E_ModSettings.getAll()
+    end
+    if hasSettingsAPI() and FS25E_SettingsAPI.getAll ~= nil then
+        return FS25E_SettingsAPI.getAll()
     end
     return {}
 end
