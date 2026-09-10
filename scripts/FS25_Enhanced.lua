@@ -10,7 +10,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.3.1.2"
+FS25_Enhanced.VERSION = "0.3.2.0"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -44,6 +44,10 @@ local function onLoadMap(mission)
         end
         if FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.reset ~= nil then
             FS25E_CapabilityApplier.reset()
+        end
+        if FS25E_Diagnostics ~= nil then
+            FS25E_Diagnostics.init()
+            FS25E_Diagnostics.installHooks()
         end
         if FS25E_ShadowManager ~= nil then
             FS25E_ShadowManager.init()
@@ -131,6 +135,9 @@ local function onDeleteMap()
         end
         if FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.reset ~= nil then
             FS25E_CapabilityApplier.reset()
+        end
+        if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.reset ~= nil then
+            FS25E_Diagnostics.reset()
         end
 
         FS25_Enhanced.initialized = false
