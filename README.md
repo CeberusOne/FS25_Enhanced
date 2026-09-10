@@ -7,7 +7,7 @@ Adaptives Graphics-/Optimierungs-Mod für Farming Simulator 25 (Giants Engine 10
 
 ## Status
 
-**v0.3 Phase 2** — Wave 1 CONFIRMED managers + Governor/Scene stubs:
+**v0.4 Phase 2** — Wave 1 CONFIRMED managers + Governor/Scene stubs:
 
 - SceneAnalyzer (read-only mission/environment snapshot; Medium/Slow cadence)
 - GraphicsGovernor hysteresis bands + desired preset/tier (default **disabled**, **autoApply off**)
