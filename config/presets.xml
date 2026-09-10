@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  FS25_Enhanced presets.xml — Performance / Balanced / Quality / Cinematic stubs.
+  NOT applied to engine in Phase 1. Values are placeholders for later BudgetAllocator.
+-->
+<presets version="0.1">
+    <preset name="Performance" l10n="FS25E_PRESET_PERFORMANCE">
+        <note>Favor frame-time; lowest visual budget.</note>
+        <!-- Future: capability target levels only for CONFIRMED caps -->
+    </preset>
+    <preset name="Balanced" l10n="FS25E_PRESET_BALANCED" default="true">
+        <note>Default compromise between visuals and performance.</note>
+    </preset>
+    <preset name="Quality" l10n="FS25E_PRESET_QUALITY">
+        <note>Higher visual budget; still respects target FPS when adaptive.</note>
+    </preset>
+    <preset name="Cinematic" l10n="FS25E_PRESET_CINEMATIC">
+        <note>Max visuals; may allow EXPERIMENTAL caps later. Not for competitive FPS.</note>
+    </preset>
+</presets>

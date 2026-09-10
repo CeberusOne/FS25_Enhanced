@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  FS25_Enhanced capabilityProfiles.xml
+  Research Freeze fills this with CONFIRMED GDN/LuaDoc API names + applyMode flags.
+  Phase 1: empty/placeholder schema only. No capabilities are applied.
+  Status enum: CONFIRMED | GATED | EXPERIMENTAL | ASSET_DEPENDENT | UNSUPPORTED | REJECTED
+-->
+<capabilityProfiles version="0.1">
+    <!-- Example (commented; do not enable until Research Freeze):
+    <capability id="shadowPriority"
+                status="CONFIRMED"
+                apiName="setLightShadowPriority"
+                getter="getLightShadowPriority"
+                applyMode="LIVE"
+                notes="Engine Lighting"/>
+    -->
+</capabilityProfiles>
