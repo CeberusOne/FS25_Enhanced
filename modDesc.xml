@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.3.3.0</version>
+    <version>0.4.0.0</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -10,12 +10,14 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-v0.3.3.0: Gen-1 Settings GUI + Diagnostics (CapStatus/ring log) + Expert-path caps (EXPERIMENTAL/GATED/ASSET) behind expertMode; Soft-Apply default off.
-Auto-apply off until user Adaptive/Preset. Soft-Apply off. No saveHardwareScalability / setTerrainQuality without opt-in. No engine setters from GUI.]]></en>
+        <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
+Uses only documented Giants Engine / Settings APIs. No binary hooks.
+v0.4.0.0: Gen-1 release candidate — Settings API/GUI, Diagnostics, Expert-path caps behind expertMode.
+Defaults: enabled/autoApply/softApply/expertMode = false. Soft-Apply off. No saveHardwareScalability without opt-in. No engine setters from GUI.]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
 Nutzt ausschließlich dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-v0.3.3.0: Gen-1 Settings-GUI + Diagnostics (CapStatus/Ring-Log) + Expert-Pfad (EXPERIMENTAL/GATED/ASSET) hinter expertMode; Soft-Apply standardmäßig aus.
-Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Kein saveHardwareScalability / setTerrainQuality ohne Opt-in. Keine Engine-Setter aus der GUI.]]></de>
+v0.4.0.0: Gen-1 Release Candidate — Settings API/GUI, Diagnostics, Expert-Pfad hinter expertMode.
+Defaults: enabled/autoApply/softApply/expertMode = false. Soft-Apply aus. Kein saveHardwareScalability ohne Opt-in. Keine Engine-Setter aus der GUI.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
