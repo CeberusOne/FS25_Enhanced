@@ -6,16 +6,17 @@
         <text name="FS25E_SETTINGS_TITLE" text="FS25 Enhanced Einstellungen"/>
         <text name="FS25E_SETTINGS_SIMPLE" text="Einfach"/>
         <text name="FS25E_SETTINGS_ADVANCED" text="Erweitert"/>
+        <text name="FS25E_HELP_HINT" text="Option wählen für eine kurze Erklärung."/>
 
         <!-- Simple Auto Panel -->
         <text name="FS25E_SETTING_ENABLED" text="Mod aktiv"/>
-        <text name="FS25E_SETTING_ENABLED_TOOLTIP" text="Schaltet FS25 Enhanced ein oder aus. Beim Ausschalten werden zwischengespeicherte Vanilla-Grafikeinstellungen wiederhergestellt."/>
+        <text name="FS25E_SETTING_ENABLED_TOOLTIP" text="Schaltet den Mod ein oder aus. Aus stellt die vorherige Grafik für diese Sitzung wieder her."/>
         <text name="FS25E_SETTING_PRESET" text="Modus / Preset"/>
-        <text name="FS25E_SETTING_PRESET_TOOLTIP" text="Grafik-Preset. Aus deaktiviert Governor-Presets; andere Modi balancieren Qualität und Frame-Zeit."/>
+        <text name="FS25E_SETTING_PRESET_TOOLTIP" text="Schneller Look: Leistung / Ausgewogen / Qualität / Kinematisch. Kosten: höhere Presets brauchen mehr GPU-Zeit."/>
         <text name="FS25E_SETTING_TARGET_FPS" text="Ziel-FPS"/>
-        <text name="FS25E_SETTING_TARGET_FPS_TOOLTIP" text="Ziel-Framerate, die der adaptive Governor schützen soll. Nur Stufen, kein freier Wert."/>
+        <text name="FS25E_SETTING_TARGET_FPS_TOOLTIP" text="Framerate-Ziel, das Adaptiv schützen soll. Nur Stufen (30–60 oder Unbegrenzt)."/>
         <text name="FS25E_SETTING_ADAPTIVE" text="Adaptiv"/>
-        <text name="FS25E_SETTING_ADAPTIVE_TOOLTIP" text="Passt bestätigte Grafik-Caps automatisch an, um die Ziel-FPS zu halten."/>
+        <text name="FS25E_SETTING_ADAPTIVE_TOOLTIP" text="Versucht, deine Ziel-FPS zu schützen, indem Wave-1-Presets/Schatten/LOD angepasst werden — nicht jede experimentelle Wirkung."/>
 
         <!-- Preset options -->
         <text name="FS25E_PRESET_OFF" text="Aus"/>
@@ -45,45 +46,47 @@
 
         <!-- Advanced: Shadows -->
         <text name="FS25E_SETTING_SHADOW_QUALITY" text="Schattenqualität"/>
-        <text name="FS25E_SETTING_SHADOW_QUALITY_TOOLTIP" text="Globale Schattenqualität (CONFIRMED SettingsModel). Höhere Stufen kosten mehr GPU-Zeit."/>
+        <text name="FS25E_SETTING_SHADOW_QUALITY_TOOLTIP" text="Wirkung: schärfere, reichere Schatten. Kosten: hohe GPU-Last bei Hoch/Ultra."/>
         <text name="FS25E_SETTING_SHADOW_DISTANCE" text="Schattenreichweite"/>
-        <text name="FS25E_SETTING_SHADOW_DISTANCE_TOOLTIP" text="Wie weit Schatten gezeichnet werden. Stufen bevorzugen statt extreme Reichweite."/>
+        <text name="FS25E_SETTING_SHADOW_DISTANCE_TOOLTIP" text="Wirkung: Schatten weiter von der Kamera. Kosten: mehr Fill-Rate bei höheren Stufen."/>
         <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS" text="Max. Schattenlichter"/>
-        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS_TOOLTIP" text="Maximale Lichter mit Schattenwurf. Entspricht setMaxNumShadowLights-Stufen."/>
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS_TOOLTIP" text="Wirkung: mehr Lichter werfen Schatten. Kosten: kann in hellen Höfen die Frame-Zeit spiken."/>
         <text name="FS25E_SETTING_FOLIAGE_SHADOWS" text="Vegetationsschatten"/>
-        <text name="FS25E_SETTING_FOLIAGE_SHADOWS_TOOLTIP" text="Erlaubt Schattenwurf durch Vegetation (setAllowFoliageShadows). Kann in dichten Feldern teuer sein."/>
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS_TOOLTIP" text="Wirkung: Pflanzen und Bäume werfen Schatten. Kosten: teuer in dichten Feldern."/>
+        <text name="FS25E_SETTING_SOFT_SHADOWS" text="Weiche Schatten"/>
+        <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="Wirkung: weichere Schattenkanten. Kosten: Filterqualität kostet GPU-Zeit."/>
 
         <!-- Advanced: Lighting -->
         <text name="FS25E_SETTING_MAX_LIGHTS" text="Max. Lichter"/>
-        <text name="FS25E_SETTING_MAX_LIGHTS_TOOLTIP" text="Beleuchtungs-Budgetstufe für aktive Lichter. Platzhalter für bestätigte Capability."/>
+        <text name="FS25E_SETTING_MAX_LIGHTS_TOOLTIP" text="Wirkung: mehr aktive Lichter in der Nähe. Kosten: höheres Beleuchtungsbudget."/>
         <text name="FS25E_SETTING_LIGHT_SCATTERING" text="Lichtstreuung"/>
-        <text name="FS25E_SETTING_LIGHT_SCATTERING_TOOLTIP" text="Stufen für Lichtstreuung (setLightUseLightScattering / Intensität)."/>
+        <text name="FS25E_SETTING_LIGHT_SCATTERING_TOOLTIP" text="Wirkung: weicheres Leuchten/Dunst um Lichter. Kosten: mittlere GPU-Last bei höheren Stufen."/>
         <text name="FS25E_SETTING_SHADOW_MERGE" text="Schatten zusammenführen"/>
-        <text name="FS25E_SETTING_SHADOW_MERGE_TOOLTIP" text="Führt ähnliche Fahrzeug-Lichtschatten zusammen, wenn sicher (mergeLightShadows). Beim Deaktivieren wieder splitten."/>
+        <text name="FS25E_SETTING_SHADOW_MERGE_TOOLTIP" text="Wirkung: ähnliche Fahrzeug-Lichtschatten werden sicher zusammengeführt. Kosten: kann teuer sein; beim Aus wieder getrennt."/>
 
         <!-- Advanced: LOD / Foliage -->
         <text name="FS25E_SETTING_VIEW_DISTANCE" text="Sichtweite"/>
-        <text name="FS25E_SETTING_VIEW_DISTANCE_TOOLTIP" text="Objekt-Sichtweiten-Koeffizient als Stufe (setViewDistanceCoeff). Blindes Ultra kann die CPU belasten."/>
+        <text name="FS25E_SETTING_VIEW_DISTANCE_TOOLTIP" text="Wirkung: Objekte bleiben weiter detailliert. Kosten: CPU-Risiko bei zu hohen Stufen."/>
         <text name="FS25E_SETTING_LOD_DISTANCE" text="LOD-Distanz"/>
-        <text name="FS25E_SETTING_LOD_DISTANCE_TOOLTIP" text="LOD-Distanz-Koeffizient als Stufe (setLODDistanceCoeff)."/>
+        <text name="FS25E_SETTING_LOD_DISTANCE_TOOLTIP" text="Wirkung: High-Detail-Modelle länger sichtbar. Kosten: mehr Geometrie-Arbeit."/>
         <text name="FS25E_SETTING_FOLIAGE_VIEW" text="Vegetation Sichtweite"/>
-        <text name="FS25E_SETTING_FOLIAGE_VIEW_TOOLTIP" text="Vegetations-Sichtweiten-Koeffizient als Stufe (setFoliageViewDistanceCoeff)."/>
+        <text name="FS25E_SETTING_FOLIAGE_VIEW_TOOLTIP" text="Wirkung: Vegetation wird weiter gezeichnet. Kosten: hoch auf großen Feldern."/>
         <text name="FS25E_SETTING_FOLIAGE_LOD" text="Vegetation LOD-Distanz"/>
-        <text name="FS25E_SETTING_FOLIAGE_LOD_TOOLTIP" text="Vegetations-LOD-Koeffizient als Stufe (setFoliageLODDistanceCoeff)."/>
+        <text name="FS25E_SETTING_FOLIAGE_LOD_TOOLTIP" text="Wirkung: reichere Pflanzendetails länger. Kosten: Vegetations-LOD ist teuer."/>
         <text name="FS25E_SETTING_TERRAIN_LOD" text="Terrain LOD-Distanz"/>
-        <text name="FS25E_SETTING_TERRAIN_LOD_TOOLTIP" text="Terrain-LOD-Koeffizient als Stufe (setTerrainLODDistanceCoeff)."/>
+        <text name="FS25E_SETTING_TERRAIN_LOD_TOOLTIP" text="Wirkung: Bodendetails weiter draußen. Kosten: meist mittel."/>
 
         <!-- Live Tuning -->
         <text name="FS25E_LIVE_TUNING_TITLE" text="Live-Tuning"/>
         <text name="FS25E_HOTKEY_LIVE_TUNING" text="Live-Tuning umschalten"/>
         <text name="FS25E_SETTING_LIVE_TUNING" text="Live-Tuning-Panel"/>
-        <text name="FS25E_SETTING_LIVE_TUNING_TOOLTIP" text="Öffnet das Live-Tuning-Overlay für LIVE-Apply-Caps. Volle Optionen erst nach Core-Interfaces."/>
+        <text name="FS25E_SETTING_LIVE_TUNING_TOOLTIP" text="Öffnet das Live-Overlay zum Feintuning während des Spiels. Für vollen Zugriff Expertenmodus nötig."/>
 
         <!-- Expert / client -->
         <text name="FS25E_EXPERT_MODE" text="Expertenmodus"/>
-        <text name="FS25E_EXPERT_MODE_TOOLTIP" text="Zeigt experimentelle Capabilities. Standard aus — Experimental bleibt ausgeblendet."/>
+        <text name="FS25E_EXPERT_MODE_TOOLTIP" text="Zeigt experimentelle Optionen und schaltet das Live-Overlay frei. Nur einschalten, wenn du experimentieren willst."/>
         <text name="FS25E_CLIENT_ONLY_HINT" text="Grafikänderungen gelten nur clientseitig"/>
-        <text name="FS25E_CLIENT_ONLY_HINT_TOOLTIP" text="Der Graphics-Governor läuft lokal pro Client. Qualitätswerte werden nicht übers Netz synchronisiert."/>
+        <text name="FS25E_CLIENT_ONLY_HINT_TOOLTIP" text="Änderungen gelten nur auf deinem PC. Freunde im Mehrspieler behalten ihre eigene Grafik."/>
 
         <!-- Warnings -->
         <text name="FS25E_WARN_EXTREME_COST" text="Diese Einstellung kann die Leistung stark belasten."/>
@@ -129,31 +132,38 @@
         <text name="FS25E_LIVE_OVERLAY_SHADOW_QUALITY" text="Schattenqualität"/>
         <text name="FS25E_LIVE_OVERLAY_SHADOW_DIST_Q" text="Schatten-Distanzqualität"/>
         <text name="FS25E_LIVE_OVERLAY_SHADOW_FILTER" text="Schattenfilter-Qualität"/>
-        <text name="FS25E_SETTING_SOFT_SHADOWS" text="Weiche Schatten"/>
-        <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="Schattenfilter-/Soft-Shadow-Qualitätsstufe (setShadowFilterQuality)."/>
         <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box"/>
-        <text name="FS25E_SETTING_SHADOW_FOCUS_TOOLTIP" text="EXPERIMENTELL: setShadowFocusBox. Gen-1 riskant — nur gespeichert, bis Core-Apply existiert."/>
+        <text name="FS25E_SETTING_SHADOW_FOCUS_TOOLTIP" text="Experimentell: fokussiert Schattenarbeit in deiner Nähe. Kann komisch aussehen; Soft-Apply nötig zum Live-Test."/>
         <text name="FS25E_SETTING_FAST_SHADOW_UPDATE" text="Schnelles Schatten-Update"/>
-        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP" text="EXPERIMENTELL: setFastShadowUpdate. Nur gespeichert; kein Engine-Setter aus der GUI."/>
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP" text="Experimentell: aktualisiert Schatten öfter. Kann FPS kosten; Soft-Apply nötig zum Live-Test."/>
         <text name="FS25E_SETTING_RAIN_SHALLOW_WATER" text="Regen-Flachwasser-Sim"/>
-        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="EXPERIMENTELL: setRainShallowWaterSimulation. Nur gespeichert; kein Engine-Setter aus der GUI."/>
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="Experimentell: flache Pfützensimulation bei Regen. Schwer; Soft-Apply nötig zum Live-Test."/>
         <text name="FS25E_STATUS_HEADER" text="Capability-Status (nur Lesen)"/>
         <text name="FS25E_STATUS_EMPTY" text="Keine Capability-Daten (Diagnostics/Registry nicht verfügbar)."/>
         <text name="FS25E_STATUS_APPLIED" text="APPLIED — funktioniert"/>
         <text name="FS25E_STATUS_REJECTED" text="REJECTED — funktioniert nicht"/>
         <text name="FS25E_STATUS_SKIPPED" text="SKIPPED — bereit/untätig"/>
 
-        <!-- Expert schema keys (v0.4.2.1) -->
-        <text name="FS25E_SETTING_EXPERT_SOFT_APPLY" text="Soft Apply (Experte): experimentelle Änderungen live anwenden, wenn aktiv"/>
-        <text name="FS25E_SETTING_PERSIST_HW" text="Hardware speichern: Hardware-Skalierung schreiben (gefährlich)"/>
-        <text name="FS25E_WARN_PERSIST_HW" text="Warnung Persistenz: kann Vanilla-Hardware-Einstellungen überschreiben"/>
+        <!-- Expert schema keys + dedicated tooltips -->
+        <text name="FS25E_SETTING_EXPERT_SOFT_APPLY" text="Soft Apply (Experte)"/>
+        <text name="FS25E_SETTING_EXPERT_SOFT_APPLY_TOOLTIP" text="Wenn an, können experimentelle Experten-Optionen in dieser Sitzung greifen. Risiko von Glitches; aus = nur speichern, sicherer."/>
+        <text name="FS25E_SETTING_PERSIST_HW" text="Hardware speichern"/>
+        <text name="FS25E_SETTING_PERSIST_HW_TOOLTIP" text="Schreibt Hardware-Grafik dauerhaft (überlebt Neustart). Kann dein Vanilla-Profil überschreiben — vorsichtig nutzen."/>
+        <text name="FS25E_WARN_PERSIST_HW" text="Kann Vanilla-Hardware-Einstellungen überschreiben. Session-only bevorzugen, außer du brauchst Persistenz."/>
         <text name="FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX" text="Experte: Schatten-Fokusbox"/>
+        <text name="FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX_TOOLTIP" text="Opt-in experimenteller Schattenfokus. Braucht Soft-Apply; kann falsch aussehen."/>
         <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE" text="Experte: Schnelles Schatten-Update"/>
+        <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE_TOOLTIP" text="Opt-in experimentell schnellere Schatten-Aktualisierung. Braucht Soft-Apply; kann FPS kosten."/>
         <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW" text="Experte: Regen-Flachwasser"/>
+        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP" text="Opt-in experimentelle Regenpfützen. Braucht Soft-Apply; hoher Aufwand."/>
         <text name="FS25E_SETTING_EXPERT_SSR" text="Experte: SSR"/>
+        <text name="FS25E_SETTING_EXPERT_SSR_TOOLTIP" text="Opt-in Screen-Space-Reflexionen (gated). Braucht Soft-Apply; kann teuer sein."/>
         <text name="FS25E_SETTING_EXPERT_ATMOSPHERE" text="Experte: Atmosphäre"/>
+        <text name="FS25E_SETTING_EXPERT_ATMOSPHERE_TOOLTIP" text="Opt-in Atmosphärenqualität (gated). Braucht Soft-Apply; mittel–hohe Kosten."/>
         <text name="FS25E_SETTING_EXPERT_DRS" text="Experte: DRS"/>
+        <text name="FS25E_SETTING_EXPERT_DRS_TOOLTIP" text="Opt-in dynamische Auflösung (gated). Braucht Soft-Apply; tauscht Schärfe gegen FPS."/>
         <text name="FS25E_SETTING_EXPERT_RAIN_SUITE" text="Experte: Regen-Suite"/>
+        <text name="FS25E_SETTING_EXPERT_RAIN_SUITE_TOOLTIP" text="Opt-in Regen-Extras als Gruppe. Braucht Soft-Apply; Wirkung und Kosten variieren."/>
 
     </texts>
 </l10n>

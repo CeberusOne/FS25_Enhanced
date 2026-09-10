@@ -4,6 +4,7 @@
 -- Apply path: FS25E_SettingsAPI.live* only (no engine setters / no direct Applier).
 -- Status: Diagnostics.getSnapshot on open + Registry onApply/onReject/onSkip per row.
 -- Cost/warn: getCapCost / liveListCaps fields. Custom bars — NEVER GuiSlider.
+-- Hover-help: Schema tooltip (settingId/capId) under selection; cost notes fallback.
 -- HUD: FS25E_HudOverlay telemetry in header via getHudTelemetry().
 
 FS25E_LiveOverlay = {}
@@ -43,9 +44,9 @@ local ROW_META = {
     ["foliage-lod-distance-coeff"] = { id = "foliageLodDistance", settingId = "foliageLodDistance", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_LOD", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 40 },
     ["terrain-lod-distance-coeff"] = { id = "terrainLodDistance", settingId = "terrainLodDistance", labelKey = "FS25E_LIVE_OVERLAY_TERRAIN_LOD", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 50 },
     ["max-num-shadow-lights"] = { id = "maxShadowLights", settingId = "maxShadowLights", labelKey = "FS25E_LIVE_OVERLAY_MAX_SHADOW_LIGHTS", min = 1, max = 8, step = 1, kind = "int", applyKind = "wave1", default = 4, order = 60 },
-    ["allow-foliage-shadows"] = { id = "allowFoliageShadows", settingId = "allowFoliageShadows", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_SHADOWS", min = 0, max = 1, step = 1, kind = "bool", applyKind = "wave1", default = 1, order = 70 },
+    ["allow-foliage-shadows"] = { id = "allowFoliageShadows", settingId = "foliageShadows", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_SHADOWS", min = 0, max = 1, step = 1, kind = "bool", applyKind = "wave1", default = 1, order = 70 },
     ["shadow-quality"] = { id = "shadowQuality", settingId = "shadowQuality", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 80 },
-    ["shadow-distance-quality"] = { id = "shadowDistanceQuality", settingId = "shadowDistanceQuality", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_DIST_Q", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 90 },
+    ["shadow-distance-quality"] = { id = "shadowDistanceQuality", settingId = "shadowDistance", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_DIST_Q", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 90 },
     ["shadow-filter-quality"] = { id = "shadowFilterQuality", settingId = "softShadows", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_FILTER", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 100 },
     -- Expert Soft-Apply path
     ["rain-amount-mult"] = { id = "rainAmountMult", settingId = "rainAmountMult", labelKey = "FS25E_LIVE_OVERLAY_RAIN_AMOUNT", min = 0.00, max = 2.00, step = 0.01, kind = "float", applyKind = "expert", default = 1.00, order = 200 },
@@ -349,6 +350,36 @@ local function fetchLiveListCaps()
     cachedCapList = list
     cachedCapListAt = now
     return list
+end
+
+local function truncateHelp(s, maxLen)
+    s = tostring(s or "")
+    maxLen = maxLen or 120
+    if #s <= maxLen then
+        return s
+    end
+    return string.sub(s, 1, maxLen - 1) .. "…"
+end
+
+--- Prefer Schema tooltip (settingId / capId); else cost notes / lastError.
+local function resolveRowHelp(row)
+    if row == nil or row.def == nil then
+        return ""
+    end
+    local def = row.def
+    local tip = ""
+    if FS25E_SettingsController ~= nil and FS25E_SettingsController.getHelpForSettingOrCap ~= nil then
+        tip = FS25E_SettingsController.getHelpForSettingOrCap(def.settingId, def.capabilityId) or ""
+    elseif FS25E_SettingsController ~= nil and FS25E_SettingsController.getTooltipText ~= nil and def.settingId ~= nil then
+        tip = FS25E_SettingsController.getTooltipText(def.settingId) or ""
+    end
+    if tip == nil or tip == "" then
+        tip = def.notes or ""
+    end
+    if (tip == nil or tip == "") and row.lastError ~= nil and row.lastError ~= "" then
+        tip = tostring(row.lastError)
+    end
+    return tip or ""
 end
 
 local function enrichCost(def)
@@ -775,7 +806,7 @@ function FS25E_LiveOverlay.draw()
     drawLabel(px + PANEL.pad, gateY - 0.016, PANEL.smallSize, hint, 0.65, 0.65, 0.65, 1)
 
     local listTop = gateY - 0.032
-    local listBottom = py + PANEL.pad + 0.028
+    local listBottom = py + PANEL.pad + 0.058
     local avail = listTop - listBottom
     local maxVisible = math.max(1, math.floor(avail / PANEL.rowH))
     clampScroll(#list, maxVisible)
@@ -832,18 +863,6 @@ function FS25E_LiveOverlay.draw()
         drawLabel(px + pw - PANEL.pad - 0.08, y + 0.014, PANEL.smallSize, costStr, cr, cg, cb, 1, (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
         drawLabel(px + pw - PANEL.pad, y + 0.014, PANEL.smallSize, badge, badgeColor[1], badgeColor[2], badgeColor[3], badgeColor[4], (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
 
-        if selected then
-            local note = def.notes
-            if (note == nil or note == "") and row.lastError ~= nil and row.lastError ~= "" then
-                note = row.lastError
-            elseif row.lastError ~= nil and row.lastError ~= "" then
-                note = tostring(row.lastError)
-            end
-            if note ~= nil and note ~= "" then
-                drawLabel(px + PANEL.pad + 0.12, y - 0.002, PANEL.smallSize, tostring(note), warn and 1 or 0.9, warn and 0.55 or 0.55, warn and 0.35 or 0.4, 1)
-            end
-        end
-
         row._hit = { x = px + PANEL.pad, y = y - 0.006, w = pw - 0.02, h = PANEL.rowH, index = i }
 
         y = y - PANEL.rowH
@@ -852,6 +871,17 @@ function FS25E_LiveOverlay.draw()
     if #list > maxVisible then
         local scrollHint = string.format("[%d-%d / %d]", scrollOffset + 1, endIdx, #list)
         drawLabel(px + pw - PANEL.pad, listBottom + 0.012, PANEL.smallSize, scrollHint, 0.6, 0.6, 0.6, 1, (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
+    end
+
+    -- Help under selection (Schema tooltip preferred; 1–2 lines truncated)
+    local helpY = py + PANEL.pad + 0.022
+    if #list > 0 and selectedIndex >= 1 and selectedIndex <= #list then
+        local sel = list[selectedIndex]
+        local help = truncateHelp(resolveRowHelp(sel), 118)
+        if help ~= nil and help ~= "" then
+            local wr = sel.def ~= nil and sel.def.warn == true
+            drawLabel(px + PANEL.pad, helpY + 0.014, PANEL.smallSize, help, wr and 1 or 0.85, wr and 0.7 or 0.85, wr and 0.45 or 0.55, 1)
+        end
     end
 
     local foot = t("FS25E_LIVE_OVERLAY_SESSION", "Values: session via SettingsCache (persist optional)")

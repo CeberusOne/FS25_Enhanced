@@ -1,5 +1,6 @@
 -- FS25_Enhanced / UI/FS25E_SettingsDialog.lua
 -- Gen-1 Settings MessageDialog: Simple / Advanced / Expert / Status.
+-- Hover-help: Schema tooltip → element.toolTipText + visible helpText footer.
 -- Assumptions:
 --  * Extends MessageDialog (not DialogElement).
 --  * MultiTextOption: setTexts() in Lua; onClick passes 1-based state.
@@ -22,7 +23,7 @@ local ADVANCED_IDS = {
     "maxLights", "lightScattering", "shadowMerge",
     "viewDistance", "lodDistance", "foliageViewDistance", "foliageLodDistance", "terrainLodDistance",
 }
-local EXPERT_IDS = { "expertMode", "shadowFocus", "fastShadowUpdate", "rainShallowWater" }
+local EXPERT_IDS = { "expertMode", "persistHardware", "expertSoftApply", "shadowFocus", "fastShadowUpdate", "rainShallowWater" }
 
 function FS25E_SettingsDialog.new(target, custom_mt)
     local self = MessageDialog.new(target, custom_mt or FS25E_SettingsDialog_mt)
@@ -95,7 +96,67 @@ function FS25E_SettingsDialog:_setupAllOptionWidgets()
         if field ~= nil and el.setTexts ~= nil and FS25E_SettingsController ~= nil then
             el:setTexts(FS25E_SettingsController.getOptionTexts(field))
         end
+        el._fs25eSettingId = id
+        el._fs25eField = field
+        self:_applyElementTooltip(el, field, id)
     end
+end
+
+function FS25E_SettingsDialog:_applyElementTooltip(el, field, id)
+    if el == nil or FS25E_SettingsController == nil then
+        return
+    end
+    local tip = FS25E_SettingsController.getTooltipText(field or id)
+    if tip == nil or tip == "" then
+        return
+    end
+    if el.setToolTipText ~= nil then
+        pcall(function() el:setToolTipText(tip) end)
+    elseif el.setTooltipText ~= nil then
+        pcall(function() el:setTooltipText(tip) end)
+    else
+        el.toolTipText = tip
+        el.tooltipText = tip
+    end
+end
+
+function FS25E_SettingsDialog:_setHelpForId(id)
+    local tip = ""
+    if id ~= nil and FS25E_SettingsController ~= nil then
+        tip = FS25E_SettingsController.getTooltipText(id) or ""
+    end
+    if tip == "" then
+        if FS25E_SettingsController ~= nil then
+            tip = FS25E_SettingsController.t("FS25E_HELP_HINT", "Select an option to see a short explanation.")
+        else
+            tip = "Select an option to see a short explanation."
+        end
+    end
+    -- Truncate for footer readability (~160 chars / ~2 lines)
+    if #tip > 160 then
+        tip = string.sub(tip, 1, 157) .. "…"
+    end
+    self._helpSettingId = id
+    if self.helpText ~= nil and self.helpText.setText ~= nil then
+        self.helpText:setText(tip)
+    elseif self.tooltipLine ~= nil and self.tooltipLine.setText ~= nil then
+        self.tooltipLine:setText(tip)
+    end
+end
+
+function FS25E_SettingsDialog:_defaultHelpForTab()
+    local tab = self.currentTab
+    local first = nil
+    if tab == TAB_SIMPLE then
+        first = SIMPLE_IDS[1]
+    elseif tab == TAB_ADVANCED then
+        first = ADVANCED_IDS[1]
+    elseif tab == TAB_EXPERT then
+        first = EXPERT_IDS[1]
+    else
+        first = nil
+    end
+    self:_setHelpForId(first)
 end
 
 function FS25E_SettingsDialog:onOpen()
@@ -107,6 +168,7 @@ function FS25E_SettingsDialog:onOpen()
     self:_refreshFromStore()
     self:_applyTabVisibility()
     self:_refreshStatusText()
+    self:_defaultHelpForTab()
 end
 
 function FS25E_SettingsDialog:onClose()
@@ -200,6 +262,9 @@ function FS25E_SettingsDialog:onClickSection(state)
     self:_applyTabVisibility()
     if self.currentTab == TAB_STATUS then
         self:_refreshStatusText()
+        self:_setHelpForId(nil)
+    else
+        self:_defaultHelpForTab()
     end
 end
 
@@ -213,6 +278,7 @@ function FS25E_SettingsDialog:_onOptionChanged(id, state)
     end
     local value = FS25E_SettingsController.stateToValue(field, state)
     FS25E_SettingsController.applyUserChange(id, value, { explicit = true })
+    self:_setHelpForId(id)
     if id == "expertMode" then
         self:_applyTabVisibility()
     end
@@ -240,6 +306,55 @@ function FS25E_SettingsDialog:onClickShadowFocus(state) self:_onOptionChanged("s
 function FS25E_SettingsDialog:onClickFastShadowUpdate(state) self:_onOptionChanged("fastShadowUpdate", state) end
 function FS25E_SettingsDialog:onClickRainShallowWater(state) self:_onOptionChanged("rainShallowWater", state) end
 
+
+function FS25E_SettingsDialog:onHighlightSection()
+    self:_defaultHelpForTab()
+end
+
+function FS25E_SettingsDialog:onHighlightOption(element)
+    local id = nil
+    if type(element) == "table" and element._fs25eSettingId ~= nil then
+        id = element._fs25eSettingId
+    elseif type(element) == "string" then
+        id = element
+    end
+    if id == nil and type(element) == "table" and element.name ~= nil then
+        local n = tostring(element.name)
+        if string.sub(n, -6) == "Option" then
+            id = string.sub(n, 1, #n - 6)
+        end
+    end
+    if id ~= nil then
+        self:_setHelpForId(id)
+    end
+end
+
+function FS25E_SettingsDialog:onHighlightEnabled() self:_setHelpForId("enabled") end
+function FS25E_SettingsDialog:onHighlightPreset() self:_setHelpForId("preset") end
+function FS25E_SettingsDialog:onHighlightTargetFps() self:_setHelpForId("targetFps") end
+function FS25E_SettingsDialog:onHighlightAdaptive() self:_setHelpForId("adaptive") end
+function FS25E_SettingsDialog:onHighlightShadowQuality() self:_setHelpForId("shadowQuality") end
+function FS25E_SettingsDialog:onHighlightShadowDistance() self:_setHelpForId("shadowDistance") end
+function FS25E_SettingsDialog:onHighlightMaxShadowLights() self:_setHelpForId("maxShadowLights") end
+function FS25E_SettingsDialog:onHighlightFoliageShadows() self:_setHelpForId("foliageShadows") end
+function FS25E_SettingsDialog:onHighlightSoftShadows() self:_setHelpForId("softShadows") end
+function FS25E_SettingsDialog:onHighlightMaxLights() self:_setHelpForId("maxLights") end
+function FS25E_SettingsDialog:onHighlightLightScattering() self:_setHelpForId("lightScattering") end
+function FS25E_SettingsDialog:onHighlightShadowMerge() self:_setHelpForId("shadowMerge") end
+function FS25E_SettingsDialog:onHighlightViewDistance() self:_setHelpForId("viewDistance") end
+function FS25E_SettingsDialog:onHighlightLodDistance() self:_setHelpForId("lodDistance") end
+function FS25E_SettingsDialog:onHighlightFoliageViewDistance() self:_setHelpForId("foliageViewDistance") end
+function FS25E_SettingsDialog:onHighlightFoliageLodDistance() self:_setHelpForId("foliageLodDistance") end
+function FS25E_SettingsDialog:onHighlightTerrainLodDistance() self:_setHelpForId("terrainLodDistance") end
+function FS25E_SettingsDialog:onHighlightExpertMode() self:_setHelpForId("expertMode") end
+function FS25E_SettingsDialog:onHighlightPersistHardware() self:_setHelpForId("persistHardware") end
+function FS25E_SettingsDialog:onHighlightExpertSoftApply() self:_setHelpForId("expertSoftApply") end
+function FS25E_SettingsDialog:onHighlightShadowFocus() self:_setHelpForId("shadowFocus") end
+function FS25E_SettingsDialog:onHighlightFastShadowUpdate() self:_setHelpForId("fastShadowUpdate") end
+function FS25E_SettingsDialog:onHighlightRainShallowWater() self:_setHelpForId("rainShallowWater") end
+
+function FS25E_SettingsDialog:onClickPersistHardware(state) self:_onOptionChanged("persistHardware", state) end
+function FS25E_SettingsDialog:onClickExpertSoftApply(state) self:_onOptionChanged("expertSoftApply", state) end
 
 --- Expert-tab: enable liveTuning + open overlay (gates still checked inside overlay).
 function FS25E_SettingsDialog:onClickLiveOverlay()

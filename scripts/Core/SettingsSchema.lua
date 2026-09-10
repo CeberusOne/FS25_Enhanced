@@ -48,15 +48,15 @@ local schema = {
     { id = "liveTuningEnabled", type = "bool", l10n = "FS25E_SETTING_LIVE_TUNING", tooltip = "FS25E_SETTING_LIVE_TUNING_TOOLTIP", default = false, section = "live", expertOnly = false, applyMode = "LIVE", gui = "binary" },
 
     -- Expert Soft-Apply / per-cap toggles (ExperimentalCaps; all OFF; expertOnly)
-    { id = "persistHardware", type = "bool", l10n = "FS25E_SETTING_PERSIST_HW", tooltip = "FS25E_WARN_PERSIST_HW", default = false, section = "expert", expertOnly = false, applyMode = "RESTART", gui = "binary", warningL10n = "FS25E_WARN_PERSIST_HW" },
-    { id = "expertSoftApply", type = "bool", l10n = "FS25E_SETTING_EXPERT_SOFT_APPLY", tooltip = "FS25E_SETTING_EXPERT_SOFT_APPLY", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
-    { id = "expertShadowFocusBox", type = "bool", l10n = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX", tooltip = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "shadow-focus-box" },
-    { id = "expertFastShadowUpdate", type = "bool", l10n = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE", tooltip = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "fast-shadow-update" },
-    { id = "expertRainShallowWater", type = "bool", l10n = "FS25E_SETTING_EXPERT_RAIN_SHALLOW", tooltip = "FS25E_SETTING_EXPERT_RAIN_SHALLOW", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "rain-shallow-water-simulation" },
-    { id = "expertSsrQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_SSR", tooltip = "FS25E_SETTING_EXPERT_SSR", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
-    { id = "expertAtmosphereQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_ATMOSPHERE", tooltip = "FS25E_SETTING_EXPERT_ATMOSPHERE", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
-    { id = "expertDrsQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_DRS", tooltip = "FS25E_SETTING_EXPERT_DRS", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
-    { id = "expertRainSuite", type = "bool", l10n = "FS25E_SETTING_EXPERT_RAIN_SUITE", tooltip = "FS25E_SETTING_EXPERT_RAIN_SUITE", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "persistHardware", type = "bool", l10n = "FS25E_SETTING_PERSIST_HW", tooltip = "FS25E_SETTING_PERSIST_HW_TOOLTIP", default = false, section = "expert", expertOnly = false, applyMode = "RESTART", gui = "binary", warningL10n = "FS25E_WARN_PERSIST_HW" },
+    { id = "expertSoftApply", type = "bool", l10n = "FS25E_SETTING_EXPERT_SOFT_APPLY", tooltip = "FS25E_SETTING_EXPERT_SOFT_APPLY_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "expertShadowFocusBox", type = "bool", l10n = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX", tooltip = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "shadow-focus-box" },
+    { id = "expertFastShadowUpdate", type = "bool", l10n = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE", tooltip = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "fast-shadow-update" },
+    { id = "expertRainShallowWater", type = "bool", l10n = "FS25E_SETTING_EXPERT_RAIN_SHALLOW", tooltip = "FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "rain-shallow-water-simulation" },
+    { id = "expertSsrQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_SSR", tooltip = "FS25E_SETTING_EXPERT_SSR_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "expertAtmosphereQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_ATMOSPHERE", tooltip = "FS25E_SETTING_EXPERT_ATMOSPHERE_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "expertDrsQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_DRS", tooltip = "FS25E_SETTING_EXPERT_DRS_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
+    { id = "expertRainSuite", type = "bool", l10n = "FS25E_SETTING_EXPERT_RAIN_SUITE", tooltip = "FS25E_SETTING_EXPERT_RAIN_SUITE_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
 }
 
 local byId = {}
