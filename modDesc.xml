@@ -2,7 +2,7 @@
 <!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
 <modDesc descVersion="106">
     <author>CeberusOne</author>
-    <version>0.3.1.2</version>
+    <version>0.3.2.0</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -10,12 +10,12 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-v0.3.1.2: Merge/Soft smoke console (ApplyLightSoft/Merge/Split/DumpMerges); Soft-Apply/autoApply still off.
-Auto-apply off. Soft-Apply off. No EXPERIMENTAL/GATED/RESTART setters. No saveHardwareScalability without opt-in.]]></en>
+v0.3.2.0: Gen-1 Settings GUI (Simple/Advanced/Expert/Status); ModSettings docking; Expert+Diagnostics status.
+Auto-apply off until user Adaptive/Preset. Soft-Apply off. No EXPERIMENTAL engine setters from GUI.]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
 Nutzt ausschließlich dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-v0.3.1.2: Merge/Soft-Smoke-Console (ApplyLightSoft/Merge/Split/DumpMerges); Soft-Apply/autoApply weiter aus.
-Auto-Apply aus. Soft-Apply aus. Keine EXPERIMENTAL/GATED/RESTART-Setter. Kein saveHardwareScalability ohne Opt-in.]]></de>
+v0.3.2.0: Gen-1 Settings-GUI (Einfach/Erweitert/Expert/Status); ModSettings-Andockung; Expert+Diagnostics-Status.
+Auto-Apply aus bis User Adaptive/Preset. Soft-Apply aus. Keine EXPERIMENTAL-Engine-Setter aus der GUI.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
@@ -49,6 +49,21 @@ Auto-Apply aus. Soft-Apply aus. Keine EXPERIMENTAL/GATED/RESTART-Setter. Kein sa
         <sourceFile filename="scripts/Core/ModSettings.lua"/>
         <sourceFile filename="scripts/Core/SettingsSchema.lua"/>
         <sourceFile filename="scripts/Core/ConsoleCommands.lua"/>
+        <sourceFile filename="scripts/Core/Diagnostics.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_SettingsController.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_SettingsDialog.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_GuiLoader.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_Input.lua"/>
         <sourceFile filename="scripts/FS25_Enhanced.lua"/>
     </extraSourceFiles>
+
+    <actions>
+        <action name="FS25E_OPEN_SETTINGS" category="SYSTEM" ignoreComboMask="false" />
+        <action name="FS25E_LIVE_HINT" category="SYSTEM" ignoreComboMask="false" />
+    </actions>
+    <inputBinding>
+        <actionBinding action="FS25E_OPEN_SETTINGS">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_e" />
+        </actionBinding>
+    </inputBinding>
 </modDesc>

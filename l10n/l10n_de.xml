@@ -88,5 +88,26 @@
         <!-- Warnings -->
         <text name="FS25E_WARN_EXTREME_COST" text="Diese Einstellung kann die Leistung stark belasten."/>
         <text name="FS25E_KEY_CONFLICT" text="Tastenkonflikt erkannt. Bitte unter Steuerung neu belegen oder die konkurrierende Aktion deaktivieren."/>
+
+        <!-- GUI Gen-1 chrome / actions / status / expert -->
+        <text name="FS25E_SETTINGS_EXPERT" text="Experte"/>
+        <text name="FS25E_SETTINGS_STATUS" text="Status"/>
+        <text name="FS25E_SETTINGS_SECTION" text="Bereich"/>
+        <text name="input_FS25E_OPEN_SETTINGS" text="FS25 Enhanced Einstellungen öffnen"/>
+        <text name="input_FS25E_LIVE_HINT" text="FS25 Enhanced Live-Tuning-Hinweis"/>
+        <text name="FS25E_LIVE_HINT_LATER" text="Live-Tuning kommt später"/>
+        <text name="FS25E_SETTING_SOFT_SHADOWS" text="Weiche Schatten"/>
+        <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="Schattenfilter-/Soft-Shadow-Qualitätsstufe (setShadowFilterQuality)."/>
+        <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box"/>
+        <text name="FS25E_SETTING_SHADOW_FOCUS_TOOLTIP" text="EXPERIMENTELL: setShadowFocusBox. Gen-1 riskant — nur gespeichert, bis Core-Apply existiert."/>
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE" text="Schnelles Schatten-Update"/>
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP" text="EXPERIMENTELL: setFastShadowUpdate. Nur gespeichert; kein Engine-Setter aus der GUI."/>
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER" text="Regen-Flachwasser-Sim"/>
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="EXPERIMENTELL: setRainShallowWaterSimulation. Nur gespeichert; kein Engine-Setter aus der GUI."/>
+        <text name="FS25E_STATUS_HEADER" text="Capability-Status (nur Lesen)"/>
+        <text name="FS25E_STATUS_EMPTY" text="Keine Capability-Daten (Diagnostics/Registry nicht verfügbar)."/>
+        <text name="FS25E_STATUS_APPLIED" text="APPLIED — funktioniert"/>
+        <text name="FS25E_STATUS_REJECTED" text="REJECTED — funktioniert nicht"/>
+        <text name="FS25E_STATUS_SKIPPED" text="SKIPPED — bereit/untätig"/>
     </texts>
 </l10n>

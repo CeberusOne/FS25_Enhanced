@@ -123,6 +123,15 @@ function FS25E_ConsoleCommands.selectPreset(name)
     say(string.format("selectPreset %s ok=%s (cache only)", tostring(name), tostring(ok)))
 end
 
+function FS25E_ConsoleCommands.openSettings()
+    if FS25E_GuiLoader ~= nil and FS25E_GuiLoader.showSettingsDialog ~= nil then
+        local ok = FS25E_GuiLoader.showSettingsDialog()
+        say(string.format("openSettings ok=%s", tostring(ok)))
+    else
+        say("GuiLoader/SettingsDialog missing")
+    end
+end
+
 function FS25E_ConsoleCommands.setGovernorEnabled(flag)
     if FS25E_GraphicsGovernor == nil then
         say("GraphicsGovernor missing")
@@ -417,6 +426,7 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eRestore", "FS25_Enhanced: force session restore", "forceRestore") then n = n + 1 end
     if tryAdd("fs25eSelectPreset", "FS25_Enhanced: select preset into SettingsCache (no engine apply)", "selectPreset") then n = n + 1 end
     if tryAdd("fs25eGovernor", "FS25_Enhanced: enable governor observe (1/0); never enables autoApply", "setGovernorEnabled") then n = n + 1 end
+    if tryAdd("fs25eOpenSettings", "FS25_Enhanced: open Gen-1 settings dialog", "openSettings") then n = n + 1 end
     if tryAdd("fs25eApplyLightPriority", "FS25_Enhanced: manual setLightShadowPriority (lightId from fs25eLightsDump)", "applyLightPriority") then n = n + 1 end
     if tryAdd("fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
     if tryAdd("fs25eApplyLightSoft", "FS25_Enhanced: manual Soft-Shadow size/[distance]/[bias] (lightId from Dump; Soft-Apply untouched)", "applyLightSoft") then n = n + 1 end
