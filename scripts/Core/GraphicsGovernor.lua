@@ -24,6 +24,7 @@ local modeTimerMs = 0
 local pendingMode = nil
 local decisionTicks = 0
 local lastAppliedPreset = nil
+local lastFineFingerprint = nil
 local fineAccumMs = 0
 local FINE_INTERVAL_MS = 2000
 
@@ -69,6 +70,7 @@ function FS25E_GraphicsGovernor.init()
     accumSlowMs = 0
     fineAccumMs = 0
     lastAppliedPreset = nil
+    lastFineFingerprint = nil
     if FS25E_ProfileManager ~= nil and FS25E_ProfileManager.getActiveName ~= nil then
         desiredPreset = FS25E_ProfileManager.getActiveName() or "Balanced"
     end
@@ -298,6 +300,35 @@ local function applyFineNudge()
         end
     end
 
+    -- Quantize to avoid float chatter every 2s
+    local function q(v)
+        if type(v) ~= "number" then return v end
+        return math.floor(v * 100 + 0.5) / 100
+    end
+    for _, k in ipairs(keys) do
+        if nudged[k] ~= nil then
+            nudged[k] = q(nudged[k])
+        end
+    end
+    if nudged.maxNumShadowLights ~= nil then
+        nudged.maxNumShadowLights = math.floor(nudged.maxNumShadowLights + 0.5)
+    end
+
+    local fp = string.format(
+        "%s|%.2f|%.2f|%.2f|%.2f|%.2f|%s|%s",
+        tostring(desiredPreset),
+        tonumber(nudged.viewDistanceCoeff) or 0,
+        tonumber(nudged.lodDistanceCoeff) or 0,
+        tonumber(nudged.foliageViewDistanceCoeff) or 0,
+        tonumber(nudged.foliageLodDistanceCoeff) or 0,
+        tonumber(nudged.terrainLodDistanceCoeff) or 0,
+        tostring(nudged.maxNumShadowLights),
+        tostring(nudged.allowFoliageShadows)
+    )
+    if fp == lastFineFingerprint then
+        return false
+    end
+
     -- Use named Wave-1 setters (applyValues expects short keys view/lod/…).
     local okAny = false
     if FS25E_LodGovernor ~= nil then
@@ -324,11 +355,14 @@ local function applyFineNudge()
         okAny = FS25E_ShadowManager.setMaxNumShadowLights(nudged.maxNumShadowLights) or okAny
     end
 
-    if okAny and debugLog then
-        FS25E_Debug.info("GraphicsGovernor", string.format(
-            "fineNudge preset=%s pressure=%.3f factor=%.3f loadHint=%d",
-            tostring(desiredPreset), pressure, factor, loadHint
-        ))
+    if okAny then
+        lastFineFingerprint = fp
+        if debugLog then
+            FS25E_Debug.info("GraphicsGovernor", string.format(
+                "fineNudge preset=%s pressure=%.3f factor=%.3f loadHint=%d",
+                tostring(desiredPreset), pressure, factor, loadHint
+            ))
+        end
     end
     return okAny
 end
@@ -342,6 +376,11 @@ function FS25E_GraphicsGovernor.applyPreset(presetName, force)
         -- Casual adaptive path never applies Cinematic
         presetName = "Quality"
     end
+    -- No-op if same preset already applied (stops Soft-Apply re-APPLIED spam)
+    if force ~= "force" and lastAppliedPreset == presetName then
+        return true
+    end
+    lastFineFingerprint = nil -- preset change invalidates fine cache
     FS25E_Debug.info("GraphicsGovernor", "applyPreset " .. tostring(presetName) .. " (Wave-1 via ProfileManager.applySelected; session-only)")
     if FS25E_ProfileManager ~= nil then
         FS25E_ProfileManager.selectPreset(presetName)
@@ -450,7 +489,7 @@ function FS25E_GraphicsGovernor.update(dt)
 
     if accumSlowMs >= INTERVAL_SLOW_MS then
         accumSlowMs = 0
-        local shouldLog = debugLog or (decisionTicks <= 1) or (decisionTicks % 10 == 0)
+        local shouldLog = debugLog or (decisionTicks <= 1)
         if shouldLog then
             local avg = 0
             local budget = 0

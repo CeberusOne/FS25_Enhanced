@@ -226,6 +226,13 @@ function FS25E_ProfileManager.all()
 end
 
 function FS25E_ProfileManager.selectPreset(name)
+    if name == nil or name == "" or name == "Off" then
+        return false
+    end
+    if next(presets) == nil then
+        -- Not loaded yet (bootstrap race); silent skip — caller retries after init
+        return false
+    end
     local p = presets[name]
     if p == nil then
         FS25E_Debug.warning("ProfileManager", "unknown preset " .. tostring(name))
