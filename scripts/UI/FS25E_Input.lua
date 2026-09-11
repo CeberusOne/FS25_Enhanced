@@ -59,12 +59,63 @@ local function nowMs()
     return 0
 end
 
+local function isSettingsDialogVisible()
+    if g_gui == nil then
+        return false
+    end
+    if g_gui.currentGuiName == "FS25E_SettingsDialog" or g_gui.currentDialogName == "FS25E_SettingsDialog" then
+        return true
+    end
+    if g_gui.guis ~= nil and g_gui.guis["FS25E_SettingsDialog"] ~= nil then
+        local dlg = g_gui.guis["FS25E_SettingsDialog"]
+        local target = dlg.target or dlg
+        if target ~= nil and target.getIsVisible ~= nil then
+            local ok, vis = pcall(function() return target:getIsVisible() end)
+            if ok and vis == true then
+                return true
+            end
+        end
+        if target ~= nil and target.isOpen == true then
+            return true
+        end
+    end
+    return false
+end
+
+local function closeSettings(source)
+    dbg("closeSettings via " .. tostring(source))
+    local usedDialogClose = false
+    if g_gui ~= nil and g_gui.guis ~= nil and g_gui.guis["FS25E_SettingsDialog"] ~= nil then
+        local dlg = g_gui.guis["FS25E_SettingsDialog"]
+        local target = dlg.target or dlg
+        if target ~= nil and target.close ~= nil then
+            pcall(function() target:close() end)
+            usedDialogClose = true
+        end
+    end
+    if g_gui ~= nil and g_gui.closeDialogByName ~= nil then
+        pcall(function() g_gui:closeDialogByName("FS25E_SettingsDialog") end)
+    end
+    if not usedDialogClose and FS25E_ConsoleCommands ~= nil and FS25E_ConsoleCommands.closeSettings ~= nil then
+        pcall(FS25E_ConsoleCommands.closeSettings)
+    end
+    if g_inputBinding ~= nil and g_inputBinding.setShowMouseCursor ~= nil then
+        pcall(function() g_inputBinding:setShowMouseCursor(false) end)
+    end
+    dbg("closeSettings done")
+end
+
+--- F9 / Action: open if closed, close if already visible (toggle).
 local function openSettings(source)
     local tnow = nowMs()
     if lastOpenMs > 0 and (tnow - lastOpenMs) < OPEN_COOLDOWN_MS then
         return
     end
     lastOpenMs = tnow
+    if isSettingsDialogVisible() then
+        closeSettings(source .. ":toggleClose")
+        return
+    end
     dbg("openSettings via " .. tostring(source))
     if FS25E_GuiLoader ~= nil and FS25E_GuiLoader.showSettingsDialog ~= nil then
         local ok = FS25E_GuiLoader.showSettingsDialog()

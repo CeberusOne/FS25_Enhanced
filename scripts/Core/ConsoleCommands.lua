@@ -590,24 +590,33 @@ end
 function FS25E_ConsoleCommands.closeSettings()
     local closed = false
     if g_gui ~= nil then
+        -- Run ALL dismiss paths; pcall ok != actually closed.
         if g_gui.closeDialogByName ~= nil then
             local ok = pcall(function()
                 g_gui:closeDialogByName("FS25E_SettingsDialog")
             end)
             closed = closed or ok
         end
-        -- Fallback: blank GUI / changeScreen via controller instance if exposed
+        if g_gui.closeDialog ~= nil then
+            pcall(function() g_gui:closeDialog("FS25E_SettingsDialog") end)
+        end
         if g_gui.guis ~= nil and g_gui.guis["FS25E_SettingsDialog"] ~= nil then
             local dlg = g_gui.guis["FS25E_SettingsDialog"]
-            if dlg ~= nil and dlg.target ~= nil and dlg.target.close ~= nil then
-                local ok = pcall(function() dlg.target:close() end)
-                closed = closed or ok
+            local target = (dlg ~= nil and (dlg.target or dlg)) or nil
+            if target ~= nil and target.changeScreen ~= nil then
+                pcall(function() target:changeScreen(nil) end)
+                closed = true
+            end
+            if target ~= nil and target.close ~= nil then
+                pcall(function() target:close() end)
+                closed = true
             elseif dlg ~= nil and dlg.close ~= nil then
-                local ok = pcall(function() dlg:close() end)
-                closed = closed or ok
+                pcall(function() dlg:close() end)
+                closed = true
             end
         end
-        if not closed and g_gui.showGui ~= nil then
+        local still = (g_gui.currentGuiName == "FS25E_SettingsDialog") or (g_gui.currentDialogName == "FS25E_SettingsDialog")
+        if still and g_gui.showGui ~= nil then
             pcall(function() g_gui:showGui("") end)
             closed = true
         end
