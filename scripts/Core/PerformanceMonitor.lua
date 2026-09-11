@@ -37,7 +37,7 @@ function FS25E_PerformanceMonitor.setTargetFps(fps)
     end
 end
 
---- Feed mission update dt (usually ms). Defensive: seconds only if dt < 1.
+--- Feed mission update(dt): usually already ms. Use dtToMs (convert only if dt < 1).
 function FS25E_PerformanceMonitor.update(dt)
     if not enabled or dt == nil then
         return

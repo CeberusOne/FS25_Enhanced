@@ -72,7 +72,7 @@ end
 
 function FS25E_TelemetryReader.update(dt)
     if dt == nil then return end
-    -- dt usually ms; defensive convert only if dt < 1 (seconds)
+    -- Mission dt is usually already ms; FS25E_Debug.dtToMs only converts if dt < 1
     local dtMs = FS25E_Debug ~= nil and FS25E_Debug.dtToMs(dt) or (dt < 1 and dt * 1000.0 or dt)
     wallMs = wallMs + dtMs
     accumMs = accumMs + dtMs
