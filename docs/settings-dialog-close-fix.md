@@ -21,5 +21,5 @@ After opening Settings once (F9), OK/Back/Esc appeared to do nothing — fullscr
 ## Also in this PR (user follow-ups)
 - Live Overlay: ASCII bars `#`/`-` (no █/░ font warnings); mouse cursor on show/hide
 - F9 toggle close + Esc closes Settings when visible
-- Dual-key: `expertRainShallowWater` aliases to `rainShallowWater` (ModSettings + Controller mirror)
+- Dual-key rain: owned by PR #35 (Experimental) — not duplicated here
 - Honest rain tooltips + Overlay SKIPPED Soft-Apply hint
