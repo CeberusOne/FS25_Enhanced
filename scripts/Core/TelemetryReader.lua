@@ -1,6 +1,7 @@
 -- FS25_Enhanced / Core/TelemetryReader.lua
 -- Optional sidecar telemetry.json under modSettings/FS25_Enhanced/
 -- Pure Lua runs without sidecar (connected=false). No fake numbers.
+-- Giants sandbox: io.open("r") may sharing-violate or lack f:read — after first fail, readDisabled (no more r polls).
 
 FS25E_TelemetryReader = {}
 
@@ -14,10 +15,8 @@ local lastOkAtMs = nil
 local connected = false
 local lastError = nil
 local wallMs = 0
-
-local function nowMs()
-    return wallMs
-end
+local readDisabled = false
+local disableLogged = false
 
 local function resolvePath()
     if FS25E_ModSettings ~= nil and FS25E_ModSettings.getFilePath ~= nil then
@@ -26,7 +25,6 @@ local function resolvePath()
     return "modSettings/FS25_Enhanced/" .. FILE_NAME
 end
 
---- Minimal JSON number/string extractor (no full parser dependency).
 local function extractNumber(json, key)
     if json == nil then return nil end
     local pat = '"' .. key .. '"%s*:%s*([%-%d%.]+)'
@@ -41,18 +39,66 @@ local function extractString(json, key)
     return string.match(json, pat)
 end
 
+local function disableReads(reason)
+    readDisabled = true
+    connected = false
+    lastError = reason
+    if not disableLogged then
+        disableLogged = true
+        if FS25E_Debug ~= nil and FS25E_Debug.warning ~= nil then
+            FS25E_Debug.warning("TelemetryReader", "readDisabled: " .. tostring(reason) .. " — no further io.open('r') this session")
+        end
+    end
+end
+
 local function readFile(path)
-    if path == nil then return nil, "no path" end
-    -- Prefer io if available (desktop); soft-fail otherwise
-    if io == nil or io.open == nil then
+    if readDisabled then
+        return nil, "readDisabled"
+    end
+    if path == nil then
+        disableReads("no path")
+        return nil, "no path"
+    end
+    if io == nil or type(io.open) ~= "function" then
+        disableReads("io unavailable")
         return nil, "io unavailable"
     end
-    local f, err = io.open(path, "r")
+
+    local f, err
+    local okOpen, openRes = pcall(function()
+        return { io.open(path, "r") }
+    end)
+    if not okOpen then
+        disableReads("io.open pcall failed: " .. tostring(openRes))
+        return nil, tostring(openRes)
+    end
+    f = openRes[1]
+    err = openRes[2]
     if f == nil then
+        -- Missing file OR sandbox denial. Permanent disable avoids 1Hz sharing-violation spam.
+        disableReads(err or "open failed")
         return nil, err or "open failed"
     end
-    local content = f:read("*a")
-    f:close()
+
+    if type(f.read) ~= "function" then
+        pcall(function() f:close() end)
+        disableReads("f:read missing")
+        return nil, "f:read missing"
+    end
+
+    local okRead, content = pcall(function()
+        return f:read("*a")
+    end)
+    pcall(function() f:close() end)
+    if not okRead then
+        disableReads("read failed: " .. tostring(content))
+        return nil, tostring(content)
+    end
+    if content == nil or content == "" then
+        -- Empty / missing body: treat as disconnected but do not keep polling sandbox
+        disableReads("empty telemetry file")
+        return nil, "empty"
+    end
     return content, nil
 end
 
@@ -63,21 +109,31 @@ function FS25E_TelemetryReader.init()
     connected = false
     lastError = nil
     wallMs = 0
-    FS25E_Debug.info("TelemetryReader", "init path=" .. tostring(resolvePath()) .. " (sidecar optional)")
+    readDisabled = false
+    disableLogged = false
+    FS25E_Debug.info("TelemetryReader", "init path=" .. tostring(resolvePath()) .. " (sidecar optional; r-poll stops after first fail)")
 end
 
 function FS25E_TelemetryReader.reset()
     FS25E_TelemetryReader.init()
 end
 
+function FS25E_TelemetryReader.isReadDisabled()
+    return readDisabled == true
+end
+
 function FS25E_TelemetryReader.update(dt)
     if dt == nil then return end
-    -- Mission dt is usually already ms; FS25E_Debug.dtToMs only converts if dt < 1
+    if readDisabled then
+        connected = false
+        return
+    end
+
+    -- Mission dt is usually already ms; dtToMs only converts if dt < 1
     local dtMs = FS25E_Debug ~= nil and FS25E_Debug.dtToMs(dt) or (dt < 1 and dt * 1000.0 or dt)
     wallMs = wallMs + dtMs
     accumMs = accumMs + dtMs
     if accumMs < POLL_INTERVAL_MS then
-        -- still evaluate stale
         if lastOkAtMs ~= nil and (wallMs - lastOkAtMs) > STALE_MS then
             connected = false
         end
@@ -89,13 +145,7 @@ function FS25E_TelemetryReader.update(dt)
     local content, err = readFile(path)
     if content == nil or content == "" then
         lastError = err or "missing"
-        if lastOkAtMs ~= nil and (wallMs - lastOkAtMs) > STALE_MS then
-            connected = false
-        elseif lastOkAtMs == nil then
-            connected = false
-        end
-        -- Backoff when sidecar missing (avoid 1Hz io.open spam)
-        accumMs = -4000
+        connected = false
         return
     end
 
@@ -118,19 +168,26 @@ function FS25E_TelemetryReader.update(dt)
 end
 
 function FS25E_TelemetryReader.isConnected()
-    if not connected then return false end
+    if readDisabled or not connected then return false end
     if lastOkAtMs == nil then return false end
     return (wallMs - lastOkAtMs) <= STALE_MS
 end
 
 function FS25E_TelemetryReader.getSnapshot()
     local ok = FS25E_TelemetryReader.isConnected()
+    local status = "DISCONNECTED"
+    if readDisabled then
+        status = "READ_DISABLED"
+    elseif ok then
+        status = "CONNECTED"
+    end
     return {
         connected = ok,
+        readDisabled = readDisabled == true,
         staleMs = lastOkAtMs ~= nil and (wallMs - lastOkAtMs) or nil,
         error = lastError,
         path = resolvePath(),
         data = ok and lastRaw or nil,
-        status = ok and "CONNECTED" or "DISCONNECTED",
+        status = status,
     }
 end
