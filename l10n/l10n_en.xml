@@ -2,7 +2,6 @@
 <l10n>
     <texts>
         <!-- Meta / chrome -->
-        <text name="FS25E_MOD_NAME" text="FS25 Enhanced"/>
         <text name="FS25E_SETTINGS_TITLE" text="FS25 Enhanced Settings"/>
         <text name="FS25E_SETTINGS_SIMPLE" text="Simple"/>
         <text name="FS25E_SETTINGS_ADVANCED" text="Advanced"/>

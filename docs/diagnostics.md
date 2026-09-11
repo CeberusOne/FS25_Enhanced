@@ -21,11 +21,13 @@
 | `REJECTED` | Apply/reject path failed or registry rejected | Apply fehlgeschlagen bzw. Registry rejected |
 | `SKIPPED` | Soft skip (listener / future Core path) | Soft-Skip (Listener / künftiger Core-Pfad) |
 
-## Ring log + optional file / Ring + optionale Datei
+## Ring log / Ring-Log
+
+**Note:** File append to `diagnostics.log` was removed — Giants Lua `io.open` only allows `'w'` (append `'a'` spam-warned thousands of times in live logs).
 
 - In-memory ring (default size 64) via `FS25E_Diagnostics.getRing()` / `fs25eDumpDiagLog`.
-- Optional append to `modSettings/FS25_Enhanced/diagnostics.log` when `FS25E_ModSettings` is ready (`getFilePath("diagnostics.log")`). Soft-fails if IO unavailable.
-- Ring-Puffer (Standardgröße 64). Optionales Anhängen an `modSettings/FS25_Enhanced/diagnostics.log`, wenn ModSettings bereit ist; IO-Fehler werden still abgefangen.
+- In-memory ring only (default size 64) via `getRing()` / `fs25eDumpDiagLog`.
+- Ring-Puffer (Standardgröße 64) — Datei-Log absichtlich aus (Giants `io.open` ohne Append).
 
 ## GUI API / GUI-API
 
