@@ -72,8 +72,8 @@ end
 
 function FS25E_TelemetryReader.update(dt)
     if dt == nil then return end
-    -- dt is seconds (Giants); convert to ms like PerformanceMonitor
-    local dtMs = dt * 1000.0
+    -- dt usually ms; defensive convert only if dt < 1 (seconds)
+    local dtMs = FS25E_Debug ~= nil and FS25E_Debug.dtToMs(dt) or (dt < 1 and dt * 1000.0 or dt)
     wallMs = wallMs + dtMs
     accumMs = accumMs + dtMs
     if accumMs < POLL_INTERVAL_MS then

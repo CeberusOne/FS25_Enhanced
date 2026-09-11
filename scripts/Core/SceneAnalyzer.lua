@@ -217,7 +217,7 @@ function FS25E_SceneAnalyzer.update(dt)
     if not enabled or dt == nil then
         return
     end
-    local dtMs = dt * 1000.0
+    local dtMs = FS25E_Debug ~= nil and FS25E_Debug.dtToMs(dt) or (dt < 1 and dt * 1000.0 or dt)
     accumMediumMs = accumMediumMs + dtMs
     accumSlowMs = accumSlowMs + dtMs
 

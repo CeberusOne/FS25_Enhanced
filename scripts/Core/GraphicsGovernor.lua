@@ -17,7 +17,7 @@ local desiredMode = FS25E_GraphicsGovernor.MODE.MEDIUM
 local desiredPreset = "Balanced"
 local enabled = false
 local autoApply = false
-local observeAlways = true
+local observeAlways = false
 local debugLog = false
 local hysteresisMs = 500
 local modeTimerMs = 0
@@ -61,7 +61,7 @@ function FS25E_GraphicsGovernor.init()
     desiredPreset = "Balanced"
     enabled = false
     autoApply = false
-    observeAlways = true
+    observeAlways = false
     debugLog = false
     modeTimerMs = 0
     pendingMode = nil
@@ -103,6 +103,14 @@ end
 
 function FS25E_GraphicsGovernor.setDebugLog(value)
     debugLog = value == true
+end
+
+function FS25E_GraphicsGovernor.setObserveAlways(value)
+    observeAlways = value == true
+end
+
+function FS25E_GraphicsGovernor.isObserveAlways()
+    return observeAlways == true
 end
 
 function FS25E_GraphicsGovernor.getMode()
@@ -449,7 +457,7 @@ function FS25E_GraphicsGovernor.update(dt)
         return
     end
 
-    local dtMs = dt * 1000.0
+    local dtMs = FS25E_Debug ~= nil and FS25E_Debug.dtToMs(dt) or (dt < 1 and dt * 1000.0 or dt)
     accumMediumMs = accumMediumMs + dtMs
     accumSlowMs = accumSlowMs + dtMs
     fineAccumMs = fineAccumMs + dtMs

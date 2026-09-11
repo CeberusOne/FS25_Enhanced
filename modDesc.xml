@@ -2,7 +2,7 @@
 <!-- FS25 Enhanced — descVersion must match game (log: ModDesc Version 113). -->
 <modDesc descVersion="113">
     <author>CeberusOne</author>
-    <version>0.4.2.5</version>
+    <version>0.4.2.4</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -10,13 +10,13 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-v0.4.2.5: descVersion 113 for current FS25; install as mods/FS25_Enhanced/ folder (not nested zip).
-Hover-help, Casual-Automatik Wave-1 Adaptive (default off), Expert Live Overlay, Pro HUD.
+v0.4.2.4: descVersion 113 for current FS25; install as mods/FS25_Enhanced/ folder (not nested zip).
+Settings dialog layout fix (content inside MessageDialog). Hover-help, Casual-Automatik Wave-1 Adaptive (default off), Expert Live Overlay, Pro HUD.
 Soft-Apply off by default. No engine setters from GUI. Multiplayer: client-local only.]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
 Nur dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-v0.4.2.5: descVersion 113 für aktuelles FS25; Installation als Ordner mods/FS25_Enhanced/ (keine verschachtelte Zip).
-Hover-Hilfe, Casual-Automatik Wave-1 Adaptive (Standard aus), Expert Live-Overlay, Pro-HUD.
+v0.4.2.4: descVersion 113 für aktuelles FS25; Installation als Ordner mods/FS25_Enhanced/ (keine verschachtelte Zip).
+Settings-Dialog-Layout-Fix (Inhalt im MessageDialog). Hover-Hilfe, Casual-Automatik Wave-1 Adaptive (Standard aus), Expert Live-Overlay, Pro-HUD.
 Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nur client-lokal.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>

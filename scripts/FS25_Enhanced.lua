@@ -12,7 +12,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.4.2.5"
+FS25_Enhanced.VERSION = "0.4.2.4"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
