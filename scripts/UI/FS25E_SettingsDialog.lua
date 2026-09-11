@@ -165,6 +165,22 @@ function FS25E_SettingsDialog:onOpen()
     elseif FS25E_SettingsDialog:superClass().onOpen ~= nil then
         FS25E_SettingsDialog:superClass().onOpen(self)
     end
+    -- Remember cursor; force visible so OK/Back are clickable.
+    self._prevMouseCursor = nil
+    if g_inputBinding ~= nil then
+        if g_inputBinding.getShowMouseCursor ~= nil then
+            local ok, v = pcall(function() return g_inputBinding:getShowMouseCursor() end)
+            if ok then
+                self._prevMouseCursor = v
+            end
+        end
+        if g_inputBinding.setShowMouseCursor ~= nil then
+            pcall(function() g_inputBinding:setShowMouseCursor(true) end)
+        end
+    end
+    if FS25E_Debug ~= nil then
+        FS25E_Debug.info("SettingsDialog", "onOpen (mouse cursor requested)")
+    end
     self:_refreshFromStore()
     self:_applyTabVisibility()
     self:_refreshStatusText()
@@ -176,6 +192,18 @@ function FS25E_SettingsDialog:onClose()
         MessageDialog.onClose(self)
     elseif FS25E_SettingsDialog:superClass().onClose ~= nil then
         FS25E_SettingsDialog:superClass().onClose(self)
+    end
+    -- Restore mouse cursor after dialog leaves.
+    if g_inputBinding ~= nil and g_inputBinding.setShowMouseCursor ~= nil then
+        local restore = self._prevMouseCursor
+        if restore == nil then
+            restore = false
+        end
+        pcall(function() g_inputBinding:setShowMouseCursor(restore) end)
+    end
+    self._prevMouseCursor = nil
+    if FS25E_Debug ~= nil then
+        FS25E_Debug.info("SettingsDialog", "onClose")
     end
 end
 
@@ -391,14 +419,62 @@ function FS25E_SettingsDialog:onClickBack()
     self:close()
 end
 
+local function _restoreMouseCursor(self)
+    if g_inputBinding ~= nil and g_inputBinding.setShowMouseCursor ~= nil then
+        local restore = self._prevMouseCursor
+        if restore == nil then
+            restore = false
+        end
+        pcall(function() g_inputBinding:setShowMouseCursor(restore) end)
+    end
+end
+
+local function _isSettingsDialogCurrent()
+    if g_gui == nil then
+        return false
+    end
+    if g_gui.currentGuiName == "FS25E_SettingsDialog" or g_gui.currentDialogName == "FS25E_SettingsDialog" then
+        return true
+    end
+    return false
+end
+
+--- Dismiss dialog opened via g_gui:showDialog.
+--- Do NOT treat MessageDialog.close pcall-success as "closed" — it can no-op
+--- without error and skip the real Gui stack pop (stuck fullscreen dimmer).
 function FS25E_SettingsDialog:close()
+    if FS25E_Debug ~= nil then
+        FS25E_Debug.info("SettingsDialog", "close()")
+    end
+
+    -- 1) Gui dialog stack (primary for showDialog)
     if g_gui ~= nil then
+        if g_gui.closeDialogByName ~= nil then
+            pcall(function() g_gui:closeDialogByName("FS25E_SettingsDialog") end)
+        end
         if g_gui.closeDialog ~= nil then
+            pcall(function() g_gui:closeDialog("FS25E_SettingsDialog") end)
             pcall(function() g_gui:closeDialog(self) end)
-        elseif self.changeScreen ~= nil then
-            pcall(function() self:changeScreen(nil) end)
-        elseif g_gui.showGui ~= nil then
-            pcall(function() g_gui:showGui("") end)
         end
     end
+
+    -- 2) Screen stack pop
+    if self.changeScreen ~= nil then
+        pcall(function() self:changeScreen(nil) end)
+    end
+
+    -- 3) Super/MessageDialog close (may also changeScreen; never gate earlier steps on this)
+    if MessageDialog ~= nil and MessageDialog.close ~= nil then
+        pcall(function() MessageDialog.close(self) end)
+    elseif FS25E_SettingsDialog:superClass() ~= nil and FS25E_SettingsDialog:superClass().close ~= nil then
+        pcall(function() FS25E_SettingsDialog:superClass().close(self) end)
+    end
+
+    -- 4) Nuclear fallback if still current
+    if _isSettingsDialogCurrent() and g_gui ~= nil and g_gui.showGui ~= nil then
+        pcall(function() g_gui:showGui("") end)
+    end
+
+    -- Cursor restore even if onClose did not fire
+    _restoreMouseCursor(self)
 end
