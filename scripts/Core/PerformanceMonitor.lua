@@ -37,12 +37,12 @@ function FS25E_PerformanceMonitor.setTargetFps(fps)
     end
 end
 
---- Feed mission update dt (seconds). Converts to ms.
+--- Feed mission update(dt): usually already ms. Use dtToMs (convert only if dt < 1).
 function FS25E_PerformanceMonitor.update(dt)
     if not enabled or dt == nil then
         return
     end
-    local dtMs = dt * 1000.0
+    local dtMs = FS25E_Debug ~= nil and FS25E_Debug.dtToMs(dt) or (dt < 1 and dt * 1000.0 or dt)
     lastDtMs = dtMs
 
     if sampleCount < WINDOW then

@@ -72,8 +72,10 @@ end
 
 function FS25E_TelemetryReader.update(dt)
     if dt == nil then return end
-    wallMs = wallMs + dt
-    accumMs = accumMs + dt
+    -- Mission dt is usually already ms; FS25E_Debug.dtToMs only converts if dt < 1
+    local dtMs = FS25E_Debug ~= nil and FS25E_Debug.dtToMs(dt) or (dt < 1 and dt * 1000.0 or dt)
+    wallMs = wallMs + dtMs
+    accumMs = accumMs + dtMs
     if accumMs < POLL_INTERVAL_MS then
         -- still evaluate stale
         if lastOkAtMs ~= nil and (wallMs - lastOkAtMs) > STALE_MS then
@@ -92,6 +94,8 @@ function FS25E_TelemetryReader.update(dt)
         elseif lastOkAtMs == nil then
             connected = false
         end
+        -- Backoff when sidecar missing (avoid 1Hz io.open spam)
+        accumMs = -4000
         return
     end
 

@@ -41,3 +41,20 @@ function FS25E_Debug.pcall(subsystem, label, fn, ...)
     end
     return ok, result
 end
+
+
+--- Mission update(dt): Giants typically passes milliseconds.
+--- If a caller ever passes seconds (dt < 1), convert. Never blind-multiply.
+function FS25E_Debug.dtToMs(dt)
+    if dt == nil then
+        return 0
+    end
+    local n = tonumber(dt)
+    if n == nil then
+        return 0
+    end
+    if n < 1 then
+        return n * 1000.0
+    end
+    return n
+end

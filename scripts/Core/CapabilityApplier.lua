@@ -106,6 +106,31 @@ function FS25E_CapabilityApplier.checkGatedSupport(capabilityId)
     return true, nil
 end
 
+local function valuesEqual(a, b)
+    if a == b then
+        return true
+    end
+    if type(a) == "number" and type(b) == "number" then
+        return math.abs(a - b) < 1e-4
+    end
+    return false
+end
+
+local function valuesListEqual(a, b)
+    if a == nil or b == nil then
+        return a == b
+    end
+    if #a ~= #b then
+        return false
+    end
+    for i = 1, #a do
+        if not valuesEqual(a[i], b[i]) then
+            return false
+        end
+    end
+    return true
+end
+
 --- Apply a capability when registry allowsApply (CONFIRMED, or Expert statuses with expertMode).
 --- opts = { prefixArgs, values|value, keySuffix, skipRestoreRegister, expertMode, skipGateCheck }
 --- Returns ok, errOrNil
@@ -168,6 +193,30 @@ function FS25E_CapabilityApplier.apply(capabilityId, opts)
     end
 
     local key = cacheKey(capabilityId, opts.keySuffix or (prefixArgs[1] ~= nil and tostring(prefixArgs[1]) or ""))
+
+    -- Delta skip: do not re-set / re-markApplied when value unchanged
+    local prevApplied = applied[key]
+    if prevApplied ~= nil and valuesListEqual(prevApplied.appliedValues or { prevApplied.appliedValue }, values) then
+        return true, nil
+    end
+    if FS25E_SettingsCache ~= nil then
+        local e = FS25E_SettingsCache.get(key)
+        if e ~= nil and e.current ~= nil and #values >= 1 and valuesEqual(e.current, values[1]) then
+            -- keep applied[] in sync without engine write
+            applied[key] = applied[key] or {
+                capabilityId = capabilityId,
+                setterName = cap.setter,
+                getterName = cap.getter,
+                prefixArgs = prefixArgs,
+                original = e.original,
+                hadGetter = e.original ~= nil,
+                appliedValue = values[1],
+                appliedValues = values,
+                restoreStrategy = cap.restoreStrategy,
+            }
+            return true, nil
+        end
+    end
 
     -- Capture original once via getter when available
     local original = nil
@@ -235,16 +284,12 @@ function FS25E_CapabilityApplier.apply(capabilityId, opts)
         restoreStrategy = cap.restoreStrategy,
     }
 
-    if FS25E_CapabilityRegistry.markApplied ~= nil then
-        FS25E_CapabilityRegistry.markApplied(capabilityId, key)
-    end
-
     if not opts.skipRestoreRegister and FS25E_RestoreManager ~= nil and FS25E_RestoreManager.registerCapabilityRestore ~= nil then
         FS25E_RestoreManager.registerCapabilityRestore(key)
     end
 
     if FS25E_CapabilityRegistry.markApplied ~= nil then
-        FS25E_CapabilityRegistry.markApplied(capabilityId)
+        FS25E_CapabilityRegistry.markApplied(capabilityId, key)
     end
 
     FS25E_Debug.info("CapabilityApplier", string.format(

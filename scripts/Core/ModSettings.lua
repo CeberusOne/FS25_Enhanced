@@ -248,7 +248,7 @@ function FS25E_ModSettings.load()
         seedDefaults()
     end
 
-    FS25E_ModSettings.applyToRuntime()
+    -- applyToRuntime deferred to bootstrap after ProfileManager.init (avoids unknown preset spam)
     return true
 end
 
