@@ -356,16 +356,28 @@ function FS25E_SettingsDialog:onHighlightRainShallowWater() self:_setHelpForId("
 function FS25E_SettingsDialog:onClickPersistHardware(state) self:_onOptionChanged("persistHardware", state) end
 function FS25E_SettingsDialog:onClickExpertSoftApply(state) self:_onOptionChanged("expertSoftApply", state) end
 
---- Expert-tab: enable liveTuning + open overlay (gates still checked inside overlay).
+--- Expert-tab: enable BOTH gates (expertMode + liveTuning) then open overlay.
+--- Soft-Apply is NOT required to open — only for applying experimental caps.
 function FS25E_SettingsDialog:onClickLiveOverlay()
-    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.set ~= nil then
-        FS25E_SettingsAPI.set("liveTuningEnabled", true)
-    elseif FS25E_ModSettings ~= nil and FS25E_ModSettings.set ~= nil then
-        FS25E_ModSettings.set("liveTuningEnabled", true)
+    local function setFlag(id, value)
+        if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.set ~= nil then
+            FS25E_SettingsAPI.set(id, value)
+        elseif FS25E_ModSettings ~= nil and FS25E_ModSettings.set ~= nil then
+            FS25E_ModSettings.set(id, value)
+        end
     end
-    -- Ensure expertMode remains as-is; overlay.canShow requires both.
+    setFlag("expertMode", true)
+    setFlag("liveTuningEnabled", true)
+    if FS25E_ModSettings ~= nil and FS25E_ModSettings.save ~= nil then
+        pcall(FS25E_ModSettings.save)
+    elseif FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.save ~= nil then
+        pcall(FS25E_SettingsAPI.save)
+    end
+    -- Refresh expert rows if still open briefly
+    if self._applyExpertVisibility ~= nil then
+        pcall(function() self:_applyExpertVisibility() end)
+    end
     if FS25E_LiveOverlay ~= nil and FS25E_LiveOverlay.toggle ~= nil then
-        -- Close settings so overlay draws over world
         self:close()
         FS25E_LiveOverlay.toggle(true)
     end
