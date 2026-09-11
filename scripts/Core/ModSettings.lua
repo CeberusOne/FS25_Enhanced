@@ -54,6 +54,8 @@ local DEFAULTS = {
 local ALIASES = {
     governorEnabled = "enabled",
     activePreset = "preset",
+    -- Experimental dual-key: GUI + Expert Soft-Apply share one store
+    expertRainShallowWater = "rainShallowWater",
 }
 
 local function resolveKey(id)

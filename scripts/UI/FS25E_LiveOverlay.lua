@@ -211,9 +211,9 @@ local function barText(def, value)
     local s = "["
     for i = 1, width do
         if i <= filled then
-            s = s .. "█"
+            s = s .. "#"
         else
-            s = s .. "░"
+            s = s .. "-"
         end
     end
     return s .. "]"
@@ -700,6 +700,19 @@ function FS25E_LiveOverlay.show()
     visible = true
     selectedIndex = 1
     scrollOffset = 0
+    -- Force mouse cursor so bar clicks work (draw overlay is not a GUI screen).
+    FS25E_LiveOverlay._prevMouseCursor = nil
+    if g_inputBinding ~= nil then
+        if g_inputBinding.getShowMouseCursor ~= nil then
+            local ok, v = pcall(function() return g_inputBinding:getShowMouseCursor() end)
+            if ok then
+                FS25E_LiveOverlay._prevMouseCursor = v
+            end
+        end
+        if g_inputBinding.setShowMouseCursor ~= nil then
+            pcall(function() g_inputBinding:setShowMouseCursor(true) end)
+        end
+    end
     dbg("overlay shown")
     return true
 end
@@ -707,6 +720,14 @@ end
 function FS25E_LiveOverlay.hide()
     visible = false
     dragRow = nil
+    if g_inputBinding ~= nil and g_inputBinding.setShowMouseCursor ~= nil then
+        local restore = FS25E_LiveOverlay._prevMouseCursor
+        if restore == nil then
+            restore = false
+        end
+        pcall(function() g_inputBinding:setShowMouseCursor(restore) end)
+    end
+    FS25E_LiveOverlay._prevMouseCursor = nil
     dbg("overlay hidden")
 end
 
@@ -897,6 +918,10 @@ function FS25E_LiveOverlay.draw()
         if help ~= nil and help ~= "" then
             local wr = sel.def ~= nil and sel.def.warn == true
             drawLabel(px + PANEL.pad, helpY + 0.014, PANEL.smallSize, help, wr and 1 or 0.85, wr and 0.7 or 0.85, wr and 0.45 or 0.55, 1)
+        end
+        if sel ~= nil and sel.lastResult == "SKIPPED" then
+            local softHint = t("FS25E_LIVE_OVERLAY_SOFTAPPLY_HINT", "SKIPPED: turn Expert Soft-Apply ON (value stored only).")
+            drawLabel(px + PANEL.pad, helpY - 0.002, PANEL.smallSize, truncateHelp(softHint, 118), 1.0, 0.75, 0.35, 1)
         end
     end
 

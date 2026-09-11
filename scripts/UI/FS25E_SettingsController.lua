@@ -24,6 +24,25 @@ local function hasSettingsAPI()
     return FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.get ~= nil and FS25E_SettingsAPI.set ~= nil
 end
 
+-- Keep Wave-1 GUI id and Expert Soft-Apply id in sync (same cap).
+local DUAL_SETTING_KEYS = {
+    rainShallowWater = "expertRainShallowWater",
+    expertRainShallowWater = "rainShallowWater",
+}
+
+local function mirrorDualKey(id, value)
+    local other = DUAL_SETTING_KEYS[id]
+    if other == nil then
+        return
+    end
+    if FS25E_ModSettings ~= nil and FS25E_ModSettings.set ~= nil then
+        pcall(function() FS25E_ModSettings.set(other, value) end)
+    end
+    if hasSettingsAPI() then
+        pcall(function() FS25E_SettingsAPI.set(other, value) end)
+    end
+end
+
 -- Prefer-Path: ModSettings.get/set (SettingsAPI is facade over the same store).
 function FS25E_SettingsController.get(id)
     if FS25E_ModSettings ~= nil and FS25E_ModSettings.get ~= nil then
@@ -85,6 +104,7 @@ function FS25E_SettingsController.applyUserChange(id, value, opts)
             FS25E_SettingsCache.setRequested(id, value)
         end
 
+        mirrorDualKey(id, value)
         persist()
         dbg(string.format("applyUserChange(api) id=%s value=%s", tostring(id), tostring(value)))
         return true
@@ -105,6 +125,8 @@ function FS25E_SettingsController.applyUserChange(id, value, opts)
     if FS25E_SettingsCache ~= nil and FS25E_SettingsCache.setRequested ~= nil then
         FS25E_SettingsCache.setRequested(id, value)
     end
+
+    mirrorDualKey(id, value)
 
     if id == "enabled" then
         if FS25E_GraphicsGovernor ~= nil and FS25E_GraphicsGovernor.setEnabled ~= nil then

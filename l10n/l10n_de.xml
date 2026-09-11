@@ -136,7 +136,7 @@
         <text name="FS25E_SETTING_FAST_SHADOW_UPDATE" text="Schnelles Schatten-Update"/>
         <text name="FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP" text="Experimentell: aktualisiert Schatten öfter. Kann FPS kosten; Soft-Apply nötig zum Live-Test."/>
         <text name="FS25E_SETTING_RAIN_SHALLOW_WATER" text="Regen-Flachwasser-Sim"/>
-        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="Experimentell: flache Pfützensimulation bei Regen. Schwer; Soft-Apply nötig zum Live-Test."/>
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="Regen-/Flachwasser-Sim (Experte). Braucht Expert Soft-Apply AN; sichtbar meist nur bei Regen/am Wasser. Sonst SKIPPED."/>
         <text name="FS25E_STATUS_HEADER" text="Capability-Status (nur Lesen)"/>
         <text name="FS25E_STATUS_EMPTY" text="Keine Capability-Daten (Diagnostics/Registry nicht verfügbar)."/>
         <text name="FS25E_STATUS_APPLIED" text="APPLIED — funktioniert"/>
@@ -154,7 +154,7 @@
         <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE" text="Experte: Schnelles Schatten-Update"/>
         <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE_TOOLTIP" text="Opt-in experimentell schnellere Schatten-Aktualisierung. Braucht Soft-Apply; kann FPS kosten."/>
         <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW" text="Experte: Regen-Flachwasser"/>
-        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP" text="Opt-in experimentelle Regenpfützen. Braucht Soft-Apply; hoher Aufwand."/>
+        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP" text="Gleicher Key wie Regen-Flachwasser. Soft-Apply AN nötig; ohne Regen/Flachwasser kaum sichtbar."/>
         <text name="FS25E_SETTING_EXPERT_SSR" text="Experte: SSR"/>
         <text name="FS25E_SETTING_EXPERT_SSR_TOOLTIP" text="Opt-in Screen-Space-Reflexionen (gated). Braucht Soft-Apply; kann teuer sein."/>
         <text name="FS25E_SETTING_EXPERT_ATMOSPHERE" text="Experte: Atmosphäre"/>
@@ -167,5 +167,6 @@
         <text name="FS25E_LIVE_OVERLAY_GATE_NEED_EXPERT" text="Zuerst Expertenmodus einschalten (Einstellungen → Experte)."/>
         <text name="FS25E_LIVE_OVERLAY_GATE_NEED_LIVE" text="Zuerst Live-Tuning aktivieren (Einstellungen → Experte → Live-Overlay öffnen)."/>
         <text name="FS25E_LIVE_OVERLAY_GATE_OK" text="OK"/>
+        <text name="FS25E_LIVE_OVERLAY_SOFTAPPLY_HINT" text="SKIPPED: Expert Soft-Apply AN schalten, sonst nur gespeichert, nicht angewendet."/>
     </texts>
 </l10n>

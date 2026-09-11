@@ -136,7 +136,7 @@
         <text name="FS25E_SETTING_FAST_SHADOW_UPDATE" text="Fast Shadow Update"/>
         <text name="FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP" text="Experimental: updates shadows more often. Can hurt FPS; Soft-Apply needed to try live."/>
         <text name="FS25E_SETTING_RAIN_SHALLOW_WATER" text="Rain Shallow Water Sim"/>
-        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="Experimental: shallow puddle simulation in rain. Heavy; Soft-Apply needed to try live."/>
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="Rain/shallow-water sim (expert). Needs Expert Soft-Apply ON; visible effect usually only in rain/near water. Else SKIPPED."/>
         <text name="FS25E_STATUS_HEADER" text="Capability status (read-only)"/>
         <text name="FS25E_STATUS_EMPTY" text="No capability data (Diagnostics/Registry unavailable)."/>
         <text name="FS25E_STATUS_APPLIED" text="APPLIED — works"/>
@@ -154,7 +154,7 @@
         <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE" text="Expert Fast Shadow Update"/>
         <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE_TOOLTIP" text="Opt-in experimental faster shadow refresh. Needs Soft-Apply; can cost FPS."/>
         <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW" text="Expert Rain Shallow Water"/>
-        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP" text="Opt-in experimental rain puddles. Needs Soft-Apply; heavy cost."/>
+        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP" text="Same key as Rain Shallow Water. Soft-Apply ON required; little/no effect without rain or shallow water."/>
         <text name="FS25E_SETTING_EXPERT_SSR" text="Expert SSR"/>
         <text name="FS25E_SETTING_EXPERT_SSR_TOOLTIP" text="Opt-in screen-space reflections (gated). Needs Soft-Apply; can be costly."/>
         <text name="FS25E_SETTING_EXPERT_ATMOSPHERE" text="Expert Atmosphere"/>
@@ -167,5 +167,6 @@
         <text name="FS25E_LIVE_OVERLAY_GATE_NEED_EXPERT" text="Turn on Expert Mode first (Settings → Expert)."/>
         <text name="FS25E_LIVE_OVERLAY_GATE_NEED_LIVE" text="Enable Live Tuning first (Settings → Expert → Open Live Overlay)."/>
         <text name="FS25E_LIVE_OVERLAY_GATE_OK" text="OK"/>
+        <text name="FS25E_LIVE_OVERLAY_SOFTAPPLY_HINT" text="SKIPPED: turn Expert Soft-Apply ON to apply experimental caps (value stored only)."/>
     </texts>
 </l10n>

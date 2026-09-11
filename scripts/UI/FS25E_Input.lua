@@ -199,6 +199,13 @@ function FS25E_Input.onKeyEvent(_self, unicode, sym, modifier, isDown)
     if isDown ~= true then
         return
     end
+    -- Esc closes Settings Dialog when it is the current GUI (not Live Overlay).
+    local isEsc = (sym == 27) or (Input ~= nil and Input.KEY_esc ~= nil and sym == Input.KEY_esc)
+    if isEsc and isSettingsDialogVisible() then
+        closeSettings("keyEvent:Esc")
+        return
+    end
+
     local keyF9 = (Input ~= nil and Input.KEY_f9) or nil
     local keyE = (Input ~= nil and Input.KEY_e) or nil
     local isF9 = (keyF9 ~= nil and sym == keyF9) or sym == 290 or sym == 120 -- F9 common codes

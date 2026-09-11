@@ -17,3 +17,9 @@ After opening Settings once (F9), OK/Back/Esc appeared to do nothing — fullscr
 - `scripts/UI/FS25E_SettingsDialog.lua`
 - `scripts/UI/FS25E_Input.lua`
 - `scripts/Core/ConsoleCommands.lua` (`closeSettings` only)
+
+## Also in this PR (user follow-ups)
+- Live Overlay: ASCII bars `#`/`-` (no █/░ font warnings); mouse cursor on show/hide
+- F9 toggle close + Esc closes Settings when visible
+- Dual-key: `expertRainShallowWater` aliases to `rainShallowWater` (ModSettings + Controller mirror)
+- Honest rain tooltips + Overlay SKIPPED Soft-Apply hint
