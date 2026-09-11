@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<!-- TODO verify descVersion against ModHub Creation Guidelines (GDN downloadId=124). Using 106 (common FS25 template). NOT 72. -->
-<modDesc descVersion="106">
+<!-- FS25 Enhanced — descVersion must match game (log: ModDesc Version 113). -->
+<modDesc descVersion="113">
     <author>CeberusOne</author>
-    <version>0.4.2.3</version>
+    <version>0.4.2.4</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -10,12 +10,14 @@
     <description>
         <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
 Uses only documented Giants Engine / Settings APIs. No binary hooks.
-v0.4.2.3: Hover-help tooltips in Settings Dialog + Live Overlay; player-friendly EN/DE texts; Casual-Automatik Wave-1 Adaptive (presets/shadows/LOD, default off); Soft-Apply/Persist tooltips.
-Builds on v0.4.2.1 GUI/HUD + v0.4.2.2 Casual-Auto. Soft-Apply off by default. No engine setters from GUI. Multiplayer: client-local only (not synced).]]></en>
+v0.4.2.4: descVersion 113 for current FS25; install as mods/FS25_Enhanced/ folder (not nested zip).
+Hover-help, Casual-Automatik Wave-1 Adaptive (default off), Expert Live Overlay, Pro HUD.
+Soft-Apply off by default. No engine setters from GUI. Multiplayer: client-local only.]]></en>
         <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
-Nutzt ausschließlich dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-v0.4.2.3: Hover-Hilfe-Tooltips in Settings-Dialog + Live-Overlay; spielerfreundliche EN/DE-Texte; Casual-Automatik Wave-1 Adaptive (Presets/Schatten/LOD, Standard aus); Soft-Apply/Persist-Tooltips.
-Baut auf v0.4.2.1 GUI/HUD + v0.4.2.2 Casual-Auto auf. Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nur client-lokal (nicht synchronisiert).]]></de>
+Nur dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
+v0.4.2.4: descVersion 113 für aktuelles FS25; Installation als Ordner mods/FS25_Enhanced/ (keine verschachtelte Zip).
+Hover-Hilfe, Casual-Automatik Wave-1 Adaptive (Standard aus), Expert Live-Overlay, Pro-HUD.
+Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nur client-lokal.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
