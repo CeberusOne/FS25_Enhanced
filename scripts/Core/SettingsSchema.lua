@@ -52,7 +52,6 @@ local schema = {
     { id = "expertSoftApply", type = "bool", l10n = "FS25E_SETTING_EXPERT_SOFT_APPLY", tooltip = "FS25E_SETTING_EXPERT_SOFT_APPLY_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
     { id = "expertShadowFocusBox", type = "bool", l10n = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX", tooltip = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "shadow-focus-box" },
     { id = "expertFastShadowUpdate", type = "bool", l10n = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE", tooltip = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "fast-shadow-update" },
-    { id = "expertRainShallowWater", type = "bool", l10n = "FS25E_SETTING_EXPERT_RAIN_SHALLOW", tooltip = "FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "rain-shallow-water-simulation" },
     { id = "expertSsrQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_SSR", tooltip = "FS25E_SETTING_EXPERT_SSR_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
     { id = "expertAtmosphereQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_ATMOSPHERE", tooltip = "FS25E_SETTING_EXPERT_ATMOSPHERE_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
     { id = "expertDrsQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_DRS", tooltip = "FS25E_SETTING_EXPERT_DRS_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
@@ -120,7 +119,7 @@ function FS25E_SettingsSchema.set(id, value)
     end
     -- Soft-Apply trigger only when a value changes and Soft-Apply is armed (never on init path)
     if prev ~= value and FS25E_ExperimentalCaps ~= nil and FS25E_ExperimentalCaps.onSettingsChanged ~= nil then
-        if id == "expertMode" or id == "expertSoftApply" or string.sub(tostring(id), 1, 6) == "expert" then
+        if id == "expertMode" or id == "expertSoftApply" or id == "rainShallowWater" or string.sub(tostring(id), 1, 6) == "expert" then
             local expertMode = FS25E_ModSettings.get("expertMode") == true
             local expertSoft = FS25E_ModSettings.get("expertSoftApply") == true
             if expertMode and expertSoft then
