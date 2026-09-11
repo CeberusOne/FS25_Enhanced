@@ -46,7 +46,7 @@ local function syncEnablesFromSchema()
     local map = {
         shadowFocusBox = "expertShadowFocusBox",
         fastShadowUpdate = "expertFastShadowUpdate",
-        rainShallowWater = "expertRainShallowWater",
+        rainShallowWater = "rainShallowWater", -- unified GUI/Overlay/Soft-Apply key (was expertRainShallowWater)
         ssrQuality = "expertSsrQuality",
         atmosphereQuality = "expertAtmosphereQuality",
         drsQuality = "expertDrsQuality",

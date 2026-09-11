@@ -38,3 +38,7 @@
 - `expertSoftApply` / `ExperimentalCaps.setSoftApplyEnabled` default **false**
 - User must enable `expertMode` + Soft-Apply (console `fs25eExpertMode` / `fs25eExpertSoftApply`, or settings)
 - Never auto on load; no `saveHardwareScalability` / `setTerrainQuality` / `applyPerformanceClass`
+
+## Setting key (v0.4.2.x)
+
+`rainShallowWater` is the single key for GUI, Live-Overlay, Soft-Apply, and `liveApply`. Legacy `expertRainShallowWater` aliases to it in ModSettings.

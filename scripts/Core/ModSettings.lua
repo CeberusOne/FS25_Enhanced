@@ -43,7 +43,6 @@ local DEFAULTS = {
     expertSoftApply = false,
     expertShadowFocusBox = false,
     expertFastShadowUpdate = false,
-    expertRainShallowWater = false,
     expertSsrQuality = false,
     expertAtmosphereQuality = false,
     expertDrsQuality = false,
@@ -54,6 +53,8 @@ local DEFAULTS = {
 local ALIASES = {
     governorEnabled = "enabled",
     activePreset = "preset",
+    -- Legacy Soft-Apply key → unified GUI/Overlay key
+    expertRainShallowWater = "rainShallowWater",
 }
 
 local function resolveKey(id)

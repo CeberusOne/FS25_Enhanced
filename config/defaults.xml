@@ -14,7 +14,7 @@
     <setting name="expertSoftApply" type="bool" value="false"/>
     <setting name="expertShadowFocusBox" type="bool" value="false"/>
     <setting name="expertFastShadowUpdate" type="bool" value="false"/>
-    <setting name="expertRainShallowWater" type="bool" value="false"/>
+    <setting name="rainShallowWater" type="bool" value="false"/>
     <setting name="expertSsrQuality" type="bool" value="false"/>
     <setting name="expertAtmosphereQuality" type="bool" value="false"/>
     <setting name="expertDrsQuality" type="bool" value="false"/>
