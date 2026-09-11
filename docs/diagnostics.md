@@ -21,7 +21,9 @@
 | `REJECTED` | Apply/reject path failed or registry rejected | Apply fehlgeschlagen bzw. Registry rejected |
 | `SKIPPED` | Soft skip (listener / future Core path) | Soft-Skip (Listener / künftiger Core-Pfad) |
 
-## Ring log + optional file / Ring + optionale Datei
+## Ring log / Ring-Log
+
+**Note:** File append to `diagnostics.log` was removed — Giants Lua `io.open` only allows `'w'` (append `'a'` spam-warned thousands of times in live logs).
 
 - In-memory ring (default size 64) via `FS25E_Diagnostics.getRing()` / `fs25eDumpDiagLog`.
 - Optional append to `modSettings/FS25_Enhanced/diagnostics.log` when `FS25E_ModSettings` is ready (`getFilePath("diagnostics.log")`). Soft-fails if IO unavailable.

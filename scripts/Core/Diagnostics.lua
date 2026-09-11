@@ -46,36 +46,11 @@ local function pushRing(entry)
     end
 end
 
+--- File log disabled: Giants io.open allows write mode ('w') only — append ('a')
+--- spams Warning "io.open, only write mode ('w') is allowed" thousands of times.
+--- Ring buffer remains the source of truth (fs25eDumpDiagLog / getRing).
 function FS25E_Diagnostics.appendFile(line)
-    if line == nil then
-        return false
-    end
-    local ok = pcall(function()
-        if FS25E_ModSettings == nil or FS25E_ModSettings.isReady == nil or not FS25E_ModSettings.isReady() then
-            return
-        end
-        if FS25E_ModSettings.getFilePath == nil then
-            return
-        end
-        local path = FS25E_ModSettings.getFilePath("diagnostics.log")
-        if path == nil or path == "" then
-            return
-        end
-        local f = io.open(path, "a")
-        if f == nil then
-            return
-        end
-        f:write(tostring(line))
-        if not tostring(line):match("\n$") then
-            f:write("\n")
-        end
-        f:close()
-    end)
-    if not ok and not fileWriteWarned and FS25E_Debug ~= nil then
-        fileWriteWarned = true
-        FS25E_Debug.warning("Diagnostics", "diagnostics.log append soft-failed (IO unavailable)")
-    end
-    return ok
+    return false
 end
 
 --- record(capabilityId, result, err, meta)
