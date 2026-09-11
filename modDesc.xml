@@ -2,7 +2,7 @@
 <!-- FS25 Enhanced — descVersion must match game (log: ModDesc Version 113). -->
 <modDesc descVersion="113">
     <author>CeberusOne</author>
-    <version>0.4.2.5</version>
+    <version>0.4.2.6</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
@@ -72,9 +72,12 @@ Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nu
     </actions>
     <inputBinding>
         <actionBinding action="FS25E_OPEN_SETTINGS">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_f9" />
             <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_e" />
         </actionBinding>
         <actionBinding action="FS25E_TOGGLE_LIVE_OVERLAY">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_f9" />
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lshift KEY_f9" />
             <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lshift KEY_e" />
         </actionBinding>
     </inputBinding>
