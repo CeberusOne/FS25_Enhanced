@@ -164,5 +164,8 @@
         <text name="FS25E_SETTING_EXPERT_RAIN_SUITE" text="Experte: Regen-Suite"/>
         <text name="FS25E_SETTING_EXPERT_RAIN_SUITE_TOOLTIP" text="Opt-in Regen-Extras als Gruppe. Braucht Soft-Apply; Wirkung und Kosten variieren."/>
 
+        <text name="FS25E_LIVE_OVERLAY_GATE_NEED_EXPERT" text="Zuerst Expertenmodus einschalten (Einstellungen → Experte)."/>
+        <text name="FS25E_LIVE_OVERLAY_GATE_NEED_LIVE" text="Zuerst Live-Tuning aktivieren (Einstellungen → Experte → Live-Overlay öffnen)."/>
+        <text name="FS25E_LIVE_OVERLAY_GATE_OK" text="OK"/>
     </texts>
 </l10n>

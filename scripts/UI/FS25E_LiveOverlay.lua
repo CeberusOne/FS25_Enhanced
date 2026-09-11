@@ -142,6 +142,22 @@ function FS25E_LiveOverlay.canShow()
     return settingsGet("expertMode") == true and settingsGet("liveTuningEnabled") == true
 end
 
+--- Human-readable gate status (Soft-Apply is NOT an open gate).
+function FS25E_LiveOverlay.gateStatusMessage()
+    local expert = settingsGet("expertMode") == true
+    local live = settingsGet("liveTuningEnabled") == true
+    if expert and live then
+        return t("FS25E_LIVE_OVERLAY_GATE_OK", "OK")
+    end
+    if not expert and not live then
+        return t("FS25E_LIVE_OVERLAY_GATE_REQUIRED", "Expert Mode + Live Tuning required")
+    end
+    if not expert then
+        return t("FS25E_LIVE_OVERLAY_GATE_NEED_EXPERT", "Turn on Expert Mode first (Settings → Expert)")
+    end
+    return t("FS25E_LIVE_OVERLAY_GATE_NEED_LIVE", "Turn on Live Tuning first (Settings → Expert → Live Overlay)")
+end
+
 local function isExpertSoftApplyOn()
     if FS25E_ExperimentalCaps ~= nil and FS25E_ExperimentalCaps.isSoftApplyEnabled ~= nil then
         if FS25E_ExperimentalCaps.isSoftApplyEnabled() == true then
@@ -649,7 +665,7 @@ end
 function FS25E_LiveOverlay.toggle(force)
     if force == true then
         if not FS25E_LiveOverlay.canShow() then
-            notify(t("FS25E_LIVE_OVERLAY_GATE_REQUIRED", "Expert Mode + Live Tuning required"))
+            notify(FS25E_LiveOverlay.gateStatusMessage())
             return false
         end
         FS25E_LiveOverlay.show()
@@ -664,7 +680,7 @@ function FS25E_LiveOverlay.toggle(force)
         return true
     end
     if not FS25E_LiveOverlay.canShow() then
-        notify(t("FS25E_LIVE_OVERLAY_GATE_REQUIRED", "Expert Mode + Live Tuning required"))
+        notify(FS25E_LiveOverlay.gateStatusMessage())
         return false
     end
     FS25E_LiveOverlay.show()
@@ -673,7 +689,7 @@ end
 
 function FS25E_LiveOverlay.show()
     if not FS25E_LiveOverlay.canShow() then
-        notify(t("FS25E_LIVE_OVERLAY_GATE_REQUIRED", "Expert Mode + Live Tuning required"))
+        notify(FS25E_LiveOverlay.gateStatusMessage())
         return false
     end
     cachedCapList = nil
