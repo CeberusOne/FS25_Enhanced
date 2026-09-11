@@ -587,6 +587,37 @@ function FS25E_ConsoleCommands.liveOverlay(flag)
     say("liveOverlay visible=" .. tostring(FS25E_LiveOverlay.isVisible and FS25E_LiveOverlay.isVisible()))
 end
 
+function FS25E_ConsoleCommands.closeSettings()
+    local closed = false
+    if g_gui ~= nil then
+        if g_gui.closeDialogByName ~= nil then
+            local ok = pcall(function()
+                g_gui:closeDialogByName("FS25E_SettingsDialog")
+            end)
+            closed = closed or ok
+        end
+        -- Fallback: blank GUI / changeScreen via controller instance if exposed
+        if g_gui.guis ~= nil and g_gui.guis["FS25E_SettingsDialog"] ~= nil then
+            local dlg = g_gui.guis["FS25E_SettingsDialog"]
+            if dlg ~= nil and dlg.target ~= nil and dlg.target.close ~= nil then
+                local ok = pcall(function() dlg.target:close() end)
+                closed = closed or ok
+            elseif dlg ~= nil and dlg.close ~= nil then
+                local ok = pcall(function() dlg:close() end)
+                closed = closed or ok
+            end
+        end
+        if not closed and g_gui.showGui ~= nil then
+            pcall(function() g_gui:showGui("") end)
+            closed = true
+        end
+    end
+    if g_inputBinding ~= nil and g_inputBinding.setShowMouseCursor ~= nil then
+        pcall(function() g_inputBinding:setShowMouseCursor(false) end)
+    end
+    say(string.format("closeSettings closed=%s", tostring(closed)))
+end
+
 function FS25E_ConsoleCommands.register()
     if registered then
         return true
@@ -604,6 +635,7 @@ function FS25E_ConsoleCommands.register()
     if tryAdd("fs25eSelectPreset", "FS25_Enhanced: select preset into SettingsCache (no engine apply)", "selectPreset") then n = n + 1 end
     if tryAdd("fs25eGovernor", "FS25_Enhanced: enable governor observe (1/0); never enables autoApply", "setGovernorEnabled") then n = n + 1 end
     if tryAdd("fs25eOpenSettings", "FS25_Enhanced: open Gen-1 settings dialog", "openSettings") then n = n + 1 end
+    if tryAdd("fs25eCloseSettings", "FS25_Enhanced: close settings dialog (unstick)", "closeSettings") then n = n + 1 end
     if tryAdd("fs25eApplyLightPriority", "FS25_Enhanced: manual setLightShadowPriority (lightId from fs25eLightsDump)", "applyLightPriority") then n = n + 1 end
     if tryAdd("fs25eSoftApply", "FS25_Enhanced: Soft-Apply 0|1 (DANGER; default 0; never enables autoApply)", "setSoftApply") then n = n + 1 end
     if tryAdd("fs25eAutoApply", "FS25_Enhanced: autoApply 0|1 (DANGER; default 0)", "setAutoApplyFlag") then n = n + 1 end
@@ -648,6 +680,8 @@ function FS25E_ConsoleCommands.unregister()
         "fs25eSplitLight",
         "fs25eDumpMerges",
         "fs25eOpenSettings",
+        "fs25eCloseSettings",
+        "fs25eLiveOverlay",
         "fs25eCapStatus",
         "fs25eDumpDiagLog",
         "fs25eExpertMode",

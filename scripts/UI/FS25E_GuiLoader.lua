@@ -79,5 +79,10 @@ function FS25E_GuiLoader.showSettingsDialog()
         end
         return false
     end
+    if g_inputBinding ~= nil and g_inputBinding.setShowMouseCursor ~= nil then
+        pcall(function()
+            g_inputBinding:setShowMouseCursor(true)
+        end)
+    end
     return true
 end

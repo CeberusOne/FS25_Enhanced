@@ -1,10 +1,13 @@
 -- FS25_Enhanced / UI/FS25E_Input.lua
--- ActionEvents: open settings + toggle Expert Live-Overlay (Ctrl+Shift+E).
+-- ActionEvents + F9/Ctrl+E keyEvent fallback (ActionEvents alone often silent for SYSTEM).
 
 FS25E_Input = {}
 
 local registered = false
+local keyHooked = false
 local eventIds = {}
+local lastOpenMs = 0
+local OPEN_COOLDOWN_MS = 400
 
 local function dbg(msg)
     if FS25E_Debug ~= nil then
@@ -40,16 +43,54 @@ local function t(key, fallback)
     return fallback or key
 end
 
-function FS25E_Input.onOpenSettings(actionName, inputValue, callbackState, isAnalog)
+local function nowMs()
+    if g_time ~= nil then
+        return g_time
+    end
+    if getTime ~= nil then
+        local ok, v = pcall(getTime)
+        if ok and type(v) == "number" then
+            if v < 1e6 then
+                return v * 1000.0
+            end
+            return v
+        end
+    end
+    return 0
+end
+
+local function openSettings(source)
+    local tnow = nowMs()
+    if lastOpenMs > 0 and (tnow - lastOpenMs) < OPEN_COOLDOWN_MS then
+        return
+    end
+    lastOpenMs = tnow
+    dbg("openSettings via " .. tostring(source))
     if FS25E_GuiLoader ~= nil and FS25E_GuiLoader.showSettingsDialog ~= nil then
-        FS25E_GuiLoader.showSettingsDialog()
+        local ok = FS25E_GuiLoader.showSettingsDialog()
+        dbg("showSettingsDialog ok=" .. tostring(ok))
+        if not ok then
+            notify(t("FS25E_SETTINGS_TITLE", "FS25 Enhanced") .. ": GUI open failed (see log)")
+        end
     else
         dbg("open settings: GuiLoader missing")
+        notify("FS25 Enhanced: GuiLoader missing")
     end
 end
 
---- Toggle Live Overlay when expertMode + liveTuningEnabled; otherwise gate hint.
+function FS25E_Input.onOpenSettings(actionName, inputValue, callbackState, isAnalog)
+    dbg(string.format("onOpenSettings action=%s value=%s", tostring(actionName), tostring(inputValue)))
+    if inputValue ~= nil and tonumber(inputValue) == 0 then
+        return
+    end
+    openSettings("ActionEvent:" .. tostring(actionName))
+end
+
 function FS25E_Input.onToggleLiveOverlay(actionName, inputValue, callbackState, isAnalog)
+    if inputValue ~= nil and tonumber(inputValue) == 0 then
+        return
+    end
+    dbg(string.format("onToggleLiveOverlay action=%s value=%s", tostring(actionName), tostring(inputValue)))
     if FS25E_LiveOverlay ~= nil and FS25E_LiveOverlay.toggle ~= nil then
         FS25E_LiveOverlay.toggle(nil)
         return
@@ -57,7 +98,6 @@ function FS25E_Input.onToggleLiveOverlay(actionName, inputValue, callbackState, 
     notify(t("FS25E_LIVE_OVERLAY_UNAVAILABLE", "Live Overlay unavailable"))
 end
 
---- Legacy LIVE_HINT action → same as toggle (opens overlay when gates ok).
 function FS25E_Input.onLiveHint(actionName, inputValue, callbackState, isAnalog)
     FS25E_Input.onToggleLiveOverlay(actionName, inputValue, callbackState, isAnalog)
 end
@@ -69,50 +109,127 @@ local function resolveAction(name)
     return name
 end
 
-function FS25E_Input.register()
-    if registered then
-        return true
-    end
-    if g_inputBinding == nil or g_inputBinding.registerActionEvent == nil then
-        dbg("registerActionEvent unavailable")
+local function tryRegisterOne(actionName, callback)
+    local action = resolveAction(actionName)
+    local ok2, err2 = pcall(function()
+        -- Prefer NO context modification for SYSTEM category actions.
+        -- PlayerActionEvents context often registers but never fires for SYSTEM binds.
+        local okFlag, eid = g_inputBinding:registerActionEvent(action, FS25E_Input, callback, false, true, false, true)
+        if type(okFlag) ~= "boolean" then
+            eid = okFlag
+            okFlag = eid ~= nil
+        end
+        if eid ~= nil then
+            eventIds[#eventIds + 1] = eid
+            if g_inputBinding.setActionEventTextVisibility ~= nil then
+                pcall(function()
+                    g_inputBinding:setActionEventTextVisibility(eid, false)
+                end)
+            end
+            if g_inputBinding.setActionEventActive ~= nil then
+                pcall(function()
+                    g_inputBinding:setActionEventActive(eid, true)
+                end)
+            end
+            dbg(string.format("registered %s eid=%s", tostring(actionName), tostring(eid)))
+        else
+            dbg(string.format("registered %s but eid=nil okFlag=%s", tostring(actionName), tostring(okFlag)))
+        end
+    end)
+    if not ok2 then
+        dbg("register failed " .. tostring(actionName) .. ": " .. tostring(err2))
         return false
     end
+    return true
+end
 
-    local function tryRegister(actionName, callback)
-        local action = resolveAction(actionName)
-        local ok2, err2 = pcall(function()
-            if g_inputBinding.beginActionEventsModification ~= nil then
-                g_inputBinding:beginActionEventsModification(action)
+--- Direct key fallback: F9 opens settings; Shift+F9 toggles overlay.
+function FS25E_Input.onKeyEvent(_self, unicode, sym, modifier, isDown)
+    if isDown ~= true then
+        return
+    end
+    local keyF9 = (Input ~= nil and Input.KEY_f9) or nil
+    local keyE = (Input ~= nil and Input.KEY_e) or nil
+    local isF9 = (keyF9 ~= nil and sym == keyF9) or sym == 290 or sym == 120 -- F9 common codes
+    local isE = (keyE ~= nil and sym == keyE)
+
+    local shift = false
+    local ctrl = false
+    if Input ~= nil then
+        if Input.isKeyPressed ~= nil then
+            if Input.KEY_lshift ~= nil then
+                shift = shift or Input.isKeyPressed(Input.KEY_lshift)
             end
-            local okFlag, eid = g_inputBinding:registerActionEvent(action, FS25E_Input, callback, false, true, false, true)
-            if type(okFlag) ~= "boolean" then
-                eid = okFlag
+            if Input.KEY_rshift ~= nil then
+                shift = shift or Input.isKeyPressed(Input.KEY_rshift)
             end
-            if eid ~= nil then
-                eventIds[#eventIds + 1] = eid
-                if g_inputBinding.setActionEventTextVisibility ~= nil then
-                    g_inputBinding:setActionEventTextVisibility(eid, true)
-                end
+            if Input.KEY_lctrl ~= nil then
+                ctrl = ctrl or Input.isKeyPressed(Input.KEY_lctrl)
             end
-            if g_inputBinding.endActionEventsModification ~= nil then
-                g_inputBinding:endActionEventsModification()
+            if Input.KEY_rctrl ~= nil then
+                ctrl = ctrl or Input.isKeyPressed(Input.KEY_rctrl)
             end
-        end)
-        if not ok2 then
-            dbg("register failed " .. tostring(actionName) .. ": " .. tostring(err2))
-            return false
         end
-        return true
+    end
+    -- modifier bitfield fallback (Giants often: shift=1, ctrl=2, alt=4 — vary by build)
+    if type(modifier) == "number" then
+        if modifier == 1 or modifier == 3 or modifier == 5 or modifier == 7 then
+            shift = true
+        end
+        if modifier == 2 or modifier == 3 or modifier == 6 or modifier == 7 then
+            ctrl = true
+        end
     end
 
-    local n = 0
-    if tryRegister("FS25E_OPEN_SETTINGS", FS25E_Input.onOpenSettings) then n = n + 1 end
-    if tryRegister("FS25E_TOGGLE_LIVE_OVERLAY", FS25E_Input.onToggleLiveOverlay) then n = n + 1 end
-    -- Keep LIVE_HINT registered for older bindings; routes to toggle
-    if tryRegister("FS25E_LIVE_HINT", FS25E_Input.onLiveHint) then n = n + 1 end
-    registered = n > 0
-    dbg(string.format("ActionEvents registered count=%d", n))
-    return registered
+    if isF9 then
+        if ctrl or shift then
+            -- User binding: Ctrl+F9 (and Shift+F9) toggle Live Overlay — not settings
+            dbg(string.format("keyEvent %sF9 -> overlay", ctrl and "Ctrl+" or "Shift+"))
+            FS25E_Input.onToggleLiveOverlay("KEY_f9", 1, nil, false)
+        else
+            dbg("keyEvent F9 -> settings")
+            openSettings("keyEvent:F9")
+        end
+        return
+    end
+    if isE and ctrl and not shift then
+        dbg("keyEvent Ctrl+E -> settings")
+        openSettings("keyEvent:Ctrl+E")
+    end
+end
+
+function FS25E_Input.registerKeyFallback()
+    if keyHooked then
+        return true
+    end
+    if FS25E_HookManager == nil or FSBaseMission == nil or FSBaseMission.keyEvent == nil then
+        dbg("keyEvent fallback unavailable")
+        return false
+    end
+    local ok = FS25E_HookManager.register(FSBaseMission, "keyEvent", "appended", function(self, unicode, sym, modifier, isDown)
+        FS25E_Input.onKeyEvent(self, unicode, sym, modifier, isDown)
+    end)
+    keyHooked = ok == true
+    dbg("keyEvent fallback hooked=" .. tostring(keyHooked))
+    return keyHooked
+end
+
+function FS25E_Input.register()
+    if g_inputBinding == nil or g_inputBinding.registerActionEvent == nil then
+        dbg("registerActionEvent unavailable")
+    else
+        if not registered then
+            eventIds = {}
+            local n = 0
+            if tryRegisterOne("FS25E_OPEN_SETTINGS", FS25E_Input.onOpenSettings) then n = n + 1 end
+            if tryRegisterOne("FS25E_TOGGLE_LIVE_OVERLAY", FS25E_Input.onToggleLiveOverlay) then n = n + 1 end
+            if tryRegisterOne("FS25E_LIVE_HINT", FS25E_Input.onLiveHint) then n = n + 1 end
+            registered = n > 0
+            dbg(string.format("ActionEvents registered count=%d", n))
+        end
+    end
+    FS25E_Input.registerKeyFallback()
+    return registered or keyHooked
 end
 
 function FS25E_Input.unregister()
@@ -129,9 +246,9 @@ function FS25E_Input.unregister()
     end
     eventIds = {}
     registered = false
-    dbg("ActionEvents unregistered")
+    dbg("ActionEvents unregistered (key fallback stays for session)")
 end
 
 function FS25E_Input.isRegistered()
-    return registered
+    return registered or keyHooked
 end

@@ -1,193 +1,239 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
   FS25E_SettingsDialog.xml — Gen-1 Settings GUI (MessageDialog pattern).
-  Assumptions documented in scripts/UI/FS25E_SettingsDialog.lua.
-  Profiles extend fs25_* only. No Slider / DialogElement.
+  All content uses anchorTopCenter so rows stay inside dialogBg (not below the box).
 -->
-<GUI>
+<GUI onOpen="onOpen" onClose="onClose" onCreate="onCreate">
     <GuiElement profile="newLayer" />
     <Bitmap profile="dialogFullscreenBg" id="dialogBg" />
-    <GuiElement profile="dialogBgBox" id="dialogElement" size="720px 680px">
+
+    <GuiElement profile="dialogBg" id="dialogElement" size="780px 640px">
         <ThreePartBitmap profile="fs25_dialogBgMiddle" />
         <ThreePartBitmap profile="fs25_dialogBgTop" />
         <ThreePartBitmap profile="fs25_dialogBgBottom" />
 
         <GuiElement profile="fs25_dialogContentContainer" id="contentContainer">
-            <Text profile="fs25_dialogTitle" id="dialogTitleText" position="0px -8px" text="$l10n_FS25E_SETTINGS_TITLE" />
-            <Text profile="fs25_textDefault" id="clientHintText" position="0px -36px" text="$l10n_FS25E_CLIENT_ONLY_HINT" />
+            <Text profile="fs25eTitle" id="dialogTitleText" position="0px -10px" text="$l10n_FS25E_SETTINGS_TITLE" />
+            <Text profile="fs25eHint" id="clientHintText" position="0px -36px" text="$l10n_FS25E_CLIENT_ONLY_HINT" />
 
-            <MultiTextOption name="sectionSelector" id="sectionSelector" profile="fs25_multiTextOption" position="0px -70px" size="520px 32px" onClick="onClickSection" onHighlight="onHighlightSection">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTINGS_SECTION" />
+            <MultiTextOption name="sectionSelector" id="sectionSelector" profile="fs25eMultiText" position="0px -68px" size="560px 32px" onClick="onClickSection" onHighlight="onHighlightSection">
+                <Button name="left" profile="fs25_multiTextOptionLeft" />
+                <Button name="right" profile="fs25_multiTextOptionRight" />
+                <Text name="text" profile="fs25_multiTextOptionText" />
+                <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTINGS_SECTION" />
             </MultiTextOption>
 
-            <GuiElement name="simplePanel" id="simplePanel" position="0px -110px" size="640px 420px">
-            <MultiTextOption name="enabledOption" id="enabledOption" profile="fs25_multiTextOption" position="0px -40px" size="520px 32px" onClick="onClickEnabled" onHighlight="onHighlightEnabled">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_ENABLED" />
-            </MultiTextOption>
-            <MultiTextOption name="presetOption" id="presetOption" profile="fs25_multiTextOption" position="0px -76px" size="520px 32px" onClick="onClickPreset" onHighlight="onHighlightPreset">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_PRESET" />
-            </MultiTextOption>
-            <MultiTextOption name="targetFpsOption" id="targetFpsOption" profile="fs25_multiTextOption" position="0px -112px" size="520px 32px" onClick="onClickTargetFps" onHighlight="onHighlightTargetFps">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_TARGET_FPS" />
-            </MultiTextOption>
-            <MultiTextOption name="adaptiveOption" id="adaptiveOption" profile="fs25_multiTextOption" position="0px -148px" size="520px 32px" onClick="onClickAdaptive" onHighlight="onHighlightAdaptive">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_ADAPTIVE" />
-            </MultiTextOption>
-            </GuiElement>
-
-            <GuiElement name="advancedPanel" id="advancedPanel" position="0px -110px" size="640px 420px" visible="false">
-                <Text profile="fs25_textDefault" position="0px -4px" text="$l10n_FS25E_SECTION_SHADOWS" />
-            <MultiTextOption name="shadowQualityOption" id="shadowQualityOption" profile="fs25_multiTextOption" position="0px -20px" size="520px 32px" onClick="onClickShadowQuality" onHighlight="onHighlightShadowQuality">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SHADOW_QUALITY" />
-            </MultiTextOption>
-            <MultiTextOption name="shadowDistanceOption" id="shadowDistanceOption" profile="fs25_multiTextOption" position="0px -56px" size="520px 32px" onClick="onClickShadowDistance" onHighlight="onHighlightShadowDistance">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SHADOW_DISTANCE" />
-            </MultiTextOption>
-            <MultiTextOption name="maxShadowLightsOption" id="maxShadowLightsOption" profile="fs25_multiTextOption" position="0px -92px" size="520px 32px" onClick="onClickMaxShadowLights" onHighlight="onHighlightMaxShadowLights">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_MAX_SHADOW_LIGHTS" />
-            </MultiTextOption>
-            <MultiTextOption name="foliageShadowsOption" id="foliageShadowsOption" profile="fs25_multiTextOption" position="0px -128px" size="520px 32px" onClick="onClickFoliageShadows" onHighlight="onHighlightFoliageShadows">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_FOLIAGE_SHADOWS" />
-            </MultiTextOption>
-            <MultiTextOption name="softShadowsOption" id="softShadowsOption" profile="fs25_multiTextOption" position="0px -164px" size="520px 32px" onClick="onClickSoftShadows" onHighlight="onHighlightSoftShadows">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SOFT_SHADOWS" />
-            </MultiTextOption>
-            <MultiTextOption name="maxLightsOption" id="maxLightsOption" profile="fs25_multiTextOption" position="0px -200px" size="520px 32px" onClick="onClickMaxLights" onHighlight="onHighlightMaxLights">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_MAX_LIGHTS" />
-            </MultiTextOption>
-            <MultiTextOption name="lightScatteringOption" id="lightScatteringOption" profile="fs25_multiTextOption" position="0px -236px" size="520px 32px" onClick="onClickLightScattering" onHighlight="onHighlightLightScattering">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_LIGHT_SCATTERING" />
-            </MultiTextOption>
-            <MultiTextOption name="shadowMergeOption" id="shadowMergeOption" profile="fs25_multiTextOption" position="0px -272px" size="520px 32px" onClick="onClickShadowMerge" onHighlight="onHighlightShadowMerge">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SHADOW_MERGE" />
-            </MultiTextOption>
-            <MultiTextOption name="viewDistanceOption" id="viewDistanceOption" profile="fs25_multiTextOption" position="0px -308px" size="520px 32px" onClick="onClickViewDistance" onHighlight="onHighlightViewDistance">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_VIEW_DISTANCE" />
-            </MultiTextOption>
-            <MultiTextOption name="lodDistanceOption" id="lodDistanceOption" profile="fs25_multiTextOption" position="0px -344px" size="520px 32px" onClick="onClickLodDistance" onHighlight="onHighlightLodDistance">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_LOD_DISTANCE" />
-            </MultiTextOption>
-            <MultiTextOption name="foliageViewDistanceOption" id="foliageViewDistanceOption" profile="fs25_multiTextOption" position="0px -380px" size="520px 32px" onClick="onClickFoliageViewDistance" onHighlight="onHighlightFoliageViewDistance">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_FOLIAGE_VIEW" />
-            </MultiTextOption>
-            <MultiTextOption name="foliageLodDistanceOption" id="foliageLodDistanceOption" profile="fs25_multiTextOption" position="0px -416px" size="520px 32px" onClick="onClickFoliageLodDistance" onHighlight="onHighlightFoliageLodDistance">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_FOLIAGE_LOD" />
-            </MultiTextOption>
-            <MultiTextOption name="terrainLodDistanceOption" id="terrainLodDistanceOption" profile="fs25_multiTextOption" position="0px -452px" size="520px 32px" onClick="onClickTerrainLodDistance" onHighlight="onHighlightTerrainLodDistance">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_TERRAIN_LOD" />
-            </MultiTextOption>
+            <!-- SIMPLE -->
+            <GuiElement name="simplePanel" id="simplePanel" profile="fs25ePanel" position="0px -105px" size="700px 380px">
+                <MultiTextOption name="enabledOption" id="enabledOption" profile="fs25eMultiText" position="0px -8px" size="560px 32px" onClick="onClickEnabled" onHighlight="onHighlightEnabled">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_ENABLED" />
+                </MultiTextOption>
+                <MultiTextOption name="presetOption" id="presetOption" profile="fs25eMultiText" position="0px -48px" size="560px 32px" onClick="onClickPreset" onHighlight="onHighlightPreset">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_PRESET" />
+                </MultiTextOption>
+                <MultiTextOption name="targetFpsOption" id="targetFpsOption" profile="fs25eMultiText" position="0px -88px" size="560px 32px" onClick="onClickTargetFps" onHighlight="onHighlightTargetFps">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_TARGET_FPS" />
+                </MultiTextOption>
+                <MultiTextOption name="adaptiveOption" id="adaptiveOption" profile="fs25eMultiText" position="0px -128px" size="560px 32px" onClick="onClickAdaptive" onHighlight="onHighlightAdaptive">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_ADAPTIVE" />
+                </MultiTextOption>
             </GuiElement>
 
-            <GuiElement name="expertPanel" id="expertPanel" position="0px -110px" size="640px 420px" visible="false">
-                <Text profile="fs25_textDefault" position="0px -4px" text="$l10n_FS25E_SETTINGS_EXPERT" />
-            <MultiTextOption name="expertModeOption" id="expertModeOption" profile="fs25_multiTextOption" position="0px -40px" size="520px 32px" onClick="onClickExpertMode" onHighlight="onHighlightExpertMode">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_EXPERT_MODE" />
-            </MultiTextOption>
-            <MultiTextOption name="persistHardwareOption" id="persistHardwareOption" profile="fs25_multiTextOption" position="0px -76px" size="520px 32px" onClick="onClickPersistHardware" onHighlight="onHighlightPersistHardware">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_PERSIST_HW" />
-            </MultiTextOption>
-            <MultiTextOption name="expertSoftApplyOption" id="expertSoftApplyOption" profile="fs25_multiTextOption" position="0px -112px" size="520px 32px" onClick="onClickExpertSoftApply" onHighlight="onHighlightExpertSoftApply">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_EXPERT_SOFT_APPLY" />
-            </MultiTextOption>
-            <GuiElement name="shadowFocusRow" id="shadowFocusRow" position="0px 0px" size="520px 1px">
-            <MultiTextOption name="shadowFocusOption" id="shadowFocusOption" profile="fs25_multiTextOption" position="0px -148px" size="520px 32px" onClick="onClickShadowFocus" onHighlight="onHighlightShadowFocus">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SHADOW_FOCUS" />
-            </MultiTextOption>
-            </GuiElement>
-            <GuiElement name="fastShadowUpdateRow" id="fastShadowUpdateRow" position="0px 0px" size="520px 1px">
-            <MultiTextOption name="fastShadowUpdateOption" id="fastShadowUpdateOption" profile="fs25_multiTextOption" position="0px -184px" size="520px 32px" onClick="onClickFastShadowUpdate" onHighlight="onHighlightFastShadowUpdate">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_FAST_SHADOW_UPDATE" />
-            </MultiTextOption>
-            </GuiElement>
-            <GuiElement name="rainShallowWaterRow" id="rainShallowWaterRow" position="0px 0px" size="520px 1px">
-            <MultiTextOption name="rainShallowWaterOption" id="rainShallowWaterOption" profile="fs25_multiTextOption" position="0px -220px" size="520px 32px" onClick="onClickRainShallowWater" onHighlight="onHighlightRainShallowWater">
-                <Button profile="fs25_multiTextOptionLeft" />
-                <Button profile="fs25_multiTextOptionRight" />
-                <Text profile="fs25_multiTextOptionText" />
-                <Text profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_RAIN_SHALLOW_WATER" />
-            </MultiTextOption>
-            </GuiElement>
-            <Button name="liveOverlayButton" id="liveOverlayButton" profile="buttonOK" position="0px -272px" size="320px 40px" text="$l10n_FS25E_LIVE_OVERLAY_OPEN" onClick="onClickLiveOverlay" />
+            <!-- ADVANCED (taller list; keep within panel) -->
+            <GuiElement name="advancedPanel" id="advancedPanel" profile="fs25ePanel" position="0px -105px" size="700px 380px" visible="false">
+                <Text profile="fs25eSection" position="0px -2px" text="$l10n_FS25E_SECTION_SHADOWS" />
+                <MultiTextOption name="shadowQualityOption" id="shadowQualityOption" profile="fs25eMultiText" position="0px -28px" size="560px 28px" onClick="onClickShadowQuality" onHighlight="onHighlightShadowQuality">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SHADOW_QUALITY" />
+                </MultiTextOption>
+                <MultiTextOption name="shadowDistanceOption" id="shadowDistanceOption" profile="fs25eMultiText" position="0px -58px" size="560px 28px" onClick="onClickShadowDistance" onHighlight="onHighlightShadowDistance">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SHADOW_DISTANCE" />
+                </MultiTextOption>
+                <MultiTextOption name="maxShadowLightsOption" id="maxShadowLightsOption" profile="fs25eMultiText" position="0px -88px" size="560px 28px" onClick="onClickMaxShadowLights" onHighlight="onHighlightMaxShadowLights">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_MAX_SHADOW_LIGHTS" />
+                </MultiTextOption>
+                <MultiTextOption name="foliageShadowsOption" id="foliageShadowsOption" profile="fs25eMultiText" position="0px -118px" size="560px 28px" onClick="onClickFoliageShadows" onHighlight="onHighlightFoliageShadows">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_FOLIAGE_SHADOWS" />
+                </MultiTextOption>
+                <MultiTextOption name="softShadowsOption" id="softShadowsOption" profile="fs25eMultiText" position="0px -148px" size="560px 28px" onClick="onClickSoftShadows" onHighlight="onHighlightSoftShadows">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SOFT_SHADOWS" />
+                </MultiTextOption>
+                <MultiTextOption name="maxLightsOption" id="maxLightsOption" profile="fs25eMultiText" position="0px -178px" size="560px 28px" onClick="onClickMaxLights" onHighlight="onHighlightMaxLights">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_MAX_LIGHTS" />
+                </MultiTextOption>
+                <MultiTextOption name="lightScatteringOption" id="lightScatteringOption" profile="fs25eMultiText" position="0px -208px" size="560px 28px" onClick="onClickLightScattering" onHighlight="onHighlightLightScattering">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_LIGHT_SCATTERING" />
+                </MultiTextOption>
+                <MultiTextOption name="shadowMergeOption" id="shadowMergeOption" profile="fs25eMultiText" position="0px -238px" size="560px 28px" onClick="onClickShadowMerge" onHighlight="onHighlightShadowMerge">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SHADOW_MERGE" />
+                </MultiTextOption>
+                <MultiTextOption name="viewDistanceOption" id="viewDistanceOption" profile="fs25eMultiText" position="0px -268px" size="560px 28px" onClick="onClickViewDistance" onHighlight="onHighlightViewDistance">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_VIEW_DISTANCE" />
+                </MultiTextOption>
+                <MultiTextOption name="lodDistanceOption" id="lodDistanceOption" profile="fs25eMultiText" position="0px -298px" size="560px 28px" onClick="onClickLodDistance" onHighlight="onHighlightLodDistance">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_LOD_DISTANCE" />
+                </MultiTextOption>
+                <MultiTextOption name="foliageViewDistanceOption" id="foliageViewDistanceOption" profile="fs25eMultiText" position="0px -328px" size="560px 28px" onClick="onClickFoliageViewDistance" onHighlight="onHighlightFoliageViewDistance">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_FOLIAGE_VIEW" />
+                </MultiTextOption>
+                <MultiTextOption name="foliageLodDistanceOption" id="foliageLodDistanceOption" profile="fs25eMultiText" position="0px -358px" size="560px 28px" onClick="onClickFoliageLodDistance" onHighlight="onHighlightFoliageLodDistance">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_FOLIAGE_LOD" />
+                </MultiTextOption>
+                <!-- terrainLod slightly overlaps foliageLod row spacing — keep last row visible -->
+                <MultiTextOption name="terrainLodDistanceOption" id="terrainLodDistanceOption" profile="fs25eMultiText" position="0px -388px" size="560px 28px" onClick="onClickTerrainLodDistance" onHighlight="onHighlightTerrainLodDistance">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_TERRAIN_LOD" />
+                </MultiTextOption>
             </GuiElement>
 
-            <GuiElement name="statusPanel" id="statusPanel" position="0px -110px" size="640px 420px" visible="false">
-                <Text name="statusText" id="statusText" profile="fs25_textDefault" position="0px -10px" size="600px 380px" text="$l10n_FS25E_STATUS_HEADER" textAlignment="left" />
+            <!-- EXPERT -->
+            <GuiElement name="expertPanel" id="expertPanel" profile="fs25ePanel" position="0px -105px" size="700px 380px" visible="false">
+                <Text profile="fs25eSection" position="0px -2px" text="$l10n_FS25E_SETTINGS_EXPERT" />
+                <MultiTextOption name="expertModeOption" id="expertModeOption" profile="fs25eMultiText" position="0px -32px" size="560px 32px" onClick="onClickExpertMode" onHighlight="onHighlightExpertMode">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_EXPERT_MODE" />
+                </MultiTextOption>
+                <MultiTextOption name="persistHardwareOption" id="persistHardwareOption" profile="fs25eMultiText" position="0px -72px" size="560px 32px" onClick="onClickPersistHardware" onHighlight="onHighlightPersistHardware">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_PERSIST_HW" />
+                </MultiTextOption>
+                <MultiTextOption name="expertSoftApplyOption" id="expertSoftApplyOption" profile="fs25eMultiText" position="0px -112px" size="560px 32px" onClick="onClickExpertSoftApply" onHighlight="onHighlightExpertSoftApply">
+                    <Button name="left" profile="fs25_multiTextOptionLeft" />
+                    <Button name="right" profile="fs25_multiTextOptionRight" />
+                    <Text name="text" profile="fs25_multiTextOptionText" />
+                    <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_EXPERT_SOFT_APPLY" />
+                </MultiTextOption>
+                <GuiElement name="shadowFocusRow" id="shadowFocusRow" profile="fs25eRow" position="0px -152px" size="560px 32px">
+                    <MultiTextOption name="shadowFocusOption" id="shadowFocusOption" profile="fs25eMultiText" position="0px 0px" size="560px 32px" onClick="onClickShadowFocus" onHighlight="onHighlightShadowFocus">
+                        <Button name="left" profile="fs25_multiTextOptionLeft" />
+                        <Button name="right" profile="fs25_multiTextOptionRight" />
+                        <Text name="text" profile="fs25_multiTextOptionText" />
+                        <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_SHADOW_FOCUS" />
+                    </MultiTextOption>
+                </GuiElement>
+                <GuiElement name="fastShadowUpdateRow" id="fastShadowUpdateRow" profile="fs25eRow" position="0px -192px" size="560px 32px">
+                    <MultiTextOption name="fastShadowUpdateOption" id="fastShadowUpdateOption" profile="fs25eMultiText" position="0px 0px" size="560px 32px" onClick="onClickFastShadowUpdate" onHighlight="onHighlightFastShadowUpdate">
+                        <Button name="left" profile="fs25_multiTextOptionLeft" />
+                        <Button name="right" profile="fs25_multiTextOptionRight" />
+                        <Text name="text" profile="fs25_multiTextOptionText" />
+                        <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_FAST_SHADOW_UPDATE" />
+                    </MultiTextOption>
+                </GuiElement>
+                <GuiElement name="rainShallowWaterRow" id="rainShallowWaterRow" profile="fs25eRow" position="0px -232px" size="560px 32px">
+                    <MultiTextOption name="rainShallowWaterOption" id="rainShallowWaterOption" profile="fs25eMultiText" position="0px 0px" size="560px 32px" onClick="onClickRainShallowWater" onHighlight="onHighlightRainShallowWater">
+                        <Button name="left" profile="fs25_multiTextOptionLeft" />
+                        <Button name="right" profile="fs25_multiTextOptionRight" />
+                        <Text name="text" profile="fs25_multiTextOptionText" />
+                        <Text name="title" profile="fs25_multiTextOptionTitle" text="$l10n_FS25E_SETTING_RAIN_SHALLOW_WATER" />
+                    </MultiTextOption>
+                </GuiElement>
+                <Button name="liveOverlayButton" id="liveOverlayButton" profile="buttonOK" position="0px -290px" size="280px 40px" text="$l10n_FS25E_LIVE_OVERLAY_OPEN" onClick="onClickLiveOverlay" />
             </GuiElement>
-            <Text name="helpText" id="helpText" profile="fs25_textDefault" position="0px -545px" size="640px 48px" text="$l10n_FS25E_HELP_HINT" textAlignment="left" />
+
+            <!-- STATUS -->
+            <GuiElement name="statusPanel" id="statusPanel" profile="fs25ePanel" position="0px -105px" size="700px 380px" visible="false">
+                <Text name="statusText" id="statusText" profile="fs25eStatus" position="0px -8px" size="660px 360px" text="$l10n_FS25E_STATUS_HEADER" textAlignment="left" />
+            </GuiElement>
+
+            <Text name="helpText" id="helpText" profile="fs25eHelp" position="0px -500px" size="700px 40px" text="$l10n_FS25E_HELP_HINT" textAlignment="left" />
         </GuiElement>
 
         <BoxLayout profile="fs25_dialogButtonBox">
-            <Button profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" />
-            <Button profile="buttonOK" text="$l10n_button_ok" onClick="onClickOk" />
+            <Button name="backButton" profile="buttonBack" text="$l10n_button_back" onClick="onClickBack" />
+            <Button name="okButton" profile="buttonOK" text="$l10n_button_ok" onClick="onClickOk" />
         </BoxLayout>
     </GuiElement>
+
+    <GUIProfiles>
+        <Profile name="fs25eTitle" extends="fs25_dialogTitle" with="anchorTopCenter">
+            <size value="720px 24px" />
+            <textAlignment value="center" />
+        </Profile>
+        <Profile name="fs25eHint" extends="fs25_textDefault" with="anchorTopCenter">
+            <size value="700px 18px" />
+            <textSize value="12px" />
+            <textColor value="0.75 0.78 0.82 1" />
+            <textAlignment value="center" />
+        </Profile>
+        <Profile name="fs25eSection" extends="fs25_textDefault" with="anchorTopCenter">
+            <size value="560px 18px" />
+            <textSize value="13px" />
+            <textBold value="true" />
+            <textAlignment value="left" />
+        </Profile>
+        <Profile name="fs25ePanel" extends="emptyPanel" with="anchorTopCenter">
+            <size value="700px 380px" />
+        </Profile>
+        <Profile name="fs25eRow" extends="emptyPanel" with="anchorTopCenter">
+            <size value="560px 32px" />
+        </Profile>
+        <Profile name="fs25eMultiText" extends="fs25_multiTextOption" with="anchorTopCenter">
+            <size value="560px 32px" />
+            <namedComponents value="true" />
+        </Profile>
+        <Profile name="fs25eHelp" extends="fs25_textDefault" with="anchorTopCenter">
+            <size value="700px 40px" />
+            <textSize value="12px" />
+            <textColor value="0.7 0.75 0.8 1" />
+            <textAlignment value="left" />
+        </Profile>
+        <Profile name="fs25eStatus" extends="fs25_textDefault" with="anchorTopCenter">
+            <size value="660px 360px" />
+            <textSize value="12px" />
+            <textAlignment value="left" />
+        </Profile>
+    </GUIProfiles>
 </GUI>
