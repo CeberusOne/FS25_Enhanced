@@ -1,1088 +1,412 @@
--- FS25_Enhanced / UI/FS25E_LiveOverlay.lua
--- Expert Live-Overlay: drawn over the world (no fullscreen dialog).
--- Caps primary source: FS25E_SettingsAPI.liveListCaps() (+ ROW_META for ranges/labels).
--- Apply path: FS25E_SettingsAPI.live* only (no engine setters / no direct Applier).
--- Status: Diagnostics.getSnapshot on open + Registry onApply/onReject/onSkip per row.
--- Cost/warn: getCapCost / liveListCaps fields. Custom bars — NEVER GuiSlider.
--- Hover-help: Schema tooltip (settingId/capId) under selection; cost notes fallback.
--- HUD: FS25E_HudOverlay telemetry in header via getHudTelemetry().
-
+-- Responsive FS25 live graphics panel. All native writes belong to adapters.
 FS25E_LiveOverlay = {}
-
-local LOG = "LiveOverlay"
-
-local visible = false
-local hooksRegistered = false
-local listenersInstalled = false
-local selectedIndex = 1
-local scrollOffset = 0
-local dragRow = nil
-local lastNotifyAt = 0
-local cachedCapList = nil
-local cachedCapListAt = 0
-
--- Layout (normalized 0..1 screen space)
-local PANEL = {
-    x = 0.58,
-    y = 0.08,
-    w = 0.40,
-    h = 0.84,
-    pad = 0.012,
-    rowH = 0.036,
-    titleSize = 0.017,
-    textSize = 0.013,
-    smallSize = 0.011,
-    headerHudH = 0.072,
-}
-
---- Preferred Wave-1 / Expert ordering + widget metadata (ranges).
---- Primary cap list still comes from liveListCaps(); meta fills min/max/step/kind/label.
-local ROW_META = {
-    ["view-distance-coeff"] = { id = "viewDistance", settingId = "viewDistance", labelKey = "FS25E_LIVE_OVERLAY_VIEW_DISTANCE", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 10 },
-    ["lod-distance-coeff"] = { id = "lodDistance", settingId = "lodDistance", labelKey = "FS25E_LIVE_OVERLAY_LOD_DISTANCE", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 20 },
-    ["foliage-view-distance-coeff"] = { id = "foliageViewDistance", settingId = "foliageViewDistance", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_VIEW", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 30 },
-    ["foliage-lod-distance-coeff"] = { id = "foliageLodDistance", settingId = "foliageLodDistance", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_LOD", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 40 },
-    ["terrain-lod-distance-coeff"] = { id = "terrainLodDistance", settingId = "terrainLodDistance", labelKey = "FS25E_LIVE_OVERLAY_TERRAIN_LOD", min = 0.50, max = 1.50, step = 0.01, kind = "float", applyKind = "wave1", default = 1.00, order = 50 },
-    ["max-num-shadow-lights"] = { id = "maxShadowLights", settingId = "maxShadowLights", labelKey = "FS25E_LIVE_OVERLAY_MAX_SHADOW_LIGHTS", min = 1, max = 8, step = 1, kind = "int", applyKind = "wave1", default = 4, order = 60 },
-    ["allow-foliage-shadows"] = { id = "allowFoliageShadows", settingId = "foliageShadows", labelKey = "FS25E_LIVE_OVERLAY_FOLIAGE_SHADOWS", min = 0, max = 1, step = 1, kind = "bool", applyKind = "wave1", default = 1, order = 70 },
-    ["shadow-quality"] = { id = "shadowQuality", settingId = "shadowQuality", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 80 },
-    ["shadow-distance-quality"] = { id = "shadowDistanceQuality", settingId = "shadowDistance", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_DIST_Q", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 90 },
-    ["shadow-filter-quality"] = { id = "shadowFilterQuality", settingId = "softShadows", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_FILTER", min = 0, max = 3, step = 1, kind = "int", applyKind = "wave1", default = 1, order = 100 },
-    -- Expert Soft-Apply path
-    ["rain-amount-mult"] = { id = "rainAmountMult", settingId = "rainAmountMult", labelKey = "FS25E_LIVE_OVERLAY_RAIN_AMOUNT", min = 0.00, max = 2.00, step = 0.01, kind = "float", applyKind = "expert", default = 1.00, order = 200 },
-    ["ssr-quality"] = { id = "ssrQuality", settingId = "ssrQuality", labelKey = "FS25E_LIVE_OVERLAY_SSR_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1, order = 210 },
-    ["atmosphere-quality"] = { id = "atmosphereQuality", settingId = "atmosphereQuality", labelKey = "FS25E_LIVE_OVERLAY_ATMOSPHERE_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1, order = 220 },
-    ["drs-quality"] = { id = "drsQuality", settingId = "drsQuality", labelKey = "FS25E_LIVE_OVERLAY_DRS_QUALITY", min = 0, max = 3, step = 1, kind = "int", applyKind = "expert", default = 1, order = 230 },
-    ["shadow-focus-box"] = { id = "shadowFocus", settingId = "shadowFocus", labelKey = "FS25E_LIVE_OVERLAY_SHADOW_FOCUS", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0, order = 240 },
-    ["fast-shadow-update"] = { id = "fastShadowUpdate", settingId = "fastShadowUpdate", labelKey = "FS25E_LIVE_OVERLAY_FAST_SHADOW", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0, order = 250 },
-    ["rain-shallow-water-simulation"] = { id = "rainShallowWater", settingId = "rainShallowWater", labelKey = "FS25E_LIVE_OVERLAY_RAIN_SHALLOW", min = 0, max = 1, step = 1, kind = "bool", applyKind = "expert", default = 0, order = 260 },
-}
-
--- Caps that need multi-arg / lightId / path — not fine-tunable as single float in Gen-1 overlay
-local SKIP_IDS = {
-    ["rain-spawn-box-parameters"] = true,
-    ["rain-turbulence-parameters"] = true,
-    ["rain-forward-direction"] = true,
-    ["has-merged-shadow"] = true,
-    ["split-light-shadow"] = true,
-    ["merge-light-shadows"] = true,
-    ["supports-ssr-quality"] = true,
-    ["supports-atmosphere-quality"] = true,
-    ["supports-drs-quality"] = true,
-    ["light-ies-profile"] = true,
-    ["light-ies-cone-angle"] = true,
-    ["foliage-bending-create"] = true,
-}
-
--- Runtime row state keyed by capabilityId
-local rows = {} -- { capabilityId -> { def, value, lastResult, lastError, sessionOnly, cost, warn, notes } }
-
-local function dbg(msg)
-    if FS25E_Debug ~= nil then
-        FS25E_Debug.info(LOG, tostring(msg))
-    end
-end
-
-local function dbgWarn(msg)
-    if FS25E_Debug ~= nil then
-        FS25E_Debug.warning(LOG, tostring(msg))
-    end
-end
-
-local function t(key, fallback)
-    if g_i18n ~= nil and g_i18n.getText ~= nil then
-        local ok, text = pcall(function()
-            return g_i18n:getText(key)
-        end)
-        if ok and text ~= nil and text ~= "" and text ~= key then
-            return text
+local UI=FS25E_LiveOverlay
+local unpack=unpack or table.unpack
+local visible,hooks,context=false,false,false
+local category,selected,scroll=2,1,0
+local boxes,rows={},{}
+local drag,edit,hover,message=nil,nil,nil,nil
+local cursor=false
+local lastNavigation,lastWheel={},-1
+local categories={'presets','shadows','lighting','atmosphere','image','environment','weather','water','reflections','materials','foliage','lod','camera','performance'}
+-- Panel geometry lives in a fixed 1920x1080 layout space; draw() maps it onto
+-- the real back buffer. The user can move and resize it, so nothing below may
+-- assume the shipped defaults.
+local DEFAULT={x=1040,y=126,w=848,h=868}
+local MIN_W,MIN_H,MAX_W,MAX_H=620,420,1900,1060
+local LAYOUT={w=1920,h=1080}
+local P={x=DEFAULT.x,y=DEFAULT.y,w=DEFAULT.w,h=DEFAULT.h}
+-- Vertical budget of the fixed chrome: header block above the list and the
+-- status/tooltip/hint block below it.
+local LIST_TOP,FOOTER,ROW_H=145,176,108
+local pageSize=5
+local layoutLoaded=false
+local sx,sy=1/1920,1/1080
+local colors={panel={.045,.059,.071,.98},side={.035,.044,.05,1},row={.085,.104,.12,1},selected={.115,.145,.16,1},text={.94,.955,.96,1},muted={.58,.65,.69,1},green={.56,.78,.035,1},track={.19,.23,.25,1},warning={1,.69,.26,1}}
+local function t(key) return FS25E_Localization.t(key) end
+local function rect(x,y,w,h,color) if drawFilledRect then drawFilledRect(x*sx,1-(y+h)*sy,w*sx,h*sy,unpack(color)) end end
+local function width(value,size) return getTextWidth and getTextWidth(size*sy,value)/sx or #value*size*.5 end
+-- renderText uses global state shared with the HUD. Define the vertical origin
+-- explicitly; a font's baseline is not its bounding box's bottom edge.
+local function text(x,y,size,value,color,maxWidth,bold)
+    value=tostring(value or '')
+    setTextBold(bold==true)
+    if maxWidth then
+        while size>10 and width(value,size)>maxWidth do size=size-.5 end
+        if width(value,size)>maxWidth then
+            local chars={}; for ch in value:gmatch('[%z\1-\127\194-\244][\128-\191]*') do chars[#chars+1]=ch end
+            repeat chars[#chars]=nil; value=table.concat(chars)..'...' until #chars==0 or width(value,size)<=maxWidth
         end
     end
-    if FS25E_SettingsController ~= nil and FS25E_SettingsController.t ~= nil then
-        return FS25E_SettingsController.t(key, fallback)
-    end
-    return fallback or key
-end
-
-local function notify(text)
-    local now = (g_time ~= nil and g_time) or (os.clock() * 1000)
-    if now - lastNotifyAt < 400 then
-        return
-    end
-    lastNotifyAt = now
-    dbg(text)
-    if g_currentMission ~= nil and g_currentMission.addIngameNotification ~= nil then
-        pcall(function()
-            g_currentMission:addIngameNotification(FSBaseMission.INGAME_NOTIFICATION_INFO, text)
-        end)
-    end
-end
-
-local function settingsGet(key)
-    if FS25E_ModSettings ~= nil and FS25E_ModSettings.get ~= nil then
-        return FS25E_ModSettings.get(key)
-    end
-    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.get ~= nil then
-        return FS25E_SettingsAPI.get(key)
-    end
-    return nil
-end
-
-local function settingsSet(key, value)
-    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.set ~= nil then
-        return FS25E_SettingsAPI.set(key, value)
-    end
-    if FS25E_ModSettings ~= nil and FS25E_ModSettings.set ~= nil then
-        return FS25E_ModSettings.set(key, value)
-    end
-    return false
-end
-
-function FS25E_LiveOverlay.canShow()
-    return settingsGet("expertMode") == true and settingsGet("liveTuningEnabled") == true
-end
-
---- Human-readable gate status (Soft-Apply is NOT an open gate).
-function FS25E_LiveOverlay.gateStatusMessage()
-    local expert = settingsGet("expertMode") == true
-    local live = settingsGet("liveTuningEnabled") == true
-    if expert and live then
-        return t("FS25E_LIVE_OVERLAY_GATE_OK", "OK")
-    end
-    if not expert and not live then
-        return t("FS25E_LIVE_OVERLAY_GATE_REQUIRED", "Expert Mode + Live Tuning required")
-    end
-    if not expert then
-        return t("FS25E_LIVE_OVERLAY_GATE_NEED_EXPERT", "Turn on Expert Mode first (Settings → Expert)")
-    end
-    return t("FS25E_LIVE_OVERLAY_GATE_NEED_LIVE", "Turn on Live Tuning first (Settings → Expert → Live Overlay)")
-end
-
-local function isExpertSoftApplyOn()
-    if FS25E_ExperimentalCaps ~= nil and FS25E_ExperimentalCaps.isSoftApplyEnabled ~= nil then
-        if FS25E_ExperimentalCaps.isSoftApplyEnabled() == true then
-            return true
-        end
-    end
-    return settingsGet("expertSoftApply") == true
-end
-
-local function clamp(v, minV, maxV, step)
-    local n = tonumber(v)
-    if n == nil then
-        return minV
-    end
-    if n < minV then n = minV end
-    if n > maxV then n = maxV end
-    if step ~= nil and step > 0 then
-        local steps = math.floor((n - minV) / step + 0.5)
-        n = minV + steps * step
-        if n < minV then n = minV end
-        if n > maxV then n = maxV end
-        if step < 1 then
-            n = math.floor(n * 100 + 0.5) / 100
-        else
-            n = math.floor(n + 0.5)
-        end
-    end
-    return n
-end
-
-local function formatValue(def, value)
-    if def.kind == "bool" then
-        return (tonumber(value) or 0) >= 0.5 and "ON" or "OFF"
-    end
-    if def.kind == "int" or (def.step ~= nil and def.step >= 1) then
-        return string.format("%d", math.floor((tonumber(value) or 0) + 0.5))
-    end
-    return string.format("%.2f", tonumber(value) or 0)
-end
-
-local function barText(def, value)
-    local n = tonumber(value) or def.min
-    local t01 = 0
-    if def.max > def.min then
-        t01 = (n - def.min) / (def.max - def.min)
-    end
-    if t01 < 0 then t01 = 0 end
-    if t01 > 1 then t01 = 1 end
-    local width = 14
-    local filled = math.floor(t01 * width + 0.5)
-    local s = "["
-    for i = 1, width do
-        if i <= filled then
-            s = s .. "█"
-        else
-            s = s .. "░"
-        end
-    end
-    return s .. "]"
-end
-
-local function inferKind(capId, status)
-    local id = tostring(capId)
-    if id:find("quality", 1, true) or id:find("max%-num") or id:find("max%-bounces") then
-        return "int", 0, 3, 1, 1
-    end
-    if id:find("shadow%-focus") or id:find("fast%-shadow") or id:find("shallow%-water")
-        or id:find("allow%-") or id:find("behind%-camera") then
-        return "bool", 0, 1, 1, 0
-    end
-    if id:find("coeff", 1, true) or id:find("mult", 1, true) or id:find("multiplier", 1, true) then
-        return "float", 0.00, 2.00, 0.01, 1.00
-    end
-    -- default float fine-tune
-    local _ = status
-    return "float", 0.00, 2.00, 0.01, 1.00
-end
-
-local function classifyApplyKind(capId, status, meta)
-    if meta ~= nil and meta.applyKind ~= nil then
-        return meta.applyKind
-    end
-    local st = tostring(status or "")
-    if st == "EXPERIMENTAL" or st == "GATED" or st == "ASSET_DEPENDENT" then
-        return "expert"
-    end
-    if tostring(capId):find("^rain%-") then
-        return "expert"
-    end
-    return "wave1"
-end
-
-local function idToLabel(capId)
-    return tostring(capId):gsub("%-", " ")
-end
-
-local function camelFromCap(capId)
-    local parts = {}
-    for part in string.gmatch(tostring(capId), "[^%-]+") do
-        if #parts == 0 then
-            parts[#parts + 1] = part
-        else
-            parts[#parts + 1] = part:sub(1, 1):upper() .. part:sub(2)
-        end
-    end
-    return table.concat(parts)
-end
-
---- Build def from liveListCaps entry + ROW_META.
-local function buildDefFromCap(cap)
-    local capId = cap.id
-    local meta = ROW_META[capId]
-    local kind, minV, maxV, step, default
-    local labelKey, settingId, rowId, order
-    if meta ~= nil then
-        kind, minV, maxV, step, default = meta.kind, meta.min, meta.max, meta.step, meta.default
-        labelKey, settingId, rowId, order = meta.labelKey, meta.settingId, meta.id, meta.order
+    setTextAlignment(RenderText and RenderText.ALIGN_LEFT or 0); setTextColor(unpack(color or colors.text))
+    if setTextVerticalAlignment and RenderText and RenderText.VERTICAL_ALIGN_TOP then
+        setTextVerticalAlignment(RenderText.VERTICAL_ALIGN_TOP)
+        renderText(x*sx,1-y*sy,size*sy,value)
     else
-        kind, minV, maxV, step, default = inferKind(capId, cap.status)
-        rowId = camelFromCap(capId)
-        settingId = rowId
-        labelKey = nil
-        order = 500
-    end
-    local applyKind = classifyApplyKind(capId, cap.status, meta)
-    return {
-        id = rowId,
-        settingId = settingId,
-        capabilityId = capId,
-        labelKey = labelKey,
-        labelFallback = idToLabel(capId),
-        min = minV,
-        max = maxV,
-        step = step,
-        kind = kind,
-        applyKind = applyKind,
-        default = default,
-        order = order or 500,
-        status = cap.status,
-        allowsApply = cap.allowsApply == true,
-        cost = cap.cost,
-        warn = cap.warn == true,
-        scope = cap.scope,
-        setter = cap.setter,
-    }
-end
-
-local function shouldIncludeCap(cap, expertMode)
-    if cap == nil or cap.id == nil then
-        return false
-    end
-    if SKIP_IDS[cap.id] then
-        return false
-    end
-    local setter = tostring(cap.setter or "")
-    if setter == "" or setter == "NONE" or setter == "nil" then
-        return false
-    end
-    local scope = tostring(cap.scope or "global")
-    if scope ~= "global" then
-        return false -- Gen-1: no per-light / scene fine-tune without lightId UI
-    end
-    local st = tostring(cap.status or "")
-    if st == "REJECTED" or st == "UNSUPPORTED" then
-        return false
-    end
-    -- Filter by allowsApply / expertMode
-    if cap.allowsApply == true then
-        return true
-    end
-    -- Expert mode: still list EXPERIMENTAL/GATED even if allowsApply momentarily false
-    if expertMode then
-        if st == "EXPERIMENTAL" or st == "GATED" or st == "ASSET_DEPENDENT" or st == "CONFIRMED" or st == "APPLIED" then
-            return true
-        end
-    end
-    return false
-end
-
-local function fetchLiveListCaps()
-    local now = (g_time ~= nil and g_time) or (os.clock() * 1000)
-    if cachedCapList ~= nil and (now - cachedCapListAt) < 1500 then
-        return cachedCapList
-    end
-    local list = {}
-    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.liveListCaps ~= nil then
-        local ok, caps = pcall(FS25E_SettingsAPI.liveListCaps)
-        if ok and type(caps) == "table" then
-            list = caps
-        end
-    end
-    -- Fallback: hardcoded Wave-1/Expert meta only if API empty
-    if #list == 0 then
-        for capId, meta in pairs(ROW_META) do
-            list[#list + 1] = {
-                id = capId,
-                status = meta.applyKind == "expert" and "EXPERIMENTAL" or "CONFIRMED",
-                cost = "med",
-                warn = false,
-                allowsApply = true,
-                scope = "global",
-                setter = "fallback",
-            }
-        end
-    end
-    cachedCapList = list
-    cachedCapListAt = now
-    return list
-end
-
-local function truncateHelp(s, maxLen)
-    s = tostring(s or "")
-    maxLen = maxLen or 120
-    if #s <= maxLen then
-        return s
-    end
-    return string.sub(s, 1, maxLen - 1) .. "…"
-end
-
---- Prefer Schema tooltip (settingId / capId); else cost notes / lastError.
-local function resolveRowHelp(row)
-    if row == nil or row.def == nil then
-        return ""
-    end
-    local def = row.def
-    local tip = ""
-    if FS25E_SettingsController ~= nil and FS25E_SettingsController.getHelpForSettingOrCap ~= nil then
-        tip = FS25E_SettingsController.getHelpForSettingOrCap(def.settingId, def.capabilityId) or ""
-    elseif FS25E_SettingsController ~= nil and FS25E_SettingsController.getTooltipText ~= nil and def.settingId ~= nil then
-        tip = FS25E_SettingsController.getTooltipText(def.settingId) or ""
-    end
-    if tip == nil or tip == "" then
-        tip = def.notes or ""
-    end
-    if (tip == nil or tip == "") and row.lastError ~= nil and row.lastError ~= "" then
-        tip = tostring(row.lastError)
-    end
-    return tip or ""
-end
-
-local function enrichCost(def)
-    if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.getCapCost ~= nil then
-        local ok, c = pcall(FS25E_SettingsAPI.getCapCost, def.capabilityId)
-        if ok and type(c) == "table" then
-            if c.cost ~= nil then def.cost = c.cost end
-            if c.warn ~= nil then def.warn = c.warn == true end
-            if c.notes ~= nil then def.notes = c.notes end
-        end
+        renderText(x*sx,1-(y+size)*sy,size*sy,value)
     end
 end
-
-local function rebuildDefs()
-    local expert = settingsGet("expertMode") == true
-    local caps = fetchLiveListCaps()
-    local defs = {}
-    local seen = {}
-    for i = 1, #caps do
-        local cap = caps[i]
-        if shouldIncludeCap(cap, expert) and not seen[cap.id] then
-            seen[cap.id] = true
-            local def = buildDefFromCap(cap)
-            enrichCost(def)
-            defs[#defs + 1] = def
+local function wrap(x,y,size,value,maxWidth,maxLines,color)
+    setTextBold(false)
+    local line,n='',0
+    for ch in tostring(value):gmatch('[%z\1-\127\194-\244][\128-\191]*') do
+        if ch=='\n' or width(line..ch,size)>maxWidth then
+            text(x,y+n*(size+5),size,line,color,maxWidth); n=n+1; line=''
+            if n>=maxLines then return end
         end
+        if ch~='\n' then line=line..ch end
     end
-    table.sort(defs, function(a, b)
-        if a.order ~= b.order then
-            return a.order < b.order
-        end
-        return tostring(a.capabilityId) < tostring(b.capabilityId)
+    if line~='' then text(x,y+n*(size+5),size,line,color,maxWidth) end
+end
+local function inside(b,x,y) return x>=b.x and x<=b.x+b.w and y>=b.y and y<=b.y+b.h end
+local function clamp(v,lo,hi) return math.max(lo,math.min(hi,v)) end
+--- Keep the window inside the visible layout area after a move, a resize or a
+--- resolution change, and recompute how many rows fit into the new height.
+local function clampPanel()
+    P.w=clamp(P.w,MIN_W,math.min(MAX_W,LAYOUT.w))
+    P.h=clamp(P.h,MIN_H,math.min(MAX_H,LAYOUT.h))
+    P.x=clamp(P.x,0,math.max(0,LAYOUT.w-P.w))
+    P.y=clamp(P.y,0,math.max(0,LAYOUT.h-P.h))
+    pageSize=math.max(1,math.floor((P.h-LIST_TOP-FOOTER)/ROW_H))
+end
+local function saveLayout()
+    if not FS25E_ModSettings or not FS25E_ModSettings.set then return end
+    local value=string.format('%d,%d,%d,%d',math.floor(P.x+.5),math.floor(P.y+.5),math.floor(P.w+.5),math.floor(P.h+.5))
+    if FS25E_ModSettings.set('liveWindowRect',value) and FS25E_ModSettings.save then pcall(FS25E_ModSettings.save) end
+end
+local function loadLayout()
+    if layoutLoaded then return end
+    layoutLoaded=true
+    local value=FS25E_ModSettings and FS25E_ModSettings.get and FS25E_ModSettings.get('liveWindowRect')
+    if type(value)~='string' then return end
+    local x,y,w,h=value:match('^(-?%d+),(-?%d+),(%d+),(%d+)$')
+    if not x then return end
+    P.x,P.y,P.w,P.h=tonumber(x),tonumber(y),tonumber(w),tonumber(h)
+    P.docked=false
+    clampPanel()
+end
+function UI.resetLayout()
+    P.x,P.y,P.w,P.h=DEFAULT.x,DEFAULT.y,DEFAULT.w,DEFAULT.h
+    P.docked=true
+    clampPanel(); saveLayout(); boxes={}
+end
+local function hit(x,y,w,h,action,data) boxes[#boxes+1]={x=x,y=y,w=w,h=h,action=action,data=data} end
+local function button(x,y,w,h,label,action,data,active)
+    rect(x,y,w,h,active and colors.green or colors.track)
+    text(x+8,y+(h-15)*.5,15,label,active and colors.side or colors.text,w-16,true); hit(x,y,w,h,action,data)
+end
+local function refresh()
+    rows={}
+    if FS25E_VisualControls then for _,c in ipairs(FS25E_VisualControls.getControls()) do
+        if c.category==categories[category] and (not FS25E_LiveSelection or FS25E_LiveSelection.isVisible(c)) then rows[#rows+1]=c end
+    end end
+    selected=math.max(1,math.min(#rows,selected)); scroll=math.max(0,math.min(math.max(0,#rows-pageSize),scroll))
+end
+local function format(c,v)
+    if v==nil then return t('FS25E_status_unavailable_short') end
+    if c.format then local ok,r=pcall(c.format,v); if ok and r then return r end end
+    if c.kind=='bool' then return t(v>=.5 and 'FS25E_value_on' or 'FS25E_value_off') end
+    return string.format(c.step<.01 and '%.3f' or (c.step<1 and '%.2f' or '%.0f'),v)
+end
+local function apply(c,v)
+    local ok,err=FS25E_VisualControls.apply(c.id,v)
+    message=ok and FS25E_VisualControls.getState(c.id).status or (err or 'FS25E_status_not_applied')
+end
+local function fine()
+    return Input and Input.isKeyPressed and ((Input.KEY_lshift and Input.isKeyPressed(Input.KEY_lshift)) or (Input.KEY_rshift and Input.isKeyPressed(Input.KEY_rshift)))
+end
+local function nudge(direction)
+    local c=rows[selected]; if not c then return end
+    local v=FS25E_VisualControls.read(c); if v==nil then return end
+    apply(c,v+direction*c.step*(c.step<1 and not fine() and 10 or 1))
+end
+local function selectCategory(n)
+    category=math.max(1,math.min(#categories,n)); selected=1; scroll=0; edit=nil; drag=nil; hover=nil; boxes={}; refresh()
+end
+function UI.selectCategory(id) if id=='auto' then id='presets' end; for i,v in ipairs(categories) do if v==id then selectCategory(i); return end end end
+local function moveSelection(d)
+    selected=math.max(1,math.min(#rows,selected+d)); scroll=math.min(scroll,selected-1)
+    if selected>scroll+pageSize then scroll=selected-pageSize end
+end
+local function navigate(kind,value)
+    local key=kind..tostring(value); local now=g_time or 0
+    -- Native MENU actions and raw keyboard events can represent the same input.
+    if lastNavigation[key]==now then return end
+    lastNavigation[key]=now
+    if kind=='row' then moveSelection(value) else nudge(value) end
+end
+local function registerController()
+    if not g_inputBinding or not InputAction then return end
+    if g_inputBinding.setContext then g_inputBinding:setContext('FS25E_LIVE',true,false); context=true end
+    local last={}
+    local function event(name,callback,continuous)
+        if not InputAction[name] or not g_inputBinding.registerActionEvent then return end
+        local _,eid=g_inputBinding:registerActionEvent(InputAction[name],UI,function(_,action,v)
+            if not visible or edit or math.abs(v or 0)<.25 then return end
+            local now=g_time or 0
+            if continuous and last[name] and now-last[name]<130 then return end
+            last[name]=now; callback(v)
+        end,false,true,continuous==true,true)
+        if eid and g_inputBinding.setActionEventTextVisibility then g_inputBinding:setActionEventTextVisibility(eid,false) end
+    end
+    event('MENU_AXIS_UP_DOWN',function(v) navigate('row',v>0 and -1 or 1) end,true)
+    event('MENU_AXIS_LEFT_RIGHT',function(v) navigate('value',v>0 and 1 or -1) end,true)
+    event('MENU_PAGE_PREV',function() selectCategory(category-1) end)
+    event('MENU_PAGE_NEXT',function() selectCategory(category+1) end)
+    event('MENU_BACK',function() UI.hide() end)
+    event('MENU_ACCEPT',function()
+        local c=rows[selected]
+        if c and c.kind=='action' then local ok,result,reason=pcall(c.run); message=ok and reason or 'FS25E_status_module_error'
+        elseif c and (c.kind=='enum' or c.kind=='bool') then local v=FS25E_VisualControls.read(c); if v then apply(c,v>=c.max and c.min or v+c.step) end end
     end)
-    return defs
 end
-
-local function ensureRows()
-    local defs = rebuildDefs()
-    local keep = {}
-    for i = 1, #defs do
-        local def = defs[i]
-        keep[def.capabilityId] = true
-        local row = rows[def.capabilityId]
-        if row == nil then
-            rows[def.capabilityId] = {
-                def = def,
-                value = def.default,
-                lastResult = nil,
-                lastError = nil,
-                sessionOnly = true,
-            }
-        else
-            -- refresh def (cost/warn/allowsApply may change)
-            local prev = row.value
-            row.def = def
-            if prev == nil then
-                row.value = def.default
-            end
-        end
+function UI.canShow() return g_currentMission~=nil end
+function UI.gateStatusMessage() return t('FS25E_status_mission_required') end
+function UI.isVisible() return visible end
+function UI.show(categoryId)
+    if not UI.canShow() then return false end
+    if visible then if categoryId then UI.selectCategory(categoryId) end; return true end
+    visible=true; message=nil; lastNavigation={}; refresh(); if categoryId then UI.selectCategory(categoryId) end
+    cursor=false
+    if g_inputBinding then
+        if g_inputBinding.getShowMouseCursor then cursor=g_inputBinding:getShowMouseCursor() end
+        registerController()
+        if g_inputBinding.setShowMouseCursor then g_inputBinding:setShowMouseCursor(true) end
     end
-    -- drop stale
-    for id in pairs(rows) do
-        if not keep[id] then
-            rows[id] = nil
-        end
-    end
-    return defs
-end
-
-local function refreshRowStatus(capabilityId, payload)
-    ensureRows()
-    local row = rows[capabilityId]
-    if row == nil then
-        return
-    end
-    if type(payload) == "table" then
-        row.lastResult = payload.status or row.lastResult
-        if payload.error ~= nil then
-            row.lastError = tostring(payload.error)
-        end
-    end
-    if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getStatusForSetting ~= nil and row.def.settingId ~= nil then
-        local st = FS25E_Diagnostics.getStatusForSetting(row.def.settingId)
-        if st ~= nil then
-            if st.lastResult ~= nil then row.lastResult = st.lastResult end
-            if st.lastError ~= nil then row.lastError = st.lastError end
-        end
-    end
-    if (row.lastResult == nil) and FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getCapRuntime ~= nil then
-        local rt = FS25E_Diagnostics.getCapRuntime(capabilityId)
-        if rt ~= nil then
-            if rt.lastResult ~= nil then row.lastResult = rt.lastResult end
-            if rt.lastError ~= nil then row.lastError = rt.lastError end
-        end
-    end
-    if row.lastResult == nil and FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.getLastResult ~= nil then
-        local lr = FS25E_CapabilityRegistry.getLastResult(capabilityId)
-        if type(lr) == "table" then
-            row.lastResult = lr.status
-            if lr.error ~= nil then row.lastError = tostring(lr.error) end
-        end
-    end
-end
-
-local function refreshAllStatusesFromSnapshot()
-    ensureRows()
-    if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.getSnapshot ~= nil then
-        pcall(function()
-            FS25E_Diagnostics.getSnapshot()
-        end)
-    end
-    for id, _ in pairs(rows) do
-        refreshRowStatus(id, nil)
-    end
-end
-
-local function loadInitialValues()
-    ensureRows()
-    for _, row in pairs(rows) do
-        local def = row.def
-        local v = nil
-        if FS25E_SettingsAPI ~= nil and FS25E_SettingsAPI.liveGet ~= nil then
-            local ok, snap = pcall(FS25E_SettingsAPI.liveGet, def.capabilityId, nil)
-            if ok and type(snap) == "table" then
-                v = tonumber(snap.requested) or tonumber(snap.current)
-            end
-        end
-        if v == nil and def.kind == "bool" then
-            local raw = settingsGet(def.settingId)
-            if raw == true then
-                v = 1
-            elseif raw == false then
-                v = 0
-            end
-        end
-        if v == nil then
-            v = def.default
-        end
-        row.value = clamp(v, def.min, def.max, def.step)
-        row.sessionOnly = true
-    end
-end
-
-local function visibleRowList()
-    local defs = ensureRows()
-    local list = {}
-    for i = 1, #defs do
-        local def = defs[i]
-        local row = rows[def.capabilityId]
-        if row ~= nil then
-            list[#list + 1] = row
-        end
-    end
-    return list
-end
-
---- Apply one row via SettingsAPI.live* (hard dock). Expert soft-apply gate for expert rows.
-local function applyRow(row, newValue)
-    if row == nil or row.def == nil then
-        return false
-    end
-    local def = row.def
-    local n = clamp(newValue, def.min, def.max, def.step)
-    if def.kind == "bool" then
-        n = (n >= 0.5) and 1 or 0
-    end
-    row.value = n
-
-    if FS25E_SettingsAPI == nil or FS25E_SettingsAPI.liveApply == nil then
-        dbgWarn("liveApply missing — session value only (Core live API required)")
-        row.lastResult = "SKIPPED"
-        row.lastError = "liveApply missing"
-        return false
-    end
-
-    -- Expert Soft-Apply gate: without soft-apply, cache only + SKIPPED
-    if def.applyKind == "expert" and not isExpertSoftApplyOn() then
-        if FS25E_SettingsAPI.liveSetRequested ~= nil then
-            pcall(FS25E_SettingsAPI.liveSetRequested, def.capabilityId, n, nil)
-        end
-        if def.kind == "bool" then
-            pcall(settingsSet, def.settingId, n >= 0.5)
-        end
-        row.lastResult = "SKIPPED"
-        row.lastError = "expertSoftApply off — value stored, not applied"
-        row.sessionOnly = true
-        dbg(string.format("SKIPPED %s (softApply off) value=%.2f", def.capabilityId, n))
-        return false
-    end
-
-    local applied, applyErr
-    local callOk, retOk, retErr = pcall(function()
-        return FS25E_SettingsAPI.liveApply(def.capabilityId, n, nil)
-    end)
-    if not callOk then
-        applyErr = tostring(retOk)
-        row.lastResult = "REJECTED"
-        row.lastError = applyErr
-        dbgWarn("liveApply error " .. def.capabilityId .. ": " .. applyErr)
-        return false
-    end
-    applied = retOk == true
-    applyErr = retErr
-    if applied then
-        row.lastResult = "APPLIED"
-        row.lastError = nil
-        row.sessionOnly = true
-        if def.kind == "bool" then
-            pcall(settingsSet, def.settingId, n >= 0.5)
-        end
-    else
-        row.lastResult = "REJECTED"
-        row.lastError = applyErr ~= nil and tostring(applyErr) or "liveApply failed"
-    end
-    refreshRowStatus(def.capabilityId, nil)
-    return applied
-end
-
-local function nudgeSelected(dir)
-    local list = visibleRowList()
-    if #list == 0 then
-        return
-    end
-    if selectedIndex < 1 then selectedIndex = 1 end
-    if selectedIndex > #list then selectedIndex = #list end
-    local row = list[selectedIndex]
-    local def = row.def
-    local step = def.step or 0.01
-    local nextV = (tonumber(row.value) or def.default) + dir * step
-    applyRow(row, nextV)
-end
-
-local function restoreSelected()
-    local list = visibleRowList()
-    if #list == 0 or selectedIndex < 1 or selectedIndex > #list then
-        return
-    end
-    local row = list[selectedIndex]
-    if FS25E_SettingsAPI == nil or FS25E_SettingsAPI.liveRestore == nil then
-        return
-    end
-    local ok, err = pcall(function()
-        return FS25E_SettingsAPI.liveRestore(row.def.capabilityId, nil)
-    end)
-    if ok then
-        row.lastResult = "APPLIED"
-        row.lastError = nil
-        loadInitialValues()
-        refreshRowStatus(row.def.capabilityId, nil)
-        dbg("liveRestore " .. row.def.capabilityId)
-    else
-        row.lastResult = "REJECTED"
-        row.lastError = tostring(err)
-    end
-end
-
-local function clampScroll(listLen, maxVisible)
-    local maxOff = math.max(0, listLen - maxVisible)
-    if scrollOffset < 0 then scrollOffset = 0 end
-    if scrollOffset > maxOff then scrollOffset = maxOff end
-end
-
-function FS25E_LiveOverlay.isVisible()
-    return visible == true
-end
-
-function FS25E_LiveOverlay.toggle(force)
-    if force == true then
-        if not FS25E_LiveOverlay.canShow() then
-            notify(FS25E_LiveOverlay.gateStatusMessage())
-            return false
-        end
-        FS25E_LiveOverlay.show()
-        return true
-    elseif force == false then
-        FS25E_LiveOverlay.hide()
-        return true
-    end
-
-    if visible then
-        FS25E_LiveOverlay.hide()
-        return true
-    end
-    if not FS25E_LiveOverlay.canShow() then
-        notify(FS25E_LiveOverlay.gateStatusMessage())
-        return false
-    end
-    FS25E_LiveOverlay.show()
     return true
 end
-
-function FS25E_LiveOverlay.show()
-    if not FS25E_LiveOverlay.canShow() then
-        notify(FS25E_LiveOverlay.gateStatusMessage())
-        return false
+function UI.hide()
+    if not visible then return end
+    if drag and drag.mode then saveLayout() end
+    visible=false; drag=nil; edit=nil; boxes={}
+    if g_inputBinding then
+        if g_inputBinding.removeActionEventsByTarget then g_inputBinding:removeActionEventsByTarget(UI) end
+        if context and g_inputBinding.revertContext then g_inputBinding:revertContext(false) end
+        if g_inputBinding.setShowMouseCursor then g_inputBinding:setShowMouseCursor(cursor==true) end
     end
-    cachedCapList = nil
-    ensureRows()
-    loadInitialValues()
-    refreshAllStatusesFromSnapshot()
-    FS25E_LiveOverlay.installListeners()
-    visible = true
-    selectedIndex = 1
-    scrollOffset = 0
-    dbg("overlay shown")
-    return true
+    context=false
 end
-
-function FS25E_LiveOverlay.hide()
-    visible = false
-    dragRow = nil
-    dbg("overlay hidden")
-end
-
-function FS25E_LiveOverlay.installListeners()
-    if listenersInstalled then
-        return
+function UI.toggle(force) if force==true or (force==nil and not visible) then return UI.show() end; UI.hide(); return true end
+function UI.installListeners() end
+function UI.draw()
+    if not visible then return end
+    local sw,sh=g_screenWidth or 1920,g_screenHeight or 1080
+    local scale=math.min(sw/1920,sh/1080); sx=scale/sw; sy=scale/sh
+    LAYOUT.w,LAYOUT.h=sw/scale,sh/scale
+    loadLayout()
+    -- Until the window is moved for the first time it stays docked to the right
+    -- edge, which is where earlier versions always drew it.
+    if P.docked~=false then P.x=LAYOUT.w-P.w-32; P.docked=true end
+    clampPanel()
+    boxes={}; refresh()
+    if setTextWrapWidth then setTextWrapWidth(0) end
+    if setTextFirstLineIndentation then setTextFirstLineIndentation(0) end
+    if setTextLineHeightScale and RenderText then setTextLineHeightScale(RenderText.DEFAULT_LINE_HEIGHT_SCALE) end
+    if setTextClipArea then setTextClipArea(0,0,1,1) end
+    rect(P.x+5,P.y+6,P.w,P.h,{0,0,0,.35}); rect(P.x,P.y,P.w,P.h,colors.panel); rect(P.x,P.y,P.w,4,colors.green)
+    text(P.x+24,P.y+20,25,t('FS25E_menu_live_title'),colors.text,P.w-290,true)
+    text(P.x+24,P.y+57,14,t('FS25E_menu_live_subtitle'),colors.muted,P.w-190)
+    button(P.x+P.w-57,P.y+20,34,34,'X','close')
+    button(P.x+P.w-101,P.y+20,34,34,'[]','resetLayout')
+    -- Master switch: MOD applies everything, VANILLA restores the stock look.
+    local comparing=FS25E_VisualProfiles and FS25E_VisualProfiles.isComparing and FS25E_VisualProfiles.isComparing()
+    button(P.x+P.w-241,P.y+20,132,34,t(comparing and 'FS25E_compare_button_vanilla' or 'FS25E_compare_button_mod'),'compare',nil,not comparing)
+    -- Registered after the buttons: the first matching box wins, so the header
+    -- strip only starts a move where no button sits.
+    hit(P.x,P.y,P.w,93,'move')
+    rect(P.x,P.y+93,180,P.h-93,colors.side)
+    -- The category strip shrinks with the window so every tab stays reachable.
+    local catH=math.min(43,math.max(22,(P.h-125)/math.max(1,#categories)))
+    for i,id in ipairs(categories) do
+        local y=P.y+109+(i-1)*catH
+        local h=catH-6
+        if i==category then rect(P.x+10,y,160,h,colors.selected); rect(P.x+10,y,3,h,colors.green) end
+        text(P.x+24,y+(h-16)*.5,math.min(16,h-5),t('FS25E_menu_'..id),i==category and colors.green or colors.muted,136,i==category)
+        hit(P.x+10,y,160,h,'category',i)
     end
-    if FS25E_CapabilityRegistry == nil then
-        return
+    local x,w=P.x+200,P.w-220
+    text(x,P.y+105,19,t('FS25E_menu_'..categories[category]),colors.text,w-110,true)
+    text(x+w-100,P.y+108,13,string.format('%d / %d',math.min(#rows,scroll+1),#rows),colors.muted,100)
+    if #rows==0 then
+        local key='FS25E_status_category_unavailable'
+        if FS25E_LiveSelection then local _,total=FS25E_LiveSelection.count(categories[category]); if total>0 then key='FS25E_status_selection_empty' end end
+        wrap(x,P.y+166,17,t(key),w,6,colors.muted)
     end
-    local function onEvt(id, payload)
-        if not visible then
-            return
-        end
-        refreshRowStatus(id, payload)
-    end
-    if type(FS25E_CapabilityRegistry.onApply) == "function" then
-        pcall(FS25E_CapabilityRegistry.onApply, onEvt)
-    end
-    if type(FS25E_CapabilityRegistry.onReject) == "function" then
-        pcall(FS25E_CapabilityRegistry.onReject, onEvt)
-    end
-    if type(FS25E_CapabilityRegistry.onSkip) == "function" then
-        pcall(FS25E_CapabilityRegistry.onSkip, onEvt)
-    end
-    listenersInstalled = true
-    dbg("Diagnostics hybrid listeners installed (Registry onApply/onReject/onSkip)")
-end
-
--- ---------- Drawing ----------
-
-local function hasDrawFilledRect()
-    return type(drawFilledRect) == "function"
-end
-
-local function fillRect(x, y, w, h, r, g, b, a)
-    if hasDrawFilledRect() then
-        pcall(drawFilledRect, x, y, w, h, r, g, b, a)
-    end
-end
-
-local function drawLabel(x, y, size, text, r, g, b, a, align, bold)
-    if setTextBold ~= nil then
-        setTextBold(bold == true)
-    end
-    if setTextAlignment ~= nil then
-        setTextAlignment(align or (RenderText ~= nil and RenderText.ALIGN_LEFT) or 0)
-    end
-    if setTextColor ~= nil then
-        setTextColor(r or 1, g or 1, b or 1, a or 1)
-    end
-    if renderText ~= nil then
-        renderText(x, y, size, tostring(text or ""))
-    end
-    if setTextBold ~= nil then
-        setTextBold(false)
-    end
-end
-
-local function costColor(cost, warn)
-    if warn then
-        return 1.0, 0.45, 0.25, 1
-    end
-    local c = tostring(cost or "med"):lower()
-    if c == "extreme" then
-        return 0.95, 0.35, 0.35, 1
-    elseif c == "high" then
-        return 0.95, 0.7, 0.3, 1
-    elseif c == "low" then
-        return 0.45, 0.85, 0.55, 1
-    end
-    return 0.75, 0.8, 0.9, 1
-end
-
-function FS25E_LiveOverlay.draw()
-    if not visible or not FS25E_LiveOverlay.canShow() then
-        if visible and not FS25E_LiveOverlay.canShow() then
-            visible = false
-        end
-        return
-    end
-
-    local list = visibleRowList()
-    local soft = isExpertSoftApplyOn()
-    local px, py, pw, ph = PANEL.x, PANEL.y, PANEL.w, PANEL.h
-
-    fillRect(px, py, pw, ph, 0.05, 0.07, 0.10, 0.78)
-
-    local title = t("FS25E_LIVE_OVERLAY_TITLE", "FS25E Expert Live Overlay")
-    drawLabel(px + PANEL.pad, py + ph - PANEL.pad - 0.008, PANEL.titleSize, title, 1, 0.92, 0.55, 1, nil, true)
-
-    -- HUD telemetry in header (engine + system DISCONNECTED or real sidecar)
-    local hudTop = py + ph - PANEL.pad - 0.028
-    local hudH = 0.055
-    if FS25E_HudOverlay ~= nil and FS25E_HudOverlay.drawAt ~= nil then
-        hudH = FS25E_HudOverlay.drawAt(px + PANEL.pad * 0.5, hudTop, pw - PANEL.pad, {
-            compact = false,
-            background = true,
-            alpha = 0.45,
-            pad = 0.005,
-        })
-    end
-
-    local gateY = hudTop - hudH - 0.006
-    local gate = string.format(
-        "Gates: expertMode=ON liveTuning=ON softApply=%s  caps=%d",
-        soft and "ON" or "OFF",
-        #list
-    )
-    drawLabel(px + PANEL.pad, gateY, PANEL.smallSize, gate, 0.75, 0.85, 1, 1)
-
-    local hint = t("FS25E_LIVE_OVERLAY_HINT", "Wheel/click bar | +/- | R restore | Esc | Ctrl+Shift+E")
-    drawLabel(px + PANEL.pad, gateY - 0.016, PANEL.smallSize, hint, 0.65, 0.65, 0.65, 1)
-
-    local listTop = gateY - 0.032
-    local listBottom = py + PANEL.pad + 0.058
-    local avail = listTop - listBottom
-    local maxVisible = math.max(1, math.floor(avail / PANEL.rowH))
-    clampScroll(#list, maxVisible)
-
-    -- ensure selection visible
-    if selectedIndex < scrollOffset + 1 then
-        scrollOffset = math.max(0, selectedIndex - 1)
-    elseif selectedIndex > scrollOffset + maxVisible then
-        scrollOffset = selectedIndex - maxVisible
-    end
-    clampScroll(#list, maxVisible)
-
-    local y = listTop
-    local endIdx = math.min(#list, scrollOffset + maxVisible)
-    for i = scrollOffset + 1, endIdx do
-        local row = list[i]
-        local def = row.def
-        local selected = (i == selectedIndex)
-        local warn = def.warn == true
-        if selected then
-            fillRect(px + 0.004, y - 0.006, pw - 0.008, PANEL.rowH, 0.20, 0.35, 0.55, 0.40)
-        elseif warn then
-            fillRect(px + 0.004, y - 0.006, pw - 0.008, PANEL.rowH, 0.35, 0.18, 0.08, 0.28)
-        end
-
-        local label = def.labelKey ~= nil and t(def.labelKey, def.labelFallback or def.id) or (def.labelFallback or def.id)
-        local badge = row.lastResult or "—"
-        local badgeColor = { 0.7, 0.7, 0.7, 1 }
-        if badge == "APPLIED" then
-            badgeColor = { 0.35, 0.9, 0.45, 1 }
-        elseif badge == "REJECTED" then
-            badgeColor = { 0.95, 0.35, 0.35, 1 }
-        elseif badge == "SKIPPED" then
-            badgeColor = { 0.95, 0.8, 0.3, 1 }
-        end
-
-        local valStr = formatValue(def, row.value)
-        local costStr = string.upper(tostring(def.cost or "med"))
-        if warn then
-            costStr = costStr .. "!"
-        end
-        local cr, cg, cb = costColor(def.cost, warn)
-        local line1 = string.format("%s  %s", label, valStr)
-        drawLabel(px + PANEL.pad, y + 0.014, PANEL.textSize, line1, warn and 1 or 1, warn and 0.85 or 1, warn and 0.7 or 1, 1)
-
-        if def.kind == "bool" then
-            local tog = (tonumber(row.value) or 0) >= 0.5 and "[ ON ]" or "[ OFF ]"
-            drawLabel(px + PANEL.pad, y - 0.002, PANEL.textSize, tog, 0.85, 0.9, 1, 1)
+    for index=scroll+1,math.min(#rows,scroll+pageSize) do
+        local c=rows[index]; local y=P.y+LIST_TOP+(index-scroll-1)*ROW_H
+        local available,reason=FS25E_VisualControls.available(c)
+        local value=FS25E_VisualControls.read(c); local state=FS25E_VisualControls.getState(c.id) or {}
+        rect(x,y,w,99,index==selected and colors.selected or colors.row)
+        if index==selected then rect(x,y,3,99,colors.green) end
+        if c.kind=='action' then
+            text(x+14,y+10,17,t(c.labelKey),colors.text,w-164,true)
+            button(x+14,y+53,w-28,32,t('FS25E_menu_execute'),'run',index)
+            hit(x,y,w,99,'row',index)
         else
-            drawLabel(px + PANEL.pad, y - 0.002, PANEL.textSize, barText(def, row.value), 0.7, 0.85, 1, 1)
-        end
-
-        -- cost beside row (right of bar area)
-        drawLabel(px + pw - PANEL.pad - 0.08, y + 0.014, PANEL.smallSize, costStr, cr, cg, cb, 1, (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
-        drawLabel(px + pw - PANEL.pad, y + 0.014, PANEL.smallSize, badge, badgeColor[1], badgeColor[2], badgeColor[3], badgeColor[4], (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
-
-        row._hit = { x = px + PANEL.pad, y = y - 0.006, w = pw - 0.02, h = PANEL.rowH, index = i }
-
-        y = y - PANEL.rowH
-    end
-
-    if #list > maxVisible then
-        local scrollHint = string.format("[%d-%d / %d]", scrollOffset + 1, endIdx, #list)
-        drawLabel(px + pw - PANEL.pad, listBottom + 0.012, PANEL.smallSize, scrollHint, 0.6, 0.6, 0.6, 1, (RenderText ~= nil and RenderText.ALIGN_RIGHT) or 2)
-    end
-
-    -- Help under selection (Schema tooltip preferred; 1–2 lines truncated)
-    local helpY = py + PANEL.pad + 0.022
-    if #list > 0 and selectedIndex >= 1 and selectedIndex <= #list then
-        local sel = list[selectedIndex]
-        local help = truncateHelp(resolveRowHelp(sel), 118)
-        if help ~= nil and help ~= "" then
-            local wr = sel.def ~= nil and sel.def.warn == true
-            drawLabel(px + PANEL.pad, helpY + 0.014, PANEL.smallSize, help, wr and 1 or 0.85, wr and 0.7 or 0.85, wr and 0.45 or 0.55, 1)
+        text(x+14,y+10,17,t(c.labelKey),available and colors.text or colors.muted,w-196,true)
+        text(x+14,y+36,12,t('FS25E_cost_'..c.cost)..' / '..t('FS25E_status_live'),c.cost=='extreme' and colors.warning or colors.muted,w-204)
+        local rendered=edit and edit.id==c.id and edit.value..'|' or format(c,value)
+        rect(x+w-164,y+9,150,35,edit and edit.id==c.id and colors.track or colors.side)
+        text(x+w-154,y+17,16,rendered,colors.text,130,true)
+        if available and c.kind~='enum' and c.kind~='bool' then hit(x+w-164,y+9,150,35,'edit',index) end
+        if available and value~=nil then
+            local bx,bw,by=x+50,w-192,y+68
+            local ratio=math.max(0,math.min(1,(value-c.min)/math.max(.00001,c.max-c.min)))
+            rect(bx,by,bw,5,colors.track); rect(bx,by,bw*ratio,5,colors.green)
+            if state.original~=nil then
+                local original=math.max(0,math.min(1,(state.original-c.min)/math.max(.00001,c.max-c.min)))
+                rect(bx+bw*original-1,by-5,2,15,colors.muted)
+            end
+            rect(bx+bw*ratio-5,by-6,10,17,colors.text)
+            hit(bx-5,by-12,bw+10,28,'slider',{index=index,x=bx,w=bw})
+            button(x+14,y+55,28,30,'-','minus',index); button(x+w-134,y+55,28,30,'+','plus',index)
+            button(x+w-94,y+55,80,30,t('FS25E_menu_reset'),'reset',index)
+        else text(x+14,y+64,13,t(reason or 'FS25E_status_unreadable'),colors.warning,w-28) end
+        hit(x,y,w,99,'row',index)
         end
     end
-
-    local foot = t("FS25E_LIVE_OVERLAY_SESSION", "Values: session via SettingsCache (persist optional)")
-    drawLabel(px + PANEL.pad, py + PANEL.pad, PANEL.smallSize, foot, 0.55, 0.55, 0.55, 1)
+    -- The footer block is anchored to the bottom edge, so it follows a resize.
+    local footer=P.y+P.h-FOOTER
+    if #rows>pageSize then button(x+w-80,footer,35,28,'<','up'); button(x+w-40,footer,35,28,'>','down') end
+    local c=rows[selected]
+    if c then
+        local state=FS25E_VisualControls.getState(c.id) or {}
+        text(x,footer+9,13,t(state.status or 'FS25E_status_ready'),state.error and colors.warning or colors.green,w-100)
+        wrap(x,footer+34,14,t(c.tooltipKey),w,3,colors.muted)
+    end
+    rect(x,footer+102,w,1,colors.track)
+    text(x,footer+114,12,t(message or 'FS25E_menu_fine_hint'),colors.muted,w)
+    text(x,footer+139,12,t('FS25E_menu_controller_hint')..'   -   '..t('FS25E_menu_window_hint'),colors.muted,w)
+    -- Resize grip in the bottom right corner.
+    local gs=18
+    rect(P.x+P.w-gs-4,P.y+P.h-gs-4,gs,3,colors.track)
+    rect(P.x+P.w-gs-4,P.y+P.h-gs+2,gs,3,colors.track)
+    rect(P.x+P.w-gs-4,P.y+P.h-gs+8,gs,3,hover and hover.action=='resize' and colors.green or colors.track)
+    hit(P.x+P.w-gs-10,P.y+P.h-gs-10,gs+10,gs+10,'resize')
+    setTextBold(false); setTextColor(1,1,1,1); setTextAlignment(RenderText and RenderText.ALIGN_LEFT or 0)
+    if setTextVerticalAlignment and RenderText then setTextVerticalAlignment(RenderText.VERTICAL_ALIGN_BASELINE) end
 end
-
--- ---------- Input / mouse ----------
-
-local function hitTest(posX, posY)
-    local list = visibleRowList()
-    for i = 1, #list do
-        local row = list[i]
-        local h = row._hit
-        if h ~= nil and posX >= h.x and posX <= h.x + h.w and posY >= h.y and posY <= h.y + h.h then
-            return row, h
-        end
-    end
-    return nil, nil
-end
-
-local function valueFromBarClick(row, hit, posX)
-    local def = row.def
-    if def.kind == "bool" then
-        local cur = tonumber(row.value) or 0
-        return cur >= 0.5 and 0 or 1
-    end
-    local t01 = 0
-    if hit.w > 0 then
-        t01 = (posX - hit.x) / hit.w
-    end
-    if t01 < 0 then t01 = 0 end
-    if t01 > 1 then t01 = 1 end
-    return def.min + t01 * (def.max - def.min)
-end
-
-function FS25E_LiveOverlay.mouseEvent(posX, posY, isDown, isUp, button)
-    if not visible or not FS25E_LiveOverlay.canShow() then
-        return
-    end
-    local left = (button == 1 or button == nil)
-    if not left then
-        return
-    end
-
-    if isDown then
-        local row, hit = hitTest(posX, posY)
-        if row ~= nil then
-            selectedIndex = hit.index
-            dragRow = row
-            local v = valueFromBarClick(row, hit, posX)
-            applyRow(row, v)
-        end
-    elseif isUp then
-        dragRow = nil
+--- Apply a window move or resize for the current pointer position.
+local function dragWindow(d,x,y)
+    if d.mode=='move' then
+        P.x=x-d.offsetX; P.y=y-d.offsetY; P.docked=false
     else
-        if dragRow ~= nil and dragRow._hit ~= nil then
-            local v = valueFromBarClick(dragRow, dragRow._hit, posX)
-            applyRow(dragRow, v)
+        P.w=d.startW+(x-d.startX); P.h=d.startH+(y-d.startY); P.docked=false
+    end
+    clampPanel()
+    -- Hit boxes were built for the old rectangle.
+    boxes={}; hover=nil
+    if selected>scroll+pageSize then scroll=math.max(0,selected-pageSize) end
+    scroll=math.max(0,math.min(math.max(0,#rows-pageSize),scroll))
+end
+local function dragValue(d,x)
+    local c=rows[d.index]; if not c then return end
+    local ratio=math.max(0,math.min(1,(x-d.x)/d.w)); local v=c.min+ratio*(c.max-c.min)
+    if fine() and d.startValue then v=d.startValue+(x-d.startX)/d.w*(c.max-c.min)*.1 end
+    apply(c,v)
+end
+function UI.mouseEvent(px,py,isDown,isUp,buttonId)
+    if not visible then return false end
+    local x,y=px/sx,(1-py)/sy
+    if isUp then
+        if drag and drag.mode then saveLayout() end
+        drag=nil
+    end
+    if drag and not isDown and not isUp then
+        if drag.mode then dragWindow(drag,x,y) else dragValue(drag,x) end
+        return true
+    end
+    hover=nil
+    for _,b in ipairs(boxes) do if inside(b,x,y) then
+        hover=b
+        if Input and Input.isMouseButtonPressed and lastWheel~=(g_time or 0) then
+            local up=Input.MOUSE_BUTTON_WHEEL_UP and Input.isMouseButtonPressed(Input.MOUSE_BUTTON_WHEEL_UP)
+            local down=Input.MOUSE_BUTTON_WHEEL_DOWN and Input.isMouseButtonPressed(Input.MOUSE_BUTTON_WHEEL_DOWN)
+            if up or down then lastWheel=g_time or 0; UI.mouseWheel(up and 1 or -1); return true end
+        end
+        if isDown and (buttonId==1 or buttonId==nil) then
+            local a,d=b.action,b.data
+            if a=='close' then UI.hide()
+            elseif a=='move' then drag={mode='move',offsetX=x-P.x,offsetY=y-P.y}
+            elseif a=='resize' then drag={mode='resize',startX=x,startY=y,startW=P.w,startH=P.h}
+            elseif a=='resetLayout' then UI.resetLayout()
+            elseif a=='compare' then
+                if FS25E_VisualProfiles and FS25E_VisualProfiles.toggleCompare then
+                    local ok,status=FS25E_VisualProfiles.toggleCompare(); message=status; boxes={}
+                end
+            elseif a=='category' then selectCategory(d)
+            elseif a=='up' then scroll=math.max(0,scroll-1); boxes={}; hover=nil; drag=nil
+            elseif a=='down' then scroll=math.min(math.max(0,#rows-pageSize),scroll+1); boxes={}; hover=nil; drag=nil
+            elseif a=='slider' then selected=d.index; edit=nil; drag={index=d.index,x=d.x,w=d.w,startX=x,startValue=FS25E_VisualControls.read(rows[d.index])}; if not fine() then dragValue(drag,x) end
+            else
+                selected=d; local c=rows[d]
+                if c then
+                    if a=='minus' then nudge(-1) elseif a=='plus' then nudge(1)
+                    elseif a=='reset' then FS25E_VisualControls.restore(c.id)
+                    elseif a=='run' then
+                        local ok,result,reason=pcall(c.run)
+                        message=ok and reason or 'FS25E_status_module_error'
+                        if not message then message=result and 'FS25E_status_configured' or 'FS25E_status_not_applied' end
+                    elseif a=='edit' then edit={id=c.id,value=format(c,FS25E_VisualControls.read(c)),replace=true} end
+                end
+            end
+        end
+        return true
+    end end
+    return inside(P,x,y)
+end
+function UI.mouseWheel(delta)
+    if not visible then return false end
+    if delta and delta~=0 then
+        if hover and hover.action=='slider' then selected=hover.data.index; nudge(delta>0 and 1 or -1)
+        else
+            scroll=math.max(0,math.min(math.max(0,#rows-pageSize),scroll+(delta>0 and -1 or 1)))
+            boxes={}; drag=nil; hover=nil
         end
     end
-end
-
-function FS25E_LiveOverlay.mouseWheel(delta)
-    if not visible or not FS25E_LiveOverlay.canShow() then
-        return
-    end
-    local d = tonumber(delta) or 0
-    if d == 0 then
-        return
-    end
-    -- With Shift: scroll list; else nudge selected
-    -- Giants may not expose modifier here — nudge by default; PgUp/Dn scroll via keys
-    nudgeSelected(d > 0 and 1 or -1)
-end
-
-function FS25E_LiveOverlay.keyEvent(unicode, sym, modifier, isDown)
-    if not visible or not isDown then
-        return false
-    end
-    if sym == 27 or (Input ~= nil and Input.KEY_esc ~= nil and sym == Input.KEY_esc) then
-        FS25E_LiveOverlay.hide()
-        return true
-    end
-    if sym == 43 or sym == 61 or unicode == 43 then
-        nudgeSelected(1)
-        return true
-    end
-    if sym == 45 or unicode == 45 then
-        nudgeSelected(-1)
-        return true
-    end
-    -- R = restore selected
-    if sym == 114 or sym == 82 or unicode == 114 or unicode == 82 then
-        restoreSelected()
-        return true
-    end
-    if sym == 273 or sym == 265 then
-        selectedIndex = math.max(1, selectedIndex - 1)
-        return true
-    end
-    if sym == 274 or sym == 264 then
-        local list = visibleRowList()
-        selectedIndex = math.min(#list, selectedIndex + 1)
-        return true
-    end
-    if sym == 276 or sym == 263 then
-        nudgeSelected(-1)
-        return true
-    end
-    if sym == 275 or sym == 262 then
-        nudgeSelected(1)
-        return true
-    end
-    -- Page up / down scroll
-    if sym == 280 or sym == 266 then
-        scrollOffset = scrollOffset - 5
-        return true
-    end
-    if sym == 281 or sym == 267 then
-        scrollOffset = scrollOffset + 5
-        return true
-    end
-    return false
-end
-
-function FS25E_LiveOverlay.update(dt)
-    -- reserved
-end
-
-function FS25E_LiveOverlay.registerHooks()
-    if hooksRegistered then
-        return true
-    end
-    if FS25E_HookManager == nil or FSBaseMission == nil then
-        dbgWarn("HookManager/FSBaseMission missing — cannot register draw/mouse")
-        return false
-    end
-
-    if FSBaseMission.draw ~= nil then
-        FS25E_HookManager.register(FSBaseMission, "draw", "appended", function(self)
-            if FS25E_LiveOverlay ~= nil then
-                FS25E_LiveOverlay.draw()
-            end
-            -- Mini HUD when overlay closed is handled by FS25E_HudOverlay.registerHooks
-        end)
-    end
-
-    if FSBaseMission.mouseEvent ~= nil then
-        FS25E_HookManager.register(FSBaseMission, "mouseEvent", "appended", function(self, posX, posY, isDown, isUp, button)
-            if FS25E_LiveOverlay ~= nil then
-                FS25E_LiveOverlay.mouseEvent(posX, posY, isDown, isUp, button)
-            end
-        end)
-    end
-
-    if FSBaseMission.mouseWheelEvent ~= nil then
-        FS25E_HookManager.register(FSBaseMission, "mouseWheelEvent", "appended", function(self, ...)
-            local args = { ... }
-            local delta = args[1]
-            if type(delta) ~= "number" and type(args[3]) == "number" then
-                delta = args[3]
-            end
-            if FS25E_LiveOverlay ~= nil then
-                FS25E_LiveOverlay.mouseWheel(delta)
-            end
-        end)
-    end
-
-    if FSBaseMission.keyEvent ~= nil then
-        FS25E_HookManager.register(FSBaseMission, "keyEvent", "appended", function(self, unicode, sym, modifier, isDown)
-            if FS25E_LiveOverlay ~= nil then
-                FS25E_LiveOverlay.keyEvent(unicode, sym, modifier, isDown)
-            end
-        end)
-    end
-
-    hooksRegistered = true
-    dbg("draw/mouse/key hooks registered")
     return true
 end
-
-function FS25E_LiveOverlay.reset()
-    visible = false
-    dragRow = nil
-    rows = {}
-    cachedCapList = nil
-    scrollOffset = 0
+local function key(sym,name,fallback) return sym==(Input and Input['KEY_'..name] or fallback) end
+function UI.keyEvent(unicode,sym,modifier,isDown)
+    if not visible then return false end
+    if not isDown then return true end
+    if edit then
+        if key(sym,'esc',27) then edit=nil
+        elseif key(sym,'return',13) then
+            local c=FS25E_VisualControls.get(edit.id); local v=tonumber((edit.value:gsub(',','.')))
+            if v then apply(c,v); edit=nil else message='FS25E_status_invalid_value' end
+        elseif key(sym,'backspace',8) then edit.value=edit.value:sub(1,-2); edit.replace=false
+        elseif type(unicode)=='number' and ((unicode>=48 and unicode<=57) or unicode==45 or unicode==46 or unicode==44) then
+            if edit.replace then edit.value=''; edit.replace=false end
+            if #edit.value<12 then edit.value=edit.value..string.char(unicode) end
+        end
+        return true
+    end
+    if key(sym,'esc',27) then UI.hide()
+    elseif key(sym,'left',276) or unicode==45 then navigate('value',-1)
+    elseif key(sym,'right',275) or unicode==43 then navigate('value',1)
+    elseif key(sym,'up',273) then navigate('row',-1)
+    elseif key(sym,'down',274) then navigate('row',1)
+    elseif key(sym,'pageup',280) then selectCategory(category-1)
+    elseif key(sym,'pagedown',281) then selectCategory(category+1)
+    elseif key(sym,'r',114) and rows[selected] and rows[selected].kind~='action' then FS25E_VisualControls.restore(rows[selected].id)
+    elseif key(sym,'return',13) and rows[selected] then
+        local c=rows[selected]
+        if c.kind=='action' then local ok,result,reason=pcall(c.run); message=ok and reason or 'FS25E_status_module_error'
+        elseif c.kind~='enum' and c.kind~='bool' and FS25E_VisualControls.available(c) then edit={id=c.id,value=format(c,FS25E_VisualControls.read(c)),replace=true} end
+    end
+    return true
 end
+function UI.update(dt) end
+function UI.registerHooks()
+    if hooks then return true end
+    if not FS25E_HookManager or not FSBaseMission then return false end
+    local H=FS25E_HookManager
+    if FSBaseMission.draw then H.register(FSBaseMission,'draw','appended',function() UI.draw() end) end
+    if FSBaseMission.mouseEvent then H.register(FSBaseMission,'mouseEvent','overwritten',function(self,super,...) if not UI.mouseEvent(...) then return super(self,...) end end) end
+    if FSBaseMission.mouseWheelEvent then H.register(FSBaseMission,'mouseWheelEvent','overwritten',function(self,super,d,...) if not UI.mouseWheel(d) then return super(self,d,...) end end) end
+    if FSBaseMission.keyEvent then H.register(FSBaseMission,'keyEvent','overwritten',function(self,super,...) if not UI.keyEvent(...) then return super(self,...) end end) end
+    hooks=true; return true
+end
+function UI.reset() UI.hide(); category=2; selected=1; scroll=0; rows={}; message=nil end
+function UI.getLayout() return P,boxes end

@@ -1,248 +1,116 @@
--- FS25_Enhanced / scripts/Shadows/ShadowManager.lua
--- Wave 1: global shadow caps + per-light APIs (lightId required). Auto-apply OFF.
--- No EXPERIMENTAL setters. No blind world-node scan.
-
+-- Per-light operations use typed native adapters with readback and restore.
 FS25E_ShadowManager = {}
-
-local unpack = rawget(_G, "unpack") or table.unpack
-
-local initialized = false
-local discoveredLights = {} -- soft discovery stub: empty until Lights Spec
-local mergedLights = {} -- lightId -> true (tracked merges; restore MUST split)
-
-local GLOBAL_CAPS = {
-    "max-num-shadow-lights",
-    "shadow-quality",
-    "shadow-distance-quality",
-    "shadow-filter-quality",
-}
-
-function FS25E_ShadowManager.init()
-    initialized = true
-    discoveredLights = {}
-    mergedLights = {}
-    FS25E_Debug.info("ShadowManager", "init (wave1 registered; lights via LightDiscovery when present; auto-apply off)")
+local M = FS25E_ShadowManager
+local initialized, discoveredLights, mergedLights = false, {}, {}
+local unpackValues = table.unpack or unpack
+function M.init() initialized=true; discoveredLights={}; mergedLights={} end
+function M.isInitialized() return initialized end
+function M.reset() M.restoreAll(); initialized=false; discoveredLights={} end
+function M.registerLightId(node)
+    if not FS25E_LightDiscovery or not FS25E_LightDiscovery.isLightSource(node) then return false end
+    discoveredLights[node]=true; return true
 end
-
-function FS25E_ShadowManager.reset()
-    discoveredLights = {}
-    mergedLights = {}
-    initialized = false
+function M.getDiscoveredLights()
+    local out,seen={},{}
+    local entries=FS25E_LightDiscovery and FS25E_LightDiscovery.getRuntimeEntries and FS25E_LightDiscovery.getRuntimeEntries() or {}
+    for _,e in ipairs(entries) do if not seen[e.node] then out[#out+1]=e.node; seen[e.node]=true end end
+    if #out==0 then for node in pairs(discoveredLights) do if FS25E_LightDiscovery.isLightSource(node) then out[#out+1]=node end end end
+    return out
 end
-
---- Discovered light ids: prefer LightDiscovery registry when present; else local stub.
-function FS25E_ShadowManager.getDiscoveredLights()
-    if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.getEntries ~= nil then
-        local out = {}
-        local seen = {}
-        local entries = FS25E_LightDiscovery.getEntries()
-        for _, e in pairs(entries) do
-            if e ~= nil and e.node ~= nil and not seen[e.node] then
-                seen[e.node] = true
-                out[#out + 1] = e.node
-            end
+local function entry(node)
+    if FS25E_LightDiscovery and FS25E_LightDiscovery.getRuntimeEntries then
+        for _,e in ipairs(FS25E_LightDiscovery.getRuntimeEntries()) do if e.node==node then return e end end
+    end
+end
+local function cap(id,value)
+    if not FS25E_CapabilityApplier then return false,"FS25E_warning_lightApiUnavailable" end
+    return FS25E_CapabilityApplier.apply(id,{value=value,values={value}})
+end
+function M.setMaxNumShadowLights(v) return cap("max-num-shadow-lights",v) end
+function M.setShadowQuality(v) return cap("shadow-quality",v) end
+function M.setShadowDistanceQuality(v) return cap("shadow-distance-quality",v) end
+function M.setShadowFilterQuality(v) return cap("shadow-filter-quality",v) end
+local function apply(node,p,getter,setter,values)
+    local e=entry(node)
+    if not e then return false,"FS25E_status_noLocalLights" end
+    if not FS25E_LightTuning then return false,"FS25E_warning_lightApiUnavailable" end
+    return FS25E_LightTuning.applyProperty(e,p,getter,setter,function() return values end)
+end
+function M.setLightShadowPriority(node,v)
+    if type(v)~="number" or v~=v then return false,"FS25E_warning_lightInvalidValue" end
+    return apply(node,"priority","getLightShadowPriority","setLightShadowPriority",{v})
+end
+function M.setLightShadowMap(node,cast,resolution)
+    if type(cast)~="boolean" or type(resolution)~="number" or resolution%1~=0 or resolution<128 or resolution>4096 then
+        return false,"FS25E_warning_lightInvalidValue"
+    end
+    return apply(node,"shadowMap","getLightCastingShadowMap","setLightShadowMap",{cast,resolution})
+end
+function M.setLightSoftShadowSize(node,v)
+    if type(v)~="number" or v<0 or v~=v then return false,"FS25E_warning_lightInvalidValue" end
+    return apply(node,"softness","getLightSoftShadowSize","setLightSoftShadowSize",{v})
+end
+function M.setLightSoftShadowDistance(node,v)
+    if type(v)~="number" or v<=0 or v~=v then return false,"FS25E_warning_lightInvalidValue" end
+    -- This native property has no effect on spotlights (GDN). Do not offer a
+    -- working-looking slider for a spotlight parameter ignored by the engine.
+    if not entry(node) or type(getLightType)~="function" or LightType==nil then return false,"FS25E_warning_lightApiUnavailable" end
+    local ok,kind=pcall(getLightType,node)
+    if not ok or kind~=LightType.DIRECTIONAL then return false,"FS25E_warning_directionalLightRequired" end
+    return apply(node,"softDistance","getLightSoftShadowDistance","setLightSoftShadowDistance",{v})
+end
+function M.setLightSoftShadowDepthBiasFactor(node,v)
+    if type(v)~="number" or v<=0 or v~=v then return false,"FS25E_warning_lightInvalidValue" end
+    return apply(node,"bias","getLightSoftShadowDepthBiasFactor","setLightSoftShadowDepthBiasFactor",{v})
+end
+function M.hasMergedShadow(node)
+    if not FS25E_LightDiscovery.isLightSource(node) or type(hasMergedShadow)~="function" then return false end
+    local ok,value=pcall(hasMergedShadow,node); return ok and value==true
+end
+function M.mergeLightShadows(node,...)
+    local nodes={node,...}
+    if #nodes<2 or #nodes>10 then return false,"FS25E_warning_lightInvalidValue" end
+    if type(mergeLightShadows)~="function" or type(splitLightShadow)~="function" or type(hasMergedShadow)~="function"
+        or not RealLight or type(RealLight.getAreShadowsMergable)~="function" then return false,"FS25E_warning_lightApiUnavailable" end
+    local first,seen=entry(node),{}
+    if not first then return false,"FS25E_status_noLocalLights" end
+    for _,id in ipairs(nodes) do
+        local e=entry(id)
+        if seen[id] or not e or e.owner~=first.owner or e.profile~=first.profile or e.bucket~=first.bucket then
+            return false,"FS25E_warning_lightMergeIncompatible"
         end
-        return out
+        seen[id]=true
+        local ok,merged=pcall(hasMergedShadow,id)
+        -- Never split or take ownership of a vanilla/other-mod group.
+        if not ok or merged then return false,"FS25E_warning_lightMergeOwned" end
     end
-    return discoveredLights
-end
-
-function FS25E_ShadowManager.registerLightId(lightId)
-    if lightId == nil then
-        return false
+    local ok,compatible=pcall(RealLight.getAreShadowsMergable,nodes)
+    if not ok or not compatible then return false,"FS25E_warning_lightMergeIncompatible" end
+    if not pcall(mergeLightShadows,unpackValues(nodes)) then return false,"FS25E_warning_lightWriteRejected" end
+    local verified=true
+    for _,id in ipairs(nodes) do
+        local success,merged=pcall(hasMergedShadow,id)
+        if success and merged then mergedLights[id]=true else verified=false end
     end
-    discoveredLights[#discoveredLights + 1] = lightId
+    if not verified then
+        for _,id in ipairs(nodes) do if mergedLights[id] then M.splitLightShadow(id) end end
+        return false,"FS25E_warning_lightWriteRejected"
+    end
     return true
 end
-
-local function applyCap(capabilityId, value, prefixArgs, keySuffix)
-    if FS25E_CapabilityApplier == nil then
-        return false, "CapabilityApplier missing"
-    end
-    return FS25E_CapabilityApplier.apply(capabilityId, {
-        value = value,
-        values = { value },
-        prefixArgs = prefixArgs,
-        keySuffix = keySuffix,
-    })
+function M.splitLightShadow(node)
+    if not mergedLights[node] then return false,"FS25E_warning_lightMergeOwned" end
+    if not FS25E_LightDiscovery.isLightSource(node) then mergedLights[node]=nil; return true end
+    if type(splitLightShadow)~="function" or not pcall(splitLightShadow,node) then return false,"FS25E_warning_lightWriteRejected" end
+    if M.hasMergedShadow(node) then return false,"FS25E_warning_lightWriteRejected" end
+    mergedLights[node]=nil; return true
 end
-
--- --- Global shadow APIs ---
-
-function FS25E_ShadowManager.setMaxNumShadowLights(value)
-    return applyCap("max-num-shadow-lights", value)
+function M.restoreAll()
+    local ok=true
+    for node in pairs(mergedLights) do ok=M.splitLightShadow(node) and ok end
+    if FS25E_LightTuning and FS25E_LightTuning.restoreAll then ok=FS25E_LightTuning.restoreAll() and ok end
+    return ok
 end
-
-function FS25E_ShadowManager.setShadowQuality(value)
-    return applyCap("shadow-quality", value)
-end
-
-function FS25E_ShadowManager.setShadowDistanceQuality(value)
-    return applyCap("shadow-distance-quality", value)
-end
-
-function FS25E_ShadowManager.setShadowFilterQuality(value)
-    return applyCap("shadow-filter-quality", value)
-end
-
--- --- Per-light APIs (require lightId; do not scan world) ---
-
-function FS25E_ShadowManager.setLightShadowPriority(lightId, priority)
-    if lightId == nil then
-        return false, "lightId required"
-    end
-    return applyCap("light-shadow-priority", priority, { lightId }, tostring(lightId))
-end
-
-function FS25E_ShadowManager.setLightShadowMap(lightId, mapValue)
-    if lightId == nil then
-        return false, "lightId required"
-    end
-    return applyCap("light-shadow-map", mapValue, { lightId }, tostring(lightId))
-end
-
-function FS25E_ShadowManager.setLightSoftShadowSize(lightId, size)
-    if lightId == nil then
-        return false, "lightId required"
-    end
-    return applyCap("light-soft-shadow-size", size, { lightId }, tostring(lightId))
-end
-
-function FS25E_ShadowManager.setLightSoftShadowDistance(lightId, distance)
-    if lightId == nil then
-        return false, "lightId required"
-    end
-    return applyCap("light-soft-shadow-distance", distance, { lightId }, tostring(lightId))
-end
-
-function FS25E_ShadowManager.setLightSoftShadowDepthBiasFactor(lightId, factor)
-    if lightId == nil then
-        return false, "lightId required"
-    end
-    return applyCap("light-soft-shadow-depth-bias", factor, { lightId }, tostring(lightId))
-end
-
-function FS25E_ShadowManager.hasMergedShadow(lightId)
-    local fn = FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.resolveGlobal("hasMergedShadow") or nil
-    if type(fn) ~= "function" or lightId == nil then
-        return false
-    end
-    local ok, result = pcall(fn, lightId)
-    return ok and result == true
-end
-
---- Explicit merge only. Tracks membership for restore via splitLightShadow.
---- Extra light ids passed as varargs after primary lightId.
-function FS25E_ShadowManager.mergeLightShadows(lightId, ...)
-    if lightId == nil then
-        return false, "lightId required"
-    end
-    if FS25E_CapabilityRegistry == nil or not FS25E_CapabilityRegistry.allowsApply("merge-light-shadows") then
-        return false, "merge not allowed"
-    end
-    local mergeFn = FS25E_CapabilityApplier.resolveGlobal("mergeLightShadows")
-    if type(mergeFn) ~= "function" then
-        FS25E_CapabilityRegistry.reject("merge-light-shadows", "mergeLightShadows not a function")
-        return false, "mergeLightShadows not a function"
-    end
-
-    local others = { ... }
-    local ok, err = pcall(function()
-        if #others == 0 then
-            mergeFn(lightId)
-        else
-            mergeFn(lightId, unpack(others))
-        end
-    end)
-    if not ok then
-        FS25E_CapabilityRegistry.reject("merge-light-shadows", "merge pcall failed: " .. tostring(err))
-        return false, err
-    end
-
-    mergedLights[lightId] = true
-    for i = 1, #others do
-        mergedLights[others[i]] = true
-    end
-
-    if FS25E_SettingsCache ~= nil then
-        local key = "merge-light-shadows|" .. tostring(lightId)
-        FS25E_SettingsCache.captureOriginal(key, false)
-        local e = FS25E_SettingsCache.get(key)
-        if e ~= nil then
-            e.needsCalibration = true
-            e.applyMode = FS25E_SettingsCache.APPLY_MODE.SESSION
-            e.current = true
-        end
-    end
-    if FS25E_RestoreManager ~= nil and FS25E_RestoreManager.registerCapabilityRestore ~= nil then
-        FS25E_RestoreManager.registerCapabilityRestore("merge-light-shadows|" .. tostring(lightId))
-    end
-    -- Also record in applier applied table for generic restoreAll path
-    if FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.getApplied ~= nil then
-        local applied = FS25E_CapabilityApplier.getApplied()
-        applied["merge-light-shadows|" .. tostring(lightId)] = {
-            capabilityId = "merge-light-shadows",
-            setterName = "mergeLightShadows",
-            getterName = "hasMergedShadow",
-            prefixArgs = { lightId },
-            original = false,
-            hadGetter = true,
-            appliedValue = true,
-            restoreStrategy = "splitLightShadow",
-        }
-    end
-
-    FS25E_Debug.info("ShadowManager", string.format("merged shadows primary=%s (tracked for split restore)", tostring(lightId)))
-    return true, nil
-end
-
-function FS25E_ShadowManager.splitLightShadow(lightId)
-    if lightId == nil then
-        return false, "lightId required"
-    end
-    local splitFn = FS25E_CapabilityApplier.resolveGlobal("splitLightShadow")
-    if type(splitFn) ~= "function" then
-        return false, "splitLightShadow not a function"
-    end
-    local ok, err = pcall(splitFn, lightId)
-    if not ok then
-        FS25E_Debug.warning("ShadowManager", "splitLightShadow failed: " .. tostring(err))
-        return false, err
-    end
-    mergedLights[lightId] = nil
-    return true, nil
-end
-
---- Restore tracked merges (split) then global shadow caps via CapabilityApplier.
-function FS25E_ShadowManager.restoreAll()
-    FS25E_Debug.info("ShadowManager", "restoreAll begin")
-    local ids = {}
-    for lightId in pairs(mergedLights) do
-        ids[#ids + 1] = lightId
-    end
-    for i = 1, #ids do
-        FS25E_ShadowManager.splitLightShadow(ids[i])
-    end
-    mergedLights = {}
-    -- Global / per-light setter restores handled by CapabilityApplier.restoreAll
-    FS25E_Debug.info("ShadowManager", "restoreAll done (splits + defer to CapabilityApplier)")
-end
-
-function FS25E_ShadowManager.getMergedLights()
-    return mergedLights
-end
-
---- Thin public dump helper for smoke / console (same table as getMergedLights).
-function FS25E_ShadowManager.getTrackedMerges()
-    return mergedLights
-end
-
-function FS25E_ShadowManager.isInitialized()
-    return initialized
-end
-
---- Optional preset stub — only runs when GraphicsGovernor enables apply.
-function FS25E_ShadowManager.applyPresetStub(preset)
-    FS25E_Debug.info("ShadowManager", "applyPresetStub name=" .. tostring(preset) .. " (no-op unless explicitly invoked)")
-    return true
-end
+function M.getMergedLights() return mergedLights end
+function M.getTrackedMerges() return mergedLights end
+function M.applyPresetStub() return false,"FS25E_warning_lightApiUnavailable" end

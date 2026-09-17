@@ -77,7 +77,7 @@ function EnhancedPlaceableLightsProbe:onLoad(savegame)
                 FS25E_LightDiscovery.trySoftApplyForOwner("placeable", self)
             end
         end
-        FS25E_Debug.info(LOG, string.format(
+        FS25E_Debug.debug(LOG, string.format(
             "onLoad discovered=%d profile=%s softApply=%s",
             spec.discovered,
             tostring(spec.activeProfile),

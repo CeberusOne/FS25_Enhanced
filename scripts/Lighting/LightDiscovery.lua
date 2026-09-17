@@ -19,6 +19,62 @@ local profileSubscribed = false
 local consoleRegistered = false
 local typeHookRegistered = false
 
+-- PlaceableLights entries may be transform groups. Only LIGHT_SOURCE nodes may
+-- be passed to getLight*/setLight*; pcall does not suppress native type errors.
+function FS25E_LightDiscovery.isLightSource(node)
+    if type(node)~='number' or node==0 or type(entityExists)~='function'
+        or type(getHasClassId)~='function' or not ClassIds or ClassIds.LIGHT_SOURCE==nil then return false end
+    local ok,alive=pcall(entityExists,node)
+    if not ok or not alive then return false end
+    local checked,light=pcall(getHasClassId,node,ClassIds.LIGHT_SOURCE)
+    return checked and light==true
+end
+
+local function resolveSources(entry)
+    local declared=entry.realLight and entry.realLight.lightSources
+    if type(declared)=='table' then return declared end
+    if entry.sourceNodes then return entry.sourceNodes end
+    local found,seen={},{}
+    local queue={{node=entry.node,depth=0}}; local head=1
+    -- Bounded walk of the specialization's own light group, never the scene root.
+    while head<=#queue and head<=512 do
+        local current=queue[head];head=head+1
+        local node=current.node
+        if type(node)=='number' and node~=0 and not seen[node] then
+            seen[node]=true
+            local ok,alive=pcall(entityExists,node)
+            if ok and alive then
+                if FS25E_LightDiscovery.isLightSource(node) then found[#found+1]=node end
+                if current.depth<16 and type(getNumOfChildren)=='function' and type(getChildAt)=='function' then
+                    local counted,n=pcall(getNumOfChildren,node)
+                    if counted and type(n)=='number' then for index=0,math.min(n,512)-1 do
+                        if #queue>=512 then break end
+                        local read,child=pcall(getChildAt,node,index)
+                        if read and child then queue[#queue+1]={node=child,depth=current.depth+1} end
+                    end end
+                end
+            end
+        end
+    end
+    entry.sourceNodes=found
+    return found
+end
+
+local function sourceVisible(node,root)
+    if type(getVisibility)~='function' then return false end
+    local current=node
+    for _=1,32 do
+        local ok,visible=pcall(getVisibility,current)
+        if not ok or visible~=true then return false end
+        if current==root then return true end
+        if type(getParent)~='function' then return true end
+        local read,parent=pcall(getParent,current)
+        if not read or not parent or parent==0 or parent==current then return true end
+        current=parent
+    end
+    return false
+end
+
 local function ownerKey(kind, owner)
     if owner == nil then
         return nil
@@ -79,8 +135,10 @@ function FS25E_LightDiscovery.reset()
 end
 
 function FS25E_LightDiscovery.setSoftApplyEnabled(enabled)
-    softApplyEnabled = enabled == true
-    FS25E_Debug.info(LOG, "setSoftApplyEnabled=" .. tostring(softApplyEnabled))
+    -- Legacy persisted flags must never create hidden shadow writes on load.
+    -- Explicit user controls/presets use LightTuning's request mask instead.
+    softApplyEnabled = false
+    FS25E_Debug.info(LOG, "legacy softApply disabled; explicit controls required")
 end
 
 function FS25E_LightDiscovery.isSoftApplyEnabled()
@@ -95,6 +153,11 @@ function FS25E_LightDiscovery.registerLight(info)
     local kind = info.kind or "unknown"
     local profile = info.profile
     local handle = makeHandle(kind, info.owner, info.node, profile)
+    if entries[handle] ~= nil then
+        entries[handle].realLight = info.realLight or entries[handle].realLight
+        entries[handle].sourceNodes=nil
+        return handle
+    end
     local high = isHighProfilePreferred(info.owner)
     local active = true
     if profile == "high" then
@@ -109,6 +172,7 @@ function FS25E_LightDiscovery.registerLight(info)
         owner = info.owner,
         ownerId = info.owner and (info.owner.id or info.owner.rootNode) or nil,
         node = info.node,
+        realLight = info.realLight,
         profile = profile,
         groupIndex = info.groupIndex,
         bucket = info.bucket,
@@ -126,7 +190,7 @@ function FS25E_LightDiscovery.registerLight(info)
     end
 
     -- Feed ShadowManager stub list for later manager queries (ids only; no apply).
-    if FS25E_ShadowManager ~= nil and FS25E_ShadowManager.registerLightId ~= nil then
+    if FS25E_LightDiscovery.isLightSource(info.node) and FS25E_ShadowManager ~= nil and FS25E_ShadowManager.registerLightId ~= nil then
         pcall(FS25E_ShadowManager.registerLightId, info.node)
     end
 
@@ -156,6 +220,7 @@ function FS25E_LightDiscovery.collectFromVehicle(vehicle)
                                     kind = "vehicle",
                                     owner = vehicle,
                                     node = realLight.node,
+                                    realLight = realLight,
                                     profile = profileName,
                                     bucket = bucketName,
                                 })
@@ -171,7 +236,9 @@ function FS25E_LightDiscovery.collectFromVehicle(vehicle)
         FS25E_Debug.warning(LOG, "collectFromVehicle failed: " .. tostring(err))
         return 0
     end
-    FS25E_Debug.info(LOG, string.format("vehicle collected=%d highProfile=%s",
+    -- Per-object discovery runs for every spawned vehicle/placeable. Keep the
+    -- per-object trail on the debug channel; totals are in every LiveApply line.
+    FS25E_Debug.debug(LOG, string.format("vehicle collected=%d highProfile=%s",
         count, tostring(isHighProfilePreferred(vehicle))))
     return count
 end
@@ -198,6 +265,7 @@ function FS25E_LightDiscovery.collectFromPlaceable(placeable)
                             kind = "placeable",
                             owner = placeable,
                             node = realLight.node,
+                            realLight = realLight,
                             profile = profileName,
                             groupIndex = realLight.groupIndex,
                         })
@@ -211,68 +279,15 @@ function FS25E_LightDiscovery.collectFromPlaceable(placeable)
         FS25E_Debug.warning(LOG, "collectFromPlaceable failed: " .. tostring(err))
         return 0
     end
-    FS25E_Debug.info(LOG, string.format("placeable collected=%d highProfile=%s",
+    FS25E_Debug.debug(LOG, string.format("placeable collected=%d highProfile=%s",
         count, tostring(isHighProfilePreferred(placeable))))
     return count
 end
 
-local function capabilityConfirmed(capabilityId)
-    if FS25E_CapabilityRegistry == nil or FS25E_CapabilityRegistry.allowsApply == nil then
-        return false
-    end
-    local ok, allowed = pcall(FS25E_CapabilityRegistry.allowsApply, capabilityId)
-    return ok and allowed == true
-end
-
---- Soft-Apply path: ONLY when explicitly enabled AND capability CONFIRMED.
---- Default probe never calls this. Uses ShadowManager priority/map/soft APIs only.
+-- Old save flags and specialization load callbacks never apply rendering settings.
+-- Only explicit control/preset requests may reach LightTuning's native writers.
 function FS25E_LightDiscovery.trySoftApplyForOwner(kind, owner)
-    if not softApplyEnabled then
-        return 0
-    end
-    if owner == nil then
-        return 0
-    end
-    local okKey = ownerKey(kind, owner)
-    local handles = okKey and byOwner[okKey] or nil
-    if handles == nil then
-        return 0
-    end
-    if FS25E_ShadowManager == nil then
-        return 0
-    end
-
-    local applied = 0
-    for i = 1, #handles do
-        local entry = entries[handles[i]]
-        if entry ~= nil and entry.active and entry.node ~= nil and not entry.softApplied then
-            local node = entry.node
-            -- Only CONFIRMED shadow soft/priority/map caps; never EXPERIMENTAL.
-            local did = false
-            if capabilityConfirmed("light-shadow-priority")
-                and FS25E_ShadowManager.setLightShadowPriority ~= nil then
-                local ok = pcall(FS25E_ShadowManager.setLightShadowPriority, node, 0)
-                if ok then
-                    did = true
-                end
-            end
-            if capabilityConfirmed("light-soft-shadow-size")
-                and FS25E_ShadowManager.setLightSoftShadowSize ~= nil then
-                local ok = pcall(FS25E_ShadowManager.setLightSoftShadowSize, node, 0)
-                if ok then
-                    did = true
-                end
-            end
-            if did then
-                entry.softApplied = true
-                applied = applied + 1
-            end
-        end
-    end
-    if applied > 0 then
-        FS25E_Debug.info(LOG, string.format("softApply applied=%d (explicit flag; CONFIRMED only)", applied))
-    end
-    return applied
+    return 0
 end
 
 --- Restore soft-applied caps for an owner via CapabilityApplier / ShadowManager originals.
@@ -331,6 +346,9 @@ function FS25E_LightDiscovery.unregisterOwner(kind, owner)
         return
     end
     FS25E_LightDiscovery.restoreSoftForOwner(kind, owner)
+    if FS25E_LightTuning ~= nil then
+        FS25E_LightTuning.restoreOwner(owner)
+    end
     local handles = byOwner[okKey]
     if handles ~= nil then
         for i = 1, #handles do
@@ -338,7 +356,7 @@ function FS25E_LightDiscovery.unregisterOwner(kind, owner)
         end
     end
     byOwner[okKey] = nil
-    FS25E_Debug.info(LOG, "unregisterOwner " .. tostring(okKey))
+    FS25E_Debug.debug(LOG, "unregisterOwner " .. tostring(okKey))
 end
 
 --- Re-resolve active low/high after lights profile change (nodes stay; active flags swap).
@@ -425,6 +443,53 @@ end
 
 function FS25E_LightDiscovery.getEntries()
     return entries
+end
+
+-- Enumerate only light sources owned by the documented specializations. The
+-- profile flag alone is not a lamp switch: RealLight:setState uses visibility.
+-- Compound child sources inherit the root's effective state.
+function FS25E_LightDiscovery.getRuntimeEntries()
+    local result, seen = {}, {}
+    if type(entityExists)~='function' then return result end
+    for _, entry in pairs(entries) do
+        local high = isHighProfilePreferred(entry.owner)
+        local profileActive = entry.profile == nil or (entry.profile == "high" and high)
+            or (entry.profile == "low" and not high)
+        local aliveOk,rootAlive=pcall(entityExists,entry.node)
+        local rootVisible = aliveOk and rootAlive==true
+        if rootVisible and type(getVisibility) == "function" then
+            local ok, value = pcall(getVisibility, entry.node)
+            rootVisible = ok and value == true
+        end
+        local sources = resolveSources(entry)
+        for _, node in ipairs(sources) do
+            local exists = node ~= nil and node ~= 0
+            if exists and type(entityExists) == "function" then
+                local ok, value = pcall(entityExists, node)
+                exists = ok and value == true
+            end
+            if exists and FS25E_LightDiscovery.isLightSource(node) then
+                local item = {}
+                for key, value in pairs(entry) do item[key] = value end
+                item.node = node
+                item.profileActive = profileActive
+                item.active = profileActive and rootVisible
+                if item.active and type(getVisibility) == "function" then
+                    item.active = sourceVisible(node,entry.node)
+                end
+                local previous=seen[node]
+                if not previous then
+                    result[#result + 1] = item
+                    seen[node]=#result
+                elseif item.active and not result[previous].active then
+                    -- One native node may be referenced by both quality profiles.
+                    -- pairs() order must never let its inactive alias hide it.
+                    result[previous]=item
+                end
+            end
+        end
+    end
+    return result
 end
 
 function FS25E_LightDiscovery.getCounts()

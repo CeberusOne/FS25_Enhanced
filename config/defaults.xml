@@ -6,7 +6,7 @@
 -->
 <defaults version="0.2">
     <setting name="enabled" type="bool" value="false"/>
-    <setting name="adaptive" type="bool" value="true"/>
+    <setting name="adaptive" type="bool" value="false"/>
     <setting name="targetFps" type="int" value="60"/>
     <setting name="preset" type="string" value="Balanced"/>
     <setting name="expertMode" type="bool" value="false"/>
@@ -14,7 +14,7 @@
     <setting name="expertSoftApply" type="bool" value="false"/>
     <setting name="expertShadowFocusBox" type="bool" value="false"/>
     <setting name="expertFastShadowUpdate" type="bool" value="false"/>
-    <setting name="expertRainShallowWater" type="bool" value="false"/>
+    <setting name="rainShallowWater" type="bool" value="false"/>
     <setting name="expertSsrQuality" type="bool" value="false"/>
     <setting name="expertAtmosphereQuality" type="bool" value="false"/>
     <setting name="expertDrsQuality" type="bool" value="false"/>

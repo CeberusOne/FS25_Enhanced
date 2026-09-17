@@ -6,6 +6,7 @@ FS25E_CapabilityRegistry = {}
 
 FS25E_CapabilityRegistry.STATUS = {
     CONFIRMED = "CONFIRMED",
+    GIANTS_USED = "GIANTS_USED",
     GATED = "GATED",
     EXPERIMENTAL = "EXPERIMENTAL",
     ASSET_DEPENDENT = "ASSET_DEPENDENT",
@@ -29,6 +30,7 @@ FS25E_CapabilityRegistry.RESULT = {
 }
 
 local capabilities = {} -- id -> entry
+local lastAppliedLine = {} -- id -> last logged APPLIED line (drag de-duplication)
 local expertMode = false
 local lastResults = {}
 local listeners = { apply = {}, reject = {}, skip = {} }
@@ -145,6 +147,16 @@ local function storeEntry(entry)
         restoreStrategy = entry.restoreStrategy,
         scope = entry.scope,
         notes = entry.notes,
+        module = entry.module or entry.scope or 'UNKNOWN',
+        source = entry.source or entry.notes or 'UNVERIFIED',
+        engineVersion = entry.engineVersion or 'FS25 / installed SDK; see docs/RESEARCH.md',
+        platforms = entry.platforms or 'Windows PC; other platforms NOT_TESTED',
+        performanceImpact = entry.performanceImpact or 'UNKNOWN; not measured',
+        compatibilityRisk = entry.compatibilityRisk or 'Runtime API/asset dependent',
+        testStatus = entry.testStatus or 'INGAME_NOT_TESTED',
+        sideEffects = entry.sideEffects or 'Rendering quality and frame-time changes; see module research',
+        requiresReload = entry.applyMode == 'RELOAD',
+        requiresRestart = entry.applyMode == 'RESTART',
         needsCalibration = true,
         baseStatus = parseStatus(entry.status), -- preserve matrix status across APPLIED/REJECTED churn
     }
@@ -223,6 +235,7 @@ end
 function FS25E_CapabilityRegistry.load(modDirectory)
     capabilities = {}
     lastResults = {}
+    lastAppliedLine = {}
     local path = (modDirectory or "") .. "config/capabilityProfiles.xml"
     FS25E_Debug.info("CapabilityRegistry", "load from " .. path)
 
@@ -257,6 +270,10 @@ end
 
 function FS25E_CapabilityRegistry.get(id)
     return capabilities[id]
+end
+
+function FS25E_CapabilityRegistry.registerDescriptor(entry)
+    return storeEntry(entry)
 end
 
 function FS25E_CapabilityRegistry.getStatus(id)
@@ -303,42 +320,13 @@ end
 --- expertMode=true  → also EXPERIMENTAL | GATED | ASSET_DEPENDENT (and their APPLIED).
 --- REJECTED / UNSUPPORTED never allowed.
 --- Optional 2nd arg: expertMode bool. If omitted, reads SettingsSchema.expertMode (default false).
-function FS25E_CapabilityRegistry.allowsApply(id, expertMode)
-    local c = capabilities[id]
-    if c == nil then
-        return false
-    end
-    local s = c.status
-    if s == FS25E_CapabilityRegistry.STATUS.REJECTED
-        or s == FS25E_CapabilityRegistry.STATUS.UNSUPPORTED then
-        return false
-    end
-
-    local expert = resolveExpertMode(expertMode)
-    local base = c.baseStatus or s
-
-    -- CONFIRMED always (Wave1). APPLIED that originated as CONFIRMED stays Wave1-safe.
-    if s == FS25E_CapabilityRegistry.STATUS.CONFIRMED then
-        return true
-    end
-    if s == FS25E_CapabilityRegistry.STATUS.APPLIED then
-        if base == FS25E_CapabilityRegistry.STATUS.CONFIRMED then
-            return true
-        end
-        -- Expert-origin APPLIED only when expertMode still on
-        return expert
-            and (base == FS25E_CapabilityRegistry.STATUS.EXPERIMENTAL
-                or base == FS25E_CapabilityRegistry.STATUS.GATED
-                or base == FS25E_CapabilityRegistry.STATUS.ASSET_DEPENDENT)
-    end
-
-    if not expert then
-        return false
-    end
-
-    return s == FS25E_CapabilityRegistry.STATUS.EXPERIMENTAL
-        or s == FS25E_CapabilityRegistry.STATUS.GATED
-        or s == FS25E_CapabilityRegistry.STATUS.ASSET_DEPENDENT
+function FS25E_CapabilityRegistry.allowsApply(id)
+    local c=capabilities[id]
+    if not c then return false end
+    -- Native contracts and assets determine availability, never user tiers.
+    local s=c.status
+    return s=='CONFIRMED' or s=='GIANTS_USED' or s=='APPLIED'
+        or s=='EXPERIMENTAL' or s=='GATED' or s=='ASSET_DEPENDENT'
 end
 
 --- Convenience: same as allowsApply(id, true) semantics when expertMode setting is on.
@@ -349,6 +337,7 @@ end
 function FS25E_CapabilityRegistry.isUsable(id)
     local s = FS25E_CapabilityRegistry.getStatus(id)
     return s == FS25E_CapabilityRegistry.STATUS.CONFIRMED
+        or s == FS25E_CapabilityRegistry.STATUS.GIANTS_USED
         or s == FS25E_CapabilityRegistry.STATUS.GATED
         or s == FS25E_CapabilityRegistry.STATUS.EXPERIMENTAL
         or s == FS25E_CapabilityRegistry.STATUS.ASSET_DEPENDENT
@@ -356,6 +345,7 @@ function FS25E_CapabilityRegistry.isUsable(id)
 end
 
 function FS25E_CapabilityRegistry.reject(id, reason)
+    lastAppliedLine[id] = nil -- a later recovery must be reported again
     local c = capabilities[id]
     if c == nil then
         FS25E_CapabilityRegistry.register(id, "REJECTED", nil, reason)
@@ -381,10 +371,18 @@ function FS25E_CapabilityRegistry.markApplied(id, detail)
         c.status = FS25E_CapabilityRegistry.STATUS.APPLIED
     end
     local payload = storeResult(id, FS25E_CapabilityRegistry.RESULT.APPLIED, nil, detail)
-    FS25E_Debug.info("CapabilityRegistry", string.format(
+    -- A held slider re-applies the same capability every frame. Report the
+    -- transition into APPLIED once; repeats stay on the debug channel.
+    local line = string.format(
         "APPLIED capabilityId=%s baseStatus=%s detail=%s",
         tostring(id), tostring(c and c.baseStatus), tostring(detail or "")
-    ))
+    )
+    if lastAppliedLine[id] ~= line then
+        lastAppliedLine[id] = line
+        FS25E_Debug.info("CapabilityRegistry", line)
+    else
+        FS25E_Debug.debug("CapabilityRegistry", line)
+    end
     emit("apply", id, payload)
     return payload
 end

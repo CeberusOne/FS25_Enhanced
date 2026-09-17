@@ -20,8 +20,8 @@ local schema = {
       optionI18nKeys = { Off = "FS25E_PRESET_OFF", Performance = "FS25E_PRESET_PERFORMANCE", Balanced = "FS25E_PRESET_BALANCED", Quality = "FS25E_PRESET_QUALITY", Cinematic = "FS25E_PRESET_CINEMATIC" },
       section = "simple", expertOnly = false, applyMode = "SLOW", gui = "multiText" },
     { id = "targetFps", type = "enum", l10n = "FS25E_SETTING_TARGET_FPS", tooltip = "FS25E_SETTING_TARGET_FPS_TOOLTIP", default = "60",
-      options = { "30", "40", "50", "60", "unlimited" },
-      optionI18nKeys = { ["30"] = "FS25E_FPS_30", ["40"] = "FS25E_FPS_40", ["50"] = "FS25E_FPS_50", ["60"] = "FS25E_FPS_60", unlimited = "FS25E_FPS_UNLIMITED" },
+      options = { "30", "60", "90", "120" },
+      optionI18nKeys = { ["30"] = "FS25E_FPS_30", ["60"] = "FS25E_FPS_60", ["90"] = "FS25E_FPS_90", ["120"] = "FS25E_FPS_120" },
       section = "simple", expertOnly = false, applyMode = "MED", gui = "multiText" },
     { id = "adaptive", type = "bool", l10n = "FS25E_SETTING_ADAPTIVE", tooltip = "FS25E_SETTING_ADAPTIVE_TOOLTIP", default = false, section = "simple", expertOnly = false, applyMode = "MED", gui = "binary" },
 
@@ -52,7 +52,6 @@ local schema = {
     { id = "expertSoftApply", type = "bool", l10n = "FS25E_SETTING_EXPERT_SOFT_APPLY", tooltip = "FS25E_SETTING_EXPERT_SOFT_APPLY_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
     { id = "expertShadowFocusBox", type = "bool", l10n = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX", tooltip = "FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "shadow-focus-box" },
     { id = "expertFastShadowUpdate", type = "bool", l10n = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE", tooltip = "FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "fast-shadow-update" },
-    { id = "expertRainShallowWater", type = "bool", l10n = "FS25E_SETTING_EXPERT_RAIN_SHALLOW", tooltip = "FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary", capId = "rain-shallow-water-simulation" },
     { id = "expertSsrQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_SSR", tooltip = "FS25E_SETTING_EXPERT_SSR_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
     { id = "expertAtmosphereQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_ATMOSPHERE", tooltip = "FS25E_SETTING_EXPERT_ATMOSPHERE_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
     { id = "expertDrsQuality", type = "bool", l10n = "FS25E_SETTING_EXPERT_DRS", tooltip = "FS25E_SETTING_EXPERT_DRS_TOOLTIP", default = false, section = "expert", expertOnly = true, applyMode = "SESSION", gui = "binary" },
@@ -120,7 +119,7 @@ function FS25E_SettingsSchema.set(id, value)
     end
     -- Soft-Apply trigger only when a value changes and Soft-Apply is armed (never on init path)
     if prev ~= value and FS25E_ExperimentalCaps ~= nil and FS25E_ExperimentalCaps.onSettingsChanged ~= nil then
-        if id == "expertMode" or id == "expertSoftApply" or string.sub(tostring(id), 1, 6) == "expert" then
+        if id == "expertMode" or id == "expertSoftApply" or id == "rainShallowWater" or string.sub(tostring(id), 1, 6) == "expert" then
             local expertMode = FS25E_ModSettings.get("expertMode") == true
             local expertSoft = FS25E_ModSettings.get("expertSoftApply") == true
             if expertMode and expertSoft then

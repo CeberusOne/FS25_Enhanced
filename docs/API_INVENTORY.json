@@ -1,0 +1,2803 @@
+{
+  "date": "2026-09-11",
+  "gdnVersion": "1.20.0.0",
+  "sdkSha256": "94bcb4a13a9b8b9ed5067992ca50e156fc9ba82d1a58730b39205661835ec12b",
+  "functions": [
+    {
+      "name": "createFoliageBendingRectangle",
+      "category": "Foliage",
+      "input": [
+        {
+          "name": "foliageBendingSystemId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "minX",
+          "type": "float",
+          "desc": ""
+        },
+        {
+          "name": "maxX",
+          "type": "float",
+          "desc": ""
+        },
+        {
+          "name": "minZ",
+          "type": "float",
+          "desc": ""
+        },
+        {
+          "name": "maxZ",
+          "type": "float",
+          "desc": ""
+        },
+        {
+          "name": "yOffset",
+          "type": "float",
+          "desc": ""
+        },
+        {
+          "name": "centerTransformid",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "rectangleId",
+          "type": "integer",
+          "desc": ""
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "createShallowWaterSimulation",
+      "category": "ShallowWaterSimulation",
+      "input": [
+        {
+          "name": "name",
+          "type": "string",
+          "desc": "name"
+        },
+        {
+          "name": "gridWidth",
+          "type": "integer",
+          "desc": "Number of simulation grid cells in the x direction"
+        },
+        {
+          "name": "gridHeight",
+          "type": "integer",
+          "desc": "Number of simulation grid cells in the y direction"
+        },
+        {
+          "name": "physicalWidth",
+          "type": "float",
+          "desc": "Physical (world) width of the whole grid"
+        },
+        {
+          "name": "physicalHeight",
+          "type": "float",
+          "desc": "Physical (world) height/length of the whole grid"
+        },
+        {
+          "name": "useHeightDisplacement",
+          "type": "boolean?",
+          "desc": "[optional] Determines whether the simulation will make use of the height displacement of the water surface for rendering. Setting this to false assumes the output will only be used to modify water surface normals. Defaults to false"
+        }
+      ],
+      "output": [
+        {
+          "name": "shallowWaterSimulationId",
+          "type": "entityId",
+          "desc": "ID of the created simulation"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Water/WaterManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "createXMLFile",
+      "category": "XML",
+      "input": [
+        {
+          "name": "objectName",
+          "type": "string",
+          "desc": "objectName"
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "desc": "filename"
+        },
+        {
+          "name": "rootNodeName",
+          "type": "string",
+          "desc": "rootNodeName"
+        }
+      ],
+      "output": [
+        {
+          "name": "xmlId",
+          "type": "entityId",
+          "desc": "xmlId"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/CalibrationManager.lua",
+        "scripts/Core/ModSettings.lua",
+        "scripts/Core/VisualProfiles.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "delete",
+      "category": "Entity",
+      "input": [
+        {
+          "name": "objectId",
+          "type": "entityId",
+          "desc": "objectId"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/FS25_Enhanced.lua",
+        "scripts/Core/Localization.lua",
+        "scripts/UI/FS25E_GraphicsMenuIntegration.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "destroyFoliageBendingObject",
+      "category": "Foliage",
+      "input": [
+        {
+          "name": "foliageBendingSystemId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "objectId",
+          "type": "integer",
+          "desc": "id of the bending object, such as returned by createFoliageBendingRectangle"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "entityExists",
+      "category": "Entity",
+      "input": [
+        {
+          "name": "objectId",
+          "type": "entityId",
+          "desc": "objectId"
+        }
+      ],
+      "output": [
+        {
+          "name": "doesExist",
+          "type": "boolean",
+          "desc": "doesExist"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/SceneAnalyzer.lua",
+        "scripts/Lighting/LightDiscovery.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Materials/MaterialManager.lua",
+        "scripts/Water/WaterManager.lua",
+        "scripts/Weather/ParticleManager.lua",
+        "scripts/Weather/WeatherManager.lua",
+        "scripts/World/FoliageManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getCamera",
+      "category": "Camera",
+      "input": [],
+      "output": [
+        {
+          "name": "cameraId",
+          "type": "entityId",
+          "desc": "cameraId"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/SceneAnalyzer.lua",
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getChildAt",
+      "category": "Node",
+      "input": [
+        {
+          "name": "objectId",
+          "type": "entityId",
+          "desc": "objectId"
+        },
+        {
+          "name": "index",
+          "type": "integer",
+          "desc": "index "
+        }
+      ],
+      "output": [
+        {
+          "name": "childId",
+          "type": "entityId",
+          "desc": "childId"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getEmitCountScale",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemId",
+          "type": "entityId",
+          "desc": "particleSystemId"
+        }
+      ],
+      "output": [
+        {
+          "name": "countScale",
+          "type": "float",
+          "desc": "countScale"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getEmitterShapeVelocityScale",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemId",
+          "type": "entityId",
+          "desc": "particleSystemId"
+        }
+      ],
+      "output": [
+        {
+          "name": "shape",
+          "type": "float",
+          "desc": "velocity scale"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getFovY",
+      "category": "Camera",
+      "input": [
+        {
+          "name": "cameraId",
+          "type": "entityId",
+          "desc": "id of the camera"
+        }
+      ],
+      "output": [
+        {
+          "name": "fovY",
+          "type": "float",
+          "desc": "field of view angle (radian)"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/SceneAnalyzer.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getHasClassId",
+      "category": "Entity",
+      "input": [
+        {
+          "name": "objectId",
+          "type": "entityId",
+          "desc": "objectId"
+        },
+        {
+          "name": "classId",
+          "type": "integer",
+          "desc": "one of enum ClassIds"
+        }
+      ],
+      "output": [
+        {
+          "name": "hasClassId",
+          "type": "boolean",
+          "desc": "hasClassId"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getHasShaderParameter",
+      "category": "Shape",
+      "input": [
+        {
+          "name": "shapeId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "parameterName",
+          "type": "string",
+          "desc": ""
+        },
+        {
+          "name": "materialIndex",
+          "type": "integer?",
+          "desc": "material index or a negative value to set to all materials [optional, default=-1]"
+        }
+      ],
+      "output": [
+        {
+          "name": "hasParam",
+          "type": "boolean",
+          "desc": "hasParam"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightCastingShadowMap",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "lightId"
+        }
+      ],
+      "output": [
+        {
+          "name": "doesCastShadowMap",
+          "type": "boolean",
+          "desc": "doesCastShadowMap"
+        },
+        {
+          "name": "depthMapResolution",
+          "type": "integer",
+          "desc": "depthMapResolution"
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightConeAngle",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "cone",
+          "type": "float",
+          "desc": "angle in radian"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightConeAngleFromIESProfile",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "cone",
+          "type": "float",
+          "desc": "angle in radian"
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/ExperimentalCaps.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightDropOff",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "dropoff",
+          "type": "float",
+          "desc": ""
+        }
+      ],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightIESProfile",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "'*.ies'",
+          "type": "string",
+          "desc": "filepath "
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightRange",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "lightId"
+        }
+      ],
+      "output": [
+        {
+          "name": "range",
+          "type": "float",
+          "desc": "range"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightScatteringIntensity",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "scattering",
+          "type": "float",
+          "desc": "intensity"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightShadowExtrusionDistance",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "extrusion",
+          "type": "float",
+          "desc": "distance"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightShadowPriority",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source"
+        }
+      ],
+      "output": [
+        {
+          "name": "shadowPriority",
+          "type": "float",
+          "desc": "shadow priority value of the light source"
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightSoftShadowDepthBiasFactor",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source"
+        }
+      ],
+      "output": [
+        {
+          "name": "softShadowBias",
+          "type": "float",
+          "desc": "depth bias factor for soft shadows used by the light source"
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightSoftShadowDistance",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source"
+        }
+      ],
+      "output": [
+        {
+          "name": "softShadowDistance",
+          "type": "float",
+          "desc": "light distance used for the soft shadow"
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightSoftShadowSize",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source"
+        }
+      ],
+      "output": [
+        {
+          "name": "softShadowSize",
+          "type": "float",
+          "desc": "soft shadow light size"
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightType",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "lightId"
+        }
+      ],
+      "output": [
+        {
+          "name": "lightType",
+          "type": "integer",
+          "desc": "one of enum LightType"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getLightUseLightScattering",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "usesLightScattering",
+          "type": "boolean",
+          "desc": ""
+        }
+      ],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getMaterial",
+      "category": "Shape",
+      "input": [
+        {
+          "name": "shapeId",
+          "type": "entityId",
+          "desc": "shapeId"
+        },
+        {
+          "name": "materialIndex",
+          "type": "integer",
+          "desc": "materialIndex"
+        }
+      ],
+      "output": [
+        {
+          "name": "materialId",
+          "type": "integer",
+          "desc": "materialId"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getMaterialCustomShaderFilename",
+      "category": "Rendering",
+      "input": [
+        {
+          "name": "materialId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "customShaderFilename",
+          "type": "string",
+          "desc": "filename of the custom shader"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getMaterialCustomShaderVariation",
+      "category": "Rendering",
+      "input": [
+        {
+          "name": "materialId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "customShaderVariation",
+          "type": "string",
+          "desc": "name of the custom shader variation"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getMaterialGlossMapFilename",
+      "category": "Rendering",
+      "input": [
+        {
+          "name": "materialId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "filename",
+          "type": "string",
+          "desc": "filename"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getMaterialIsAlphaBlended",
+      "category": "Rendering",
+      "input": [
+        {
+          "name": "materialId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "isAlphaBlended",
+          "type": "boolean",
+          "desc": ""
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getMaterialIsAlphaTested",
+      "category": "Rendering",
+      "input": [
+        {
+          "name": "materialId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "isAlphaTested",
+          "type": "boolean",
+          "desc": ""
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getMaterialNormalMapFilename",
+      "category": "Rendering",
+      "input": [
+        {
+          "name": "materialId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [
+        {
+          "name": "filename",
+          "type": "string",
+          "desc": "filename"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getMaxNumOfParticles",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemId",
+          "type": "entityId",
+          "desc": "particleSystemId"
+        }
+      ],
+      "output": [
+        {
+          "name": "maxNumParticles",
+          "type": "integer",
+          "desc": "maximum number of active particles"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getName",
+      "category": "Entity",
+      "input": [
+        {
+          "name": "entityId",
+          "type": "entityId",
+          "desc": "entityId"
+        }
+      ],
+      "output": [
+        {
+          "name": "entityName",
+          "type": "string",
+          "desc": "entityName"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/SceneAnalyzer.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getNumOfChildren",
+      "category": "Node",
+      "input": [
+        {
+          "name": "objectId",
+          "type": "entityId",
+          "desc": "objectId"
+        }
+      ],
+      "output": [
+        {
+          "name": "numOfChildren",
+          "type": "integer",
+          "desc": "numOfChildren"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getNumOfMaterials",
+      "category": "Shape",
+      "input": [
+        {
+          "name": "shapeId",
+          "type": "entityId",
+          "desc": "shapeId"
+        }
+      ],
+      "output": [
+        {
+          "name": "numMaterials",
+          "type": "integer",
+          "desc": "numMaterials"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getParticleSystemLifespan",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemId",
+          "type": "entityId",
+          "desc": "particleSystemId"
+        }
+      ],
+      "output": [
+        {
+          "name": "lifeSpan",
+          "type": "float",
+          "desc": "lifeSpan"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getParticleSystemSpeedRandom",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemEntityId",
+          "type": "entityId",
+          "desc": "particleSystemEntityId"
+        }
+      ],
+      "output": [
+        {
+          "name": "speedRandom",
+          "type": "float",
+          "desc": "speedRandom"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getRainAmountMultiplier",
+      "category": "Rendering",
+      "input": [],
+      "output": [
+        {
+          "name": "multiplier",
+          "type": "float",
+          "desc": "multiplier"
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/VisualControls.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getShaderParameter",
+      "category": "Shape",
+      "input": [
+        {
+          "name": "shapeId",
+          "type": "entityId",
+          "desc": "shapeId"
+        },
+        {
+          "name": "parameterName",
+          "type": "string",
+          "desc": "parameterName"
+        },
+        {
+          "name": "materialIndex",
+          "type": "integer?",
+          "desc": "[optional, default=0]"
+        }
+      ],
+      "output": [
+        {
+          "name": "x",
+          "type": "float",
+          "desc": "x"
+        },
+        {
+          "name": "y",
+          "type": "float",
+          "desc": "y"
+        },
+        {
+          "name": "z",
+          "type": "float",
+          "desc": "z"
+        },
+        {
+          "name": "w",
+          "type": "float",
+          "desc": "w"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getShallowWaterSimulationFoamAccumulationRate",
+      "category": "ShallowWaterSimulation",
+      "input": [
+        {
+          "name": "shallowWaterSimulation",
+          "type": "entityId",
+          "desc": "simulation/id of the shallow water sim to retrieve the texture from"
+        }
+      ],
+      "output": [
+        {
+          "name": "foam",
+          "type": "float",
+          "desc": "accumulation rate"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Water/WaterManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getTextWidth",
+      "category": "Text Rendering",
+      "input": [
+        {
+          "name": "fontSize",
+          "type": "float",
+          "desc": "fontSize"
+        },
+        {
+          "name": "utf8string",
+          "type": "string",
+          "desc": "utf8string"
+        }
+      ],
+      "output": [
+        {
+          "name": "textWidth",
+          "type": "float",
+          "desc": "textWidth"
+        }
+      ],
+      "referencedBy": [
+        "scripts/UI/FS25E_LiveOverlay.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getVisibility",
+      "category": "Node",
+      "input": [
+        {
+          "name": "transformId",
+          "type": "entityId",
+          "desc": "transformId"
+        }
+      ],
+      "output": [
+        {
+          "name": "visibility",
+          "type": "boolean",
+          "desc": "true if node itself is visible"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Lighting/LightDiscovery.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getWorldTranslation",
+      "category": "Node",
+      "input": [
+        {
+          "name": "transformId",
+          "type": "entityId",
+          "desc": "transformId"
+        }
+      ],
+      "output": [
+        {
+          "name": "x",
+          "type": "float",
+          "desc": "x translation"
+        },
+        {
+          "name": "y",
+          "type": "float",
+          "desc": "y translation"
+        },
+        {
+          "name": "z",
+          "type": "float",
+          "desc": "z translation"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/SceneAnalyzer.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getXMLBool",
+      "category": "XML",
+      "input": [
+        {
+          "name": "xmlId",
+          "type": "entityId",
+          "desc": "xmlId"
+        },
+        {
+          "name": "nodePath",
+          "type": "string",
+          "desc": "path to XML element or attribute"
+        }
+      ],
+      "output": [
+        {
+          "name": "value",
+          "type": "boolean",
+          "desc": "value, nil if node does not match 'true' or 'false'"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/ModSettings.lua",
+        "scripts/Core/VisualProfiles.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "getXMLString",
+      "category": "XML",
+      "input": [
+        {
+          "name": "xmlId",
+          "type": "entityId",
+          "desc": "xmlId"
+        },
+        {
+          "name": "nodePath",
+          "type": "string",
+          "desc": "path to XML element or attribute"
+        }
+      ],
+      "output": [
+        {
+          "name": "value",
+          "type": "string",
+          "desc": "value"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/CalibrationManager.lua",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/Localization.lua",
+        "scripts/Core/ModSettings.lua",
+        "scripts/Core/ProfileManager.lua",
+        "scripts/Core/VisualProfiles.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "hasMergedShadow",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source node"
+        }
+      ],
+      "output": [
+        {
+          "name": "has",
+          "type": "boolean",
+          "desc": "merged shadow, yes or no!"
+        }
+      ],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "loadXMLFile",
+      "category": "XML",
+      "input": [
+        {
+          "name": "objectName",
+          "type": "string",
+          "desc": "objectName"
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "desc": "filename"
+        }
+      ],
+      "output": [
+        {
+          "name": "xmlId",
+          "type": "entityId",
+          "desc": "xmlId (0 if failed to load)"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/CalibrationManager.lua",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/Localization.lua",
+        "scripts/Core/ModSettings.lua",
+        "scripts/Core/ProfileManager.lua",
+        "scripts/Core/VisualProfiles.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "localDirectionToWorld",
+      "category": "Node",
+      "input": [
+        {
+          "name": "transformId",
+          "type": "entityId",
+          "desc": "transformId"
+        },
+        {
+          "name": "ldx",
+          "type": "float",
+          "desc": "local direction x"
+        },
+        {
+          "name": "ldy",
+          "type": "float",
+          "desc": "local direction y"
+        },
+        {
+          "name": "ldz",
+          "type": "float",
+          "desc": "local direction z"
+        }
+      ],
+      "output": [
+        {
+          "name": "wdx",
+          "type": "float",
+          "desc": "world direction x"
+        },
+        {
+          "name": "wdy",
+          "type": "float",
+          "desc": "world direction y"
+        },
+        {
+          "name": "wdz",
+          "type": "float",
+          "desc": "world direction z"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/SceneAnalyzer.lua",
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "mergeLightShadows",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "lightId2",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "lightId3",
+          "type": "entityId",
+          "desc": "optional light id 3"
+        },
+        {
+          "name": "lightId4",
+          "type": "entityId",
+          "desc": "optional light id 4"
+        },
+        {
+          "name": "lightId5",
+          "type": "entityId",
+          "desc": "optional light id 5"
+        },
+        {
+          "name": "lightId6",
+          "type": "entityId",
+          "desc": "optional light id 6"
+        },
+        {
+          "name": "lightId7",
+          "type": "entityId",
+          "desc": "optional light id 7"
+        },
+        {
+          "name": "lightId8",
+          "type": "entityId",
+          "desc": "optional light id 8"
+        },
+        {
+          "name": "lightId9",
+          "type": "entityId",
+          "desc": "optional light id 9"
+        },
+        {
+          "name": "lightId10",
+          "type": "entityId",
+          "desc": "optional light id 10"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "config/settingsSchema.stub.lua",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "print",
+      "category": "General",
+      "input": [
+        {
+          "name": "arg1",
+          "type": "any?",
+          "desc": "arg1 [optional]"
+        },
+        {
+          "name": "arg2",
+          "type": "any?",
+          "desc": "arg2 [optional]"
+        },
+        {
+          "name": "arg3",
+          "type": "any?",
+          "desc": "arg3 [optional]"
+        },
+        {
+          "name": "arg4",
+          "type": "any?",
+          "desc": "arg4 [optional]"
+        },
+        {
+          "name": "arg5",
+          "type": "any?",
+          "desc": "arg5 [optional]"
+        },
+        {
+          "name": "arg6",
+          "type": "any?",
+          "desc": "arg6 [optional]"
+        },
+        {
+          "name": "arg7",
+          "type": "any?",
+          "desc": "arg7 [optional]"
+        },
+        {
+          "name": "arg8",
+          "type": "any?",
+          "desc": "arg8 [optional]"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Core/ConsoleCommands.lua",
+        "scripts/Core/Diagnostics.lua",
+        "scripts/Lighting/LightDiscovery.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "renderText",
+      "category": "Text Rendering",
+      "input": [
+        {
+          "name": "x",
+          "type": "float",
+          "desc": "screenspace x [0..1]"
+        },
+        {
+          "name": "y",
+          "type": "float",
+          "desc": "screenspace y [0..1]"
+        },
+        {
+          "name": "fontSize",
+          "type": "float",
+          "desc": "fontSize"
+        },
+        {
+          "name": "string",
+          "type": "string",
+          "desc": "string to render, can contain linebreaks"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/UI/FS25E_HudOverlay.lua",
+        "scripts/UI/FS25E_LiveOverlay.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "saveXMLFile",
+      "category": "XML",
+      "input": [
+        {
+          "name": "xmlId",
+          "type": "entityId",
+          "desc": "xmlId"
+        }
+      ],
+      "output": [
+        {
+          "name": "success",
+          "type": "boolean",
+          "desc": "success"
+        }
+      ],
+      "referencedBy": [
+        "scripts/Core/CalibrationManager.lua",
+        "scripts/Core/ModSettings.lua",
+        "scripts/Core/VisualProfiles.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setEmitCountScale",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemId",
+          "type": "entityId",
+          "desc": "particleSystemId"
+        },
+        {
+          "name": "countScale",
+          "type": "float",
+          "desc": "countScale"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setEmitterShapeVelocityScale",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemId",
+          "type": "entityId",
+          "desc": "particleSystemId"
+        },
+        {
+          "name": "shape",
+          "type": "float",
+          "desc": "velocity scale"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setFastShadowUpdate",
+      "category": "Rendering",
+      "input": [
+        {
+          "name": "cameraId",
+          "type": "entityId",
+          "desc": "cameraId"
+        },
+        {
+          "name": "fastUpdate",
+          "type": "boolean",
+          "desc": "set true for fast shadow update or false for far shadows"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightConeAngle",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "cone",
+          "type": "float",
+          "desc": "angle"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightDropOff",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "dropoff",
+          "type": "float",
+          "desc": ""
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightIESProfile",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "'*.ies'",
+          "type": "string",
+          "desc": "filepath "
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/ExperimentalCaps.lua",
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightRange",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "lightId"
+        },
+        {
+          "name": "range",
+          "type": "float",
+          "desc": "range"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightScatteringIntensity",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "scattering",
+          "type": "float",
+          "desc": "intensity"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightShadowExtrusionDistance",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "extrusion",
+          "type": "float",
+          "desc": "distance"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightShadowMap",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "lightId"
+        },
+        {
+          "name": "castShowMap",
+          "type": "boolean",
+          "desc": ""
+        },
+        {
+          "name": "depthMapResolution",
+          "type": "integer",
+          "desc": ""
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightShadowPriority",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source"
+        },
+        {
+          "name": "shadowPriority",
+          "type": "float",
+          "desc": "shadow priority value of the light source"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/SettingsAPI.lua",
+        "scripts/Lighting/LightDiscovery.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightSoftShadowDepthBiasFactor",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source"
+        },
+        {
+          "name": "softShadowDistance",
+          "type": "float",
+          "desc": "depth bias factor for soft shadows used by the light source"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/SettingsAPI.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightSoftShadowDistance",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source"
+        },
+        {
+          "name": "softShadowDistance",
+          "type": "float",
+          "desc": "Distance (in meters) of the fake area light source to the ground"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/SettingsAPI.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightSoftShadowSize",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": "id of the light source"
+        },
+        {
+          "name": "softShadowSize",
+          "type": "float",
+          "desc": "soft shadow light size"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/SettingsAPI.lua",
+        "scripts/Lighting/LightDiscovery.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setLightUseLightScattering",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "useLightScattering",
+          "type": "boolean",
+          "desc": ""
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/settingsSchema.stub.lua",
+        "scripts/Lighting/LightTuning.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setMaxNumOfParticles",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemId",
+          "type": "entityId",
+          "desc": "particleSystemId"
+        },
+        {
+          "name": "maxNumParticles",
+          "type": "integer",
+          "desc": "maximum number of active particles"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setParticleSystemLifespan",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemId",
+          "type": "entityId",
+          "desc": "particleSystemId"
+        },
+        {
+          "name": "lifeSpan",
+          "type": "float",
+          "desc": "lifeSpan"
+        },
+        {
+          "name": "keepBlendTimes",
+          "type": "boolean",
+          "desc": "keepBlendTimes"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setParticleSystemSpeedRandom",
+      "category": "Particle System",
+      "input": [
+        {
+          "name": "particleSystemEntityId",
+          "type": "entityId",
+          "desc": "particleSystemEntityId"
+        },
+        {
+          "name": "speedRandom",
+          "type": "float",
+          "desc": "speedRandom"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Weather/ParticleManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainActiveDropsMultiplier",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "rain",
+          "type": "float",
+          "desc": "drop multiplier"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainAmountMultiplier",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "multiplier",
+          "type": "float",
+          "desc": "multiplier"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/VisualControls.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainBehindCameraBufferForMirrors",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "buffer",
+          "type": "float",
+          "desc": "Percentage value by which the spawn box is shifted back to spawn rain behind the camera as well"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainBounceRandomFactor",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "randomfactor",
+          "type": "float",
+          "desc": "random factor for bounce randomization"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Weather/WeatherManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainBounceRestitution",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "restitution",
+          "type": "float",
+          "desc": "coefficient of restitution"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Weather/WeatherManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainCameraVelocityMultiplier",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "multiplier",
+          "type": "float",
+          "desc": "camera velocity multiplier"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Weather/WeatherManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainDistributionPower",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "mostConcentratedRainDistance",
+          "type": "float",
+          "desc": "Distance from the camera where the distribution is most concentrated"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Weather/WeatherManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainForwardDirection",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "forwardX",
+          "type": "float",
+          "desc": "x component of forward vector"
+        },
+        {
+          "name": "forwardY",
+          "type": "float",
+          "desc": "y component of forward vector"
+        },
+        {
+          "name": "forwardZ",
+          "type": "float",
+          "desc": "z component of forward vector"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainHeightmapCollisionThreshold",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "tolerance",
+          "type": "float",
+          "desc": "tolerance"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainMaxBounces",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "bounces",
+          "type": "integer",
+          "desc": "max number of bounces (default 0)"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Weather/WeatherManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainMaxDropsMultiplier",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "max",
+          "type": "float",
+          "desc": "rain drops multiplier"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainMostConcentratedDistance",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "mostConcentratedRainDistance",
+          "type": "float",
+          "desc": "Distance from the camera where the distribution is most concentrated"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainRandomOffset",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "randomOffset",
+          "type": "float",
+          "desc": "random offset"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainShallowWaterSimulation",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationGeometry",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "shallowWaterSim",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainSpawnBoxParameters",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "spawnHeight",
+          "type": "float",
+          "desc": "Height that rain drops spawn at."
+        },
+        {
+          "name": "boxWidth",
+          "type": "float",
+          "desc": "Width of the spawn box."
+        },
+        {
+          "name": "boxHeight",
+          "type": "float",
+          "desc": "Height of the spawn box."
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainSpawnVelocity",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "velocityX",
+          "type": "float",
+          "desc": "x ('right') component of spawn velocity of rain drops"
+        },
+        {
+          "name": "velocityY",
+          "type": "float",
+          "desc": "y ('up') component of spawn velocity of rain drops"
+        },
+        {
+          "name": "velocityZ",
+          "type": "float",
+          "desc": "z ('forward') component of spawn velocity of rain drops"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Weather/WeatherManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainTurbulenceParameters",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "turbulence",
+          "type": "float",
+          "desc": "Determines how strong the turbulence is. Default 10.0"
+        },
+        {
+          "name": "timeScale",
+          "type": "float",
+          "desc": "Turbulence varies over time. This speeds up or slows down that process."
+        },
+        {
+          "name": "pulsePeriod",
+          "type": "float",
+          "desc": "Turbulence ebbs and flows in terms of its strength. This is the duration / period of that pulsing."
+        },
+        {
+          "name": "frequency",
+          "type": "float",
+          "desc": "Spatial frequency of the turbulence (how fast the turbulence changes in space. Lower it to have a larger space affected by the same kind of turbulence)."
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Weather/WeatherManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainWeatherType",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationGeometry",
+          "type": "entityId",
+          "desc": ""
+        },
+        {
+          "name": "weatherType",
+          "type": "integer",
+          "desc": "(from RainSimWeatherType enum)"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setRainWindForce",
+      "category": "Precipitation",
+      "input": [
+        {
+          "name": "precipitationEntity",
+          "type": "entityId",
+          "desc": "precipitationEntity"
+        },
+        {
+          "name": "forceX",
+          "type": "float",
+          "desc": "x direction of wind force"
+        },
+        {
+          "name": "forceZ",
+          "type": "float",
+          "desc": "z direction of wind force"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Weather/WeatherManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setShaderParameter",
+      "category": "Shape",
+      "input": [
+        {
+          "name": "shapeId",
+          "type": "entityId",
+          "desc": "shapeId"
+        },
+        {
+          "name": "parameterName",
+          "type": "string",
+          "desc": "parameterName"
+        },
+        {
+          "name": "x",
+          "type": "float?",
+          "desc": "[optional, default=currentValue]"
+        },
+        {
+          "name": "y",
+          "type": "float?",
+          "desc": "[optional, default=currentValue]"
+        },
+        {
+          "name": "z",
+          "type": "float?",
+          "desc": "[optional, default=currentValue]"
+        },
+        {
+          "name": "w",
+          "type": "float?",
+          "desc": "[optional, default=currentValue]"
+        },
+        {
+          "name": "shared",
+          "type": "boolean?",
+          "desc": "[optional, default=true]"
+        },
+        {
+          "name": "materialIndex",
+          "type": "integer?",
+          "desc": "material index or a negative value to set to all materials [optional, default=-1]"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Materials/MaterialManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setShadowFocusBox",
+      "category": "Rendering",
+      "input": [
+        {
+          "name": "shapeId",
+          "type": "entityId",
+          "desc": "shapeId to use as shadowFocusBox or 0 to reset to none"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/ExperimentalCaps.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setShallowWaterSimulationFoamAccumulationRate",
+      "category": "ShallowWaterSimulation",
+      "input": [
+        {
+          "name": "shallowWaterSimulation",
+          "type": "entityId",
+          "desc": "id of the shallow water simulation"
+        },
+        {
+          "name": "foam",
+          "type": "float",
+          "desc": "accumulation rate"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Water/WaterManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setTextAlignment",
+      "category": "Text Rendering",
+      "input": [
+        {
+          "name": "alignment",
+          "type": "integer",
+          "desc": "one of enum values RenderText.ALIGN_*"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/UI/FS25E_HudOverlay.lua",
+        "scripts/UI/FS25E_LiveOverlay.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setTextBold",
+      "category": "Text Rendering",
+      "input": [
+        {
+          "name": "isBold",
+          "type": "boolean",
+          "desc": "isBold"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/UI/FS25E_HudOverlay.lua",
+        "scripts/UI/FS25E_LiveOverlay.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setTextColor",
+      "category": "Text Rendering",
+      "input": [
+        {
+          "name": "r",
+          "type": "float",
+          "desc": "r"
+        },
+        {
+          "name": "g",
+          "type": "float",
+          "desc": "g"
+        },
+        {
+          "name": "b",
+          "type": "float",
+          "desc": "b"
+        },
+        {
+          "name": "a",
+          "type": "float",
+          "desc": "a"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/UI/FS25E_HudOverlay.lua",
+        "scripts/UI/FS25E_LiveOverlay.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setXMLBool",
+      "category": "XML",
+      "input": [
+        {
+          "name": "xmlId",
+          "type": "entityId",
+          "desc": "xmlId"
+        },
+        {
+          "name": "nodePath",
+          "type": "string",
+          "desc": "path to XML element or attribute"
+        },
+        {
+          "name": "value",
+          "type": "boolean",
+          "desc": "value"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Core/ModSettings.lua",
+        "scripts/Core/VisualProfiles.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "setXMLString",
+      "category": "XML",
+      "input": [
+        {
+          "name": "xmlId",
+          "type": "entityId",
+          "desc": "xmlId"
+        },
+        {
+          "name": "nodePath",
+          "type": "string",
+          "desc": "path to XML element or attribute"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "desc": "value"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Core/CalibrationManager.lua",
+        "scripts/Core/ModSettings.lua",
+        "scripts/Core/VisualProfiles.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "shallowWaterSimulationAddWaterPlaneGeometry",
+      "category": "ShallowWaterSimulation",
+      "input": [
+        {
+          "name": "shallowWaterSimulation",
+          "type": "entityId",
+          "desc": "TODO"
+        },
+        {
+          "name": "waterGeometry",
+          "type": "entityId",
+          "desc": "TODO"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Water/WaterManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "shallowWaterSimulationRemoveWaterPlaneGeometry",
+      "category": "ShallowWaterSimulation",
+      "input": [
+        {
+          "name": "shallowWaterSimulation",
+          "type": "entityId",
+          "desc": "TODO"
+        },
+        {
+          "name": "waterGeometry",
+          "type": "entityId",
+          "desc": "TODO"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Water/WaterManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "source",
+      "category": "General",
+      "input": [
+        {
+          "name": "filename",
+          "type": "string",
+          "desc": "filename"
+        },
+        {
+          "name": "environment",
+          "type": "ref?",
+          "desc": "environment [optional]"
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "scripts/Core/BenchmarkManager.lua",
+        "scripts/Core/BudgetAllocator.lua",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Core/ConsoleCommands.lua",
+        "scripts/Core/Diagnostics.lua",
+        "scripts/Core/GraphicsGovernor.lua",
+        "scripts/Core/PerformanceMonitor.lua",
+        "scripts/Core/SceneAnalyzer.lua",
+        "scripts/Core/VisualControls.lua",
+        "scripts/UI/FS25E_Input.lua",
+        "scripts/UI/FS25E_SettingsDialog.lua",
+        "scripts/World/FoliageManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    },
+    {
+      "name": "splitLightShadow",
+      "category": "Lighting",
+      "input": [
+        {
+          "name": "lightId",
+          "type": "entityId",
+          "desc": ""
+        }
+      ],
+      "output": [],
+      "referencedBy": [
+        "config/capabilityProfiles.xml",
+        "scripts/Core/CapabilityRegistry.lua",
+        "scripts/Lighting/LightTuning.lua",
+        "scripts/Shadows/ShadowManager.lua"
+      ],
+      "evidence": "installed SDK signature; reference may be a capability gate, not an enabled call",
+      "gameTest": "NOT_TESTED"
+    }
+  ]
+}

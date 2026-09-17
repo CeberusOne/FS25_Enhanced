@@ -1,0 +1,616 @@
+<?xml version='1.0' encoding='utf-8'?>
+<l10n>
+    <texts>
+        <text name="FS25E_SETTINGS_TITLE" text="FS25 Enhanced · Haladó" />
+        <text name="FS25E_SETTINGS_SIMPLE" text="Egyszerű" />
+        <text name="FS25E_SETTINGS_ADVANCED" text="Haladó" />
+        <text name="FS25E_HELP_HINT" text="Válassz egy beállítást a rövid magyarázat megjelenítéséhez." />
+        <text name="FS25E_SETTING_ENABLED" text="Mod bekapcsolása" />
+        <text name="FS25E_SETTING_ENABLED_TOOLTIP" text="Be- vagy kikapcsolja a modot. Kikapcsoláskor visszaállítja a munkamenet korábbi grafikáját." />
+        <text name="FS25E_SETTING_PRESET" text="Mód / Profil" />
+        <text name="FS25E_SETTING_PRESET_TOOLTIP" text="Gyors megjelenésválasztás: Teljesítmény / Kiegyensúlyozott / Minőség / Filmes. A magasabb profilok több GPU-időt igényelnek." />
+        <text name="FS25E_SETTING_TARGET_FPS" text="Cél FPS" />
+        <text name="FS25E_SETTING_TARGET_FPS_TOOLTIP" text="Az automatikus grafikaszabályozás célja, 15 és 240 FPS között. Nem korlátozza a játék képkockasebességét." />
+        <text name="FS25E_SETTING_ADAPTIVE" text="Adaptív" />
+        <text name="FS25E_SETTING_ADAPTIVE_TOOLTIP" text="Biztonságos grafikai beállításokat módosít a cél-FPS fenntartásához. Tiszteletben tartja az egyes kézi zárolásokat; nem vezérel automatikusan minden kísérleti effektet." />
+        <text name="FS25E_PRESET_OFF" text="Ki" />
+        <text name="FS25E_PRESET_BALANCED" text="Kiegyensúlyozott" />
+        <text name="FS25E_PRESET_QUALITY" text="Minőség" />
+        <text name="FS25E_PRESET_PERFORMANCE" text="Teljesítmény" />
+        <text name="FS25E_PRESET_CINEMATIC" text="Filmes" />
+        <text name="FS25E_FPS_30" text="30" />
+        <text name="FS25E_FPS_40" text="40" />
+        <text name="FS25E_FPS_50" text="50" />
+        <text name="FS25E_FPS_60" text="60" />
+        <text name="FS25E_FPS_UNLIMITED" text="Korlátlan" />
+        <text name="FS25E_OPT_OFF" text="Ki" />
+        <text name="FS25E_OPT_LOW" text="Alacsony" />
+        <text name="FS25E_OPT_MED" text="Közepes" />
+        <text name="FS25E_OPT_HIGH" text="Magas" />
+        <text name="FS25E_OPT_ULTRA" text="Ultra" />
+        <text name="FS25E_SECTION_SHADOWS" text="Árnyékok" />
+        <text name="FS25E_SECTION_LIGHTING" text="Világítás" />
+        <text name="FS25E_SECTION_LOD" text="LOD / Növényzet" />
+        <text name="FS25E_SETTING_SHADOW_QUALITY" text="Shadow Quality" />
+        <text name="FS25E_SETTING_SHADOW_QUALITY_TOOLTIP" text="What you see: sharper, richer shadows. What it costs: high GPU load at High/Ultra." />
+        <text name="FS25E_SETTING_SHADOW_DISTANCE" text="Shadow Distance" />
+        <text name="FS25E_SETTING_SHADOW_DISTANCE_TOOLTIP" text="What you see: shadows farther from the camera. What it costs: more fill rate when raised." />
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS" text="Max Shadow Lights" />
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS_TOOLTIP" text="What you see: more lights casting shadows. What it costs: can spike frame time in lit yards." />
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS" text="Foliage Shadows" />
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS_TOOLTIP" text="What you see: crops and trees cast shadows. What it costs: heavy in dense fields." />
+        <text name="FS25E_SETTING_SOFT_SHADOWS" text="Soft Shadows" />
+        <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="What you see: softer shadow edges. What it costs: filter quality adds GPU work." />
+        <text name="FS25E_SETTING_MAX_LIGHTS" text="Max Lights" />
+        <text name="FS25E_SETTING_MAX_LIGHTS_TOOLTIP" text="What you see: more active lights nearby. What it costs: higher lighting budget." />
+        <text name="FS25E_SETTING_LIGHT_SCATTERING" text="Light Scattering" />
+        <text name="FS25E_SETTING_LIGHT_SCATTERING_TOOLTIP" text="What you see: softer glow / haze around lights. What it costs: medium GPU cost when raised." />
+        <text name="FS25E_SETTING_SHADOW_MERGE" text="Shadow Merge" />
+        <text name="FS25E_SETTING_SHADOW_MERGE_TOOLTIP" text="What you see: similar vehicle light shadows combined when safe. What it costs: can be expensive; restored when disabled." />
+        <text name="FS25E_SETTING_VIEW_DISTANCE" text="View Distance" />
+        <text name="FS25E_SETTING_VIEW_DISTANCE_TOOLTIP" text="What you see: objects stay detailed farther away. What it costs: CPU risk if pushed too high." />
+        <text name="FS25E_SETTING_LOD_DISTANCE" text="LOD Distance" />
+        <text name="FS25E_SETTING_LOD_DISTANCE_TOOLTIP" text="What you see: high-detail models kept longer. What it costs: more geometry work." />
+        <text name="FS25E_SETTING_FOLIAGE_VIEW" text="Foliage View Distance" />
+        <text name="FS25E_SETTING_FOLIAGE_VIEW_TOOLTIP" text="What you see: vegetation drawn farther. What it costs: high in large fields." />
+        <text name="FS25E_SETTING_FOLIAGE_LOD" text="Foliage LOD Distance" />
+        <text name="FS25E_SETTING_FOLIAGE_LOD_TOOLTIP" text="What you see: richer plant detail longer. What it costs: foliage LOD is expensive." />
+        <text name="FS25E_SETTING_TERRAIN_LOD" text="Terrain LOD Distance" />
+        <text name="FS25E_SETTING_TERRAIN_LOD_TOOLTIP" text="What you see: ground detail farther out. What it costs: usually medium." />
+        <text name="FS25E_LIVE_TUNING_TITLE" text="Élő finomhangolás" />
+        <text name="FS25E_HOTKEY_LIVE_TUNING" text="Élő finomhangolás váltása" />
+        <text name="FS25E_SETTING_LIVE_TUNING" text="Élő finomhangolás" />
+        <text name="FS25E_SETTING_LIVE_TUNING_TOOLTIP" text="Megjeleníti a diagnosztikai réteget a mért képkockaidőkkel, fénykeretekkel és jelenetadatokkal. Az élő menü külön elérhető az F9 billentyűvel." />
+        <text name="FS25E_EXPERT_MODE" text="Szakértő mód" />
+        <text name="FS25E_EXPERT_MODE_TOOLTIP" text="Megjeleníti a haladó és kísérleti beállításokat. Az élő menü e mód nélkül is használható." />
+        <text name="FS25E_CLIENT_ONLY_HINT" text="A grafikai módosítások csak a kliensre hatnak" />
+        <text name="FS25E_CLIENT_ONLY_HINT_TOOLTIP" text="A módosítások csak a te gépeden érvényesek. A többi többjátékos résztvevő saját grafikáját használja." />
+        <text name="FS25E_WARN_EXTREME_COST" text="Ez a beállítás jelentősen csökkentheti a teljesítményt." />
+        <text name="FS25E_KEY_CONFLICT" text="Billentyűütközés észlelve. Módosítsd a kiosztást a Vezérlés menüben, vagy kapcsold ki az ütköző műveletet." />
+        <text name="FS25E_SETTINGS_EXPERT" text="Szakértő" />
+        <text name="FS25E_SETTINGS_STATUS" text="Állapot" />
+        <text name="FS25E_SETTINGS_SECTION" text="Szakasz" />
+        <text name="input_FS25E_OPEN_SETTINGS" text="FS25 Enhanced beállítások megnyitása" />
+        <text name="input_FS25E_LIVE_HINT" text="FS25 Enhanced Live Tuning Hint" />
+        <text name="FS25E_LIVE_HINT_LATER" text="Live Tuning coming later" />
+        <text name="FS25E_LIVE_OVERLAY_TITLE" text="FS25E Expert Live Overlay" />
+        <text name="FS25E_LIVE_OVERLAY_OPEN" text="Open Live Overlay" />
+        <text name="FS25E_LIVE_OVERLAY_HINT" text="Wheel/click bar | +/- | R restore | Esc | Ctrl+Shift+E" />
+        <text name="FS25E_LIVE_OVERLAY_GATE_REQUIRED" text="Expert Mode + Live Tuning required" />
+        <text name="FS25E_LIVE_OVERLAY_UNAVAILABLE" text="Live Overlay unavailable" />
+        <text name="FS25E_LIVE_OVERLAY_SESSION" text="Values: session via SettingsCache (persist optional)" />
+        <text name="FS25E_LIVE_OVERLAY_VIEW_DISTANCE" text="View Distance Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_LOD_DISTANCE" text="LOD Distance Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_VIEW" text="Foliage View Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_LOD" text="Foliage LOD Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_TERRAIN_LOD" text="Terrain LOD Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_MAX_SHADOW_LIGHTS" text="Max Shadow Lights" />
+        <text name="FS25E_LIVE_OVERLAY_RAIN_AMOUNT" text="Rain Amount Mult" />
+        <text name="FS25E_LIVE_OVERLAY_SSR_QUALITY" text="SSR Quality" />
+        <text name="FS25E_LIVE_OVERLAY_ATMOSPHERE_QUALITY" text="Atmosphere Quality" />
+        <text name="FS25E_LIVE_OVERLAY_DRS_QUALITY" text="DRS Quality" />
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_FOCUS" text="Shadow Focus Box" />
+        <text name="FS25E_LIVE_OVERLAY_FAST_SHADOW" text="Fast Shadow Update" />
+        <text name="FS25E_LIVE_OVERLAY_RAIN_SHALLOW" text="Rain Shallow Water" />
+        <text name="input_FS25E_TOGGLE_LIVE_OVERLAY" text="FS25 Enhanced élő réteg váltása" />
+        <text name="FS25E_HUD_TITLE_MINI" text="FS25E HUD" />
+        <text name="FS25E_HUD_ENGINE" text="Motor" />
+        <text name="FS25E_HUD_SYSTEM" text="Rendszer" />
+        <text name="FS25E_HUD_DISCONNECTED" text="NINCS KAPCSOLAT" />
+        <text name="FS25E_HUD_MS" text="ms" />
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_SHADOWS" text="Allow Foliage Shadows" />
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_QUALITY" text="Shadow Quality" />
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_DIST_Q" text="Shadow Distance Quality" />
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_FILTER" text="Shadow Filter Quality" />
+        <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box" />
+        <text name="FS25E_SETTING_SHADOW_FOCUS_TOOLTIP" text="Experimental: focuses shadow work near you. May look odd; Soft-Apply needed to try live." />
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE" text="Fast Shadow Update" />
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP" text="Experimental: updates shadows more often. Can hurt FPS; Soft-Apply needed to try live." />
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER" text="Rain Shallow Water Sim" />
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="Rain/shallow-water sim (expert). Needs Expert Soft-Apply ON; visible effect usually only in rain/near water. Else SKIPPED." />
+        <text name="FS25E_STATUS_HEADER" text="Capability status (read-only)" />
+        <text name="FS25E_STATUS_EMPTY" text="No capability data (Diagnostics/Registry unavailable)." />
+        <text name="FS25E_STATUS_APPLIED" text="APPLIED — works" />
+        <text name="FS25E_STATUS_REJECTED" text="REJECTED — does not work" />
+        <text name="FS25E_STATUS_SKIPPED" text="SKIPPED — idle/ready" />
+        <text name="FS25E_SETTING_EXPERT_SOFT_APPLY" text="Soft Apply (Expert)" />
+        <text name="FS25E_SETTING_EXPERT_SOFT_APPLY_TOOLTIP" text="When on, experimental Expert options can apply for this session. Risk of glitches; off = store only, safer." />
+        <text name="FS25E_SETTING_PERSIST_HW" text="Persist Hardware" />
+        <text name="FS25E_SETTING_PERSIST_HW_TOOLTIP" text="Writes hardware graphics so they survive a restart. Can overwrite your vanilla profile — use with care." />
+        <text name="FS25E_WARN_PERSIST_HW" text="May overwrite vanilla hardware settings. Prefer session-only unless you need persistence." />
+        <text name="FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX" text="Expert Shadow Focus Box" />
+        <text name="FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX_TOOLTIP" text="Opt-in experimental shadow focus. Needs Soft-Apply to try; may look wrong." />
+        <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE" text="Expert Fast Shadow Update" />
+        <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE_TOOLTIP" text="Opt-in experimental faster shadow refresh. Needs Soft-Apply; can cost FPS." />
+        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW" text="Expert Rain Shallow Water" />
+        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP" text="Same key as Rain Shallow Water. Soft-Apply ON required; little/no effect without rain or shallow water." />
+        <text name="FS25E_SETTING_EXPERT_SSR" text="Expert SSR" />
+        <text name="FS25E_SETTING_EXPERT_SSR_TOOLTIP" text="Opt-in screen-space reflections (gated). Needs Soft-Apply; can be costly." />
+        <text name="FS25E_SETTING_EXPERT_ATMOSPHERE" text="Expert Atmosphere" />
+        <text name="FS25E_SETTING_EXPERT_ATMOSPHERE_TOOLTIP" text="Opt-in atmosphere quality (gated). Needs Soft-Apply; medium–high cost." />
+        <text name="FS25E_SETTING_EXPERT_DRS" text="Expert DRS" />
+        <text name="FS25E_SETTING_EXPERT_DRS_TOOLTIP" text="Opt-in dynamic resolution scale (gated). Needs Soft-Apply; trades sharpness for FPS." />
+        <text name="FS25E_SETTING_EXPERT_RAIN_SUITE" text="Expert Rain Suite" />
+        <text name="FS25E_SETTING_EXPERT_RAIN_SUITE_TOOLTIP" text="Opt-in rain extras as a group. Needs Soft-Apply; visual and cost impact varies." />
+        <text name="FS25E_LIVE_OVERLAY_GATE_NEED_EXPERT" text="Turn on Expert Mode first (Settings → Expert)." />
+        <text name="FS25E_LIVE_OVERLAY_GATE_NEED_LIVE" text="Enable Live Tuning first (Settings → Expert → Open Live Overlay)." />
+        <text name="FS25E_LIVE_OVERLAY_GATE_OK" text="OK" />
+        <text name="FS25E_LIVE_OVERLAY_SOFTAPPLY_HINT" text="SKIPPED: turn Expert Soft-Apply ON to apply experimental caps (value stored only)." />
+        <text name="FS25E_menu_live_title" text="FS25 ENHANCED · Élő finomhangolás" />
+        <text name="FS25E_menu_live_subtitle" text="Finom szabályozás. Látható világ. Ellenőrzött beállítások." />
+        <text name="FS25E_menu_fine_hint" text="Shift: finomhangolás · Kattintás az értékre: számbevitel · R: visszaállítás" />
+        <text name="FS25E_menu_controller_hint" text="Kontroller: kar / iránygombok · felső gombok: kategória· B: bezárás" />
+        <text name="FS25E_menu_reset" text="Visszaállítás" />
+        <text name="FS25E_value_on" text="Be" />
+        <text name="FS25E_value_off" text="Ki" />
+        <text name="FS25E_value_locked_short" text="*" />
+        <text name="FS25E_value_auto_short" text="Automatika" />
+        <text name="FS25E_status_mission_required" text="Betöltött játékban érhető el." />
+        <text name="FS25E_status_category_unavailable" text="Ebben a jelenetben nincs kompatibilis élő szabályzó. A szükséges elemeket a funkció dokumentációja ismerteti." />
+        <text name="FS25E_status_unavailable_short" text="—" />
+        <text name="FS25E_status_api_unavailable" text="Ez a motorfelület nem érhető el." />
+        <text name="FS25E_status_quality_unavailable" text="Nincsenek támogatott minőségi szintek." />
+        <text name="FS25E_status_module_error" text="Modulhiba; az eredeti állapot lehetőség szerint megmaradt." />
+        <text name="FS25E_status_invalid_value" text="Adjon meg érvényes számértéket." />
+        <text name="FS25E_status_unreadable" text="Az aktuális érték nem olvasható megbízhatóan." />
+        <text name="FS25E_status_not_applied" text="Nincs alkalmazva" />
+        <text name="FS25E_status_readback_mismatch" text="A motor nem erősítette meg ezt az értéket." />
+        <text name="FS25E_status_applied" text="Alkalmazva · motorérték ellenőrizve" />
+        <text name="FS25E_status_restore_failed" text="Sikertelen visszaállítás; lásd a játék naplóját." />
+        <text name="FS25E_status_restored" text="Eredeti érték visszaállítva" />
+        <text name="FS25E_status_locked" text="Védelem az automatikus módosítások ellen" />
+        <text name="FS25E_status_ready" text="Kész · a munkamenet módosításai visszavonhatók" />
+        <text name="FS25E_status_live" text="Élő" />
+        <text name="FS25E_status_experimental" text="Kísérleti" />
+        <text name="FS25E_status_information_unavailable" text="A részletek nem érhetők el; lásd a naplót." />
+        <text name="FS25E_cost_low" text="Alacsony költség" />
+        <text name="FS25E_cost_medium" text="Közepes költség" />
+        <text name="FS25E_cost_high" text="Magas GPU-költség" />
+        <text name="FS25E_cost_extreme" text="Nagyon magas GPU- / VRAM-költség" />
+        <text name="FS25E_menu_auto" text="Automatika" />
+        <text name="FS25E_menu_shadows" text="Árnyékok" />
+        <text name="FS25E_menu_lighting" text="Fények és lámpák" />
+        <text name="FS25E_menu_atmosphere" text="Légkör" />
+        <text name="FS25E_menu_weather" text="Időjárás" />
+        <text name="FS25E_menu_water" text="Víz" />
+        <text name="FS25E_menu_reflections" text="Tükröződések" />
+        <text name="FS25E_menu_materials" text="Anyagok" />
+        <text name="FS25E_menu_foliage" text="Növényzet" />
+        <text name="FS25E_menu_lod" text="Látótávolság / LOD" />
+        <text name="FS25E_menu_performance" text="Teljesítmény" />
+        <text name="FS25E_setting_view_distance_coeff" text="Objektumok rajzolási távolsága" />
+        <text name="FS25E_tooltip_view_distance_coeff" text="Az objektumok rajzolási távolságát állítja. Nagyobb távolság több CPU- és GPU-munkát igényel." />
+        <text name="FS25E_setting_lod_distance_coeff" text="Objektumok részletességi távolsága" />
+        <text name="FS25E_tooltip_lod_distance_coeff" text="Távolabb is megőrzi a részletes modelleket. Lépésköz: 0,001; a nagyobb érték jobban terheli a GPU-t." />
+        <text name="FS25E_setting_terrain_lod_distance_coeff" text="Terep részletességi távolsága" />
+        <text name="FS25E_tooltip_terrain_lod_distance_coeff" text="A tereprészletek váltását vezérli, a magasságot és a mentett játék adatait nem módosítja." />
+        <text name="FS25E_setting_foliage_view_distance_coeff" text="Növényzet rajzolási távolsága" />
+        <text name="FS25E_tooltip_foliage_view_distance_coeff" text="Távolabb is megjeleníti a növényzetet. A sűrű mezők jelentősen terhelhetik a GPU-t." />
+        <text name="FS25E_setting_foliage_lod_distance_coeff" text="Növényzet részletességi távolsága" />
+        <text name="FS25E_tooltip_foliage_lod_distance_coeff" text="A kamera közelében megőrzi a részletes növényzetet. A finomhangolás jobb, mint minden távolság maximalizálása." />
+        <text name="FS25E_setting_allow_foliage_shadows" text="Növényzet árnyékai" />
+        <text name="FS25E_tooltip_allow_foliage_shadows" text="Engedi a növényzet árnyékvetését, ahol az anyag támogatja." />
+        <text name="FS25E_setting_max_num_shadow_lights" text="Árnyékot vető fények maximális száma" />
+        <text name="FS25E_tooltip_max_num_shadow_lights" text="A motor globális kerete. Több fény költséges árnyékrajzolást és több VRAM-ot igényel." />
+        <text name="FS25E_setting_shadow_distance_quality" text="Napárnyékok távolsága" />
+        <text name="FS25E_tooltip_shadow_distance_quality" text="Az FS25 három natív távolsági szintje. Ezek diszkrét motorszintek." />
+        <text name="FS25E_setting_shadow_filter_quality" text="Lágy árnyékok szűrése" />
+        <text name="FS25E_tooltip_shadow_filter_quality" text="Az FS25 natív lágyárnyék-szűrője. Az egyes fények lágysága külön állítható." />
+        <text name="FS25E_setting_shadow_quality" text="Napárnyékok minősége" />
+        <text name="FS25E_tooltip_shadow_quality" text="Az FS25 minőségi szintjeit használja a fókuszterület jelzőjével együtt. Magasabb szinteken képkockaidő-tüskék lehetnek." />
+        <text name="FS25E_setting_ssr_quality" text="Képernyőtérbeli tükröződések" />
+        <text name="FS25E_tooltip_ssr_quality" text="Csak hardveresen támogatott szintek. Tükröző anyag kell; az SSR nem tükröz látómezőn kívüli objektumokat." />
+        <text name="FS25E_setting_atmosphere_quality" text="Légkör minősége" />
+        <text name="FS25E_tooltip_atmosphere_quality" text="A légkör natív minősége a renderelőtől függ. Tiszta időben nem hoz létre ködöt." />
+        <text name="FS25E_setting_volumetric_fog_quality" text="Térfogati köd minősége" />
+        <text name="FS25E_tooltip_volumetric_fog_quality" text="A meglévő térfogati ködöt javítja, ha a térkép és az aktuális időjárás használja." />
+        <text name="FS25E_setting_lensflare_quality" text="Lencsefény minősége" />
+        <text name="FS25E_tooltip_lensflare_quality" text="A natív lencsefény minőségét állítja. A hatáshoz megfelelő látható fényforrás kell." />
+        <text name="FS25E_setting_screen_space_shadows_quality" text="Képernyőtérbeli árnyékok" />
+        <text name="FS25E_tooltip_screen_space_shadows_quality" text="A támogatott képernyőtérbeli árnyékokat vezérli és érintkezési részleteket ad." />
+        <text name="FS25E_setting_drs_quality" text="Dinamikus felbontás" />
+        <text name="FS25E_tooltip_drs_quality" text="A renderelő által támogatott diszkrét DRS-módok. A skálázás lágyíthatja a képet; nem részletnövelés." />
+        <text name="FS25E_setting_rain_amount_mult" text="Látható eső szorzója" />
+        <text name="FS25E_tooltip_rain_amount_mult" text="A meglévő esőt skálázza. Nem indít esőt és nem módosítja az időjárás-szimulációt. Lépés: 0,001." />
+        <text name="FS25E_status_mod_disabled" text="Először engedélyezd az Enhanced modot az Automatika oldalon." />
+        <text name="FS25E_status_configured" text="Konfiguráció alkalmazva" />
+        <text name="FS25E_menu_execute" text="Végrehajtás" />
+        <text name="FS25E_SETTING_CINEMATIC_SESSION" text="Képernyőkép mód · 60 másodperc" />
+        <text name="FS25E_SETTING_CINEMATIC_SESSION_TOOLTIP" text="Ideiglenesen kompatibilis filmes értékeket alkalmaz. 60 másodperc elteltével vagy kikapcsoláskor visszaállítja a korábbi beállításokat." />
+        <text name="FS25E_FPS_90" text="90 FPS" />
+        <text name="FS25E_FPS_120" text="120 FPS" />
+        <text name="FS25E_status_external_change" text="Egy másik forrás módosította az értéket; az automatikus szabályozás szünetel." />
+        <text name="FS25E_status_profile_unavailable" text="A mod profiltárolója nem érhető el." />
+        <text name="FS25E_status_profile_missing" text="Nincs mentett élő profil." />
+        <text name="FS25E_status_profile_saved" text="Mentve a mod liveProfile.xml fájljába" />
+        <text name="FS25E_status_profile_loaded" text="A kompatibilis profilértékek betöltve" />
+        <text name="FS25E_status_profile_partial" text="Néhány érték nem alkalmazható ebben a jelenetben." />
+        <text name="FS25E_status_compare_enhanced" text="A/B · Enhanced értékek visszaállítva" />
+        <text name="FS25E_status_compare_original" text="A/B · eredeti értékek · nyomd meg újra a visszatéréshez" />
+        <text name="FS25E_status_calibration_stopped" text="Kalibrálás leállítva" />
+        <text name="FS25E_status_calibration_started" text="Kalibrálás elindítva · tartsd mozdulatlanul a kamerát" />
+        <text name="FS25E_status_calibration_unavailable" text="A kalibráláshoz elérhető, feloldott objektumtávolság-szabályzó kell." />
+        <text name="FS25E_status_benchmark_started" text="60 másodperces teljesítményteszt fut" />
+        <text name="FS25E_status_benchmark_finished" text="Teljesítményteszt befejezve" />
+        <text name="FS25E_status_benchmark_missing" text="Először rögzíts egy teljesítménytesztet." />
+        <text name="FS25E_status_benchmark_exported" text="A teljesítményteszt a mod beállításmappájába mentve." />
+        <text name="FS25E_setting_saveProfile" text="Élő profil mentése" />
+        <text name="FS25E_tooltip_saveProfile" text="Értékeket és zárolásokat ment a mod fájljába; a játék grafikai profilját nem módosítja." />
+        <text name="FS25E_setting_loadProfile" text="Élő profil betöltése" />
+        <text name="FS25E_tooltip_loadProfile" text="Alkalmazza a mentett profil kompatibilis értékeit. A jelenettől függő értékeket kihagyhatja." />
+        <text name="FS25E_setting_compareOriginal" text="A/B: eredeti / Enhanced" />
+        <text name="FS25E_tooltip_compareOriginal" text="Ideiglenesen visszaállítja az eredeti értékeket. Újabb végrehajtással visszatérhet. A jelenet aktív marad." />
+        <text name="FS25E_setting_resetAll" text="Minden grafikai érték visszaállítása" />
+        <text name="FS25E_tooltip_resetAll" text="Visszaállítja az eredeti grafikát, törli a zárolásokat és kikapcsolja az Enhanced módot. A cél FPS megmarad." />
+        <text name="FS25E_setting_calibrate" text="Kalibrálás indítása / leállítása" />
+        <text name="FS25E_tooltip_calibrate" text="Kis, visszafordítható távolságváltozás képkockaidő-hatását méri. Tartsa a kamerát mozdulatlanul; ez becslés, nem külön GPU-mérés." />
+        <text name="FS25E_setting_benchmark" text="Mérés indítása / befejezése" />
+        <text name="FS25E_tooltip_benchmark" text="60 másodpercig rögzíti a képkockaidőket. Azonos kameraútvonal és időjárás mellett hasonlítsa össze." />
+        <text name="FS25E_setting_exportBenchmark" text="Mérési jelentés mentése" />
+        <text name="FS25E_tooltip_exportBenchmark" text="A legutóbbi mérést XML-ként menti a mod beállításai közé. Az ismeretlen GPU- / VRAM-adatok elérhetetlenek maradnak." />
+        <text name="FS25E_setting_localShadows" text="Továbbfejlesztett helyi árnyékok" />
+        <text name="FS25E_tooltip_localShadows" text="Valódi árnyéktérképeket kapcsol be a fontos közeli jármű- és udvari fényekhez." />
+        <text name="FS25E_setting_vehicleShadowRange" text="Helyi árnyékok hatótávolsága" />
+        <text name="FS25E_tooltip_vehicleShadowRange" text="Helyi árnyékok maximális kameratávolsága méterben. A fontosság és a keret továbbra is számít." />
+        <text name="FS25E_setting_localShadowBudget" text="Helyi árnyékok kerete" />
+        <text name="FS25E_tooltip_localShadowBudget" text="Árnyéktérképet kapó helyi fények felső korlátja. A motor globális korlátja is érvényes." />
+        <text name="FS25E_setting_nearShadowResolution" text="Közeli árnyékok felbontása" />
+        <text name="FS25E_tooltip_nearShadowResolution" text="A 0/1/2/3 szint 256/512/1024/2048 képpontot jelent. Az automatikus kiosztás legfeljebb 15 másodpercenként változik." />
+        <text name="FS25E_setting_farShadowResolution" text="Távoli árnyékok felbontása" />
+        <text name="FS25E_tooltip_farShadowResolution" text="A 0/1/2 szint 256/512/1024 képpontot jelent távolabbi helyi fényekhez." />
+        <text name="FS25E_setting_shadowSoftness" text="Árnyékok lágysága" />
+        <text name="FS25E_tooltip_shadowSoftness" text="A natív fényforrásméretet skálázza. 1 megőrzi az eredetit; bekapcsolt lágy árnyék kell." />
+        <text name="FS25E_setting_softShadowBias" text="Lágy árnyékok eltolása" />
+        <text name="FS25E_tooltip_softShadowBias" text="A meglévő lágyárnyék-eltolást skálázza. A túl nagy érték leválasztja az árnyékot az objektumról." />
+        <text name="FS25E_setting_shadowExtrusion" text="Árnyék-extrúzió távolsága" />
+        <text name="FS25E_tooltip_shadowExtrusion" text="A kamera mögötti, árnyékvetésnél még figyelembe vett területet skálázza." />
+        <text name="FS25E_setting_shadowMerge" text="Helyi árnyékok összevonása" />
+        <text name="FS25E_tooltip_shadowMerge" text="Kísérleti: egy jármű kompatibilis, csoportosítatlan fényeit vonja össze. A GIANTS-csoportokat megőrzi." />
+        <text name="FS25E_setting_lightIntensity" text="Fényerő" />
+        <text name="FS25E_tooltip_lightIntensity" text="Az aktív helyi lámpák valódi színét skálázza. 1 megőrzi az eredeti fényerőt." />
+        <text name="FS25E_setting_lightWarmth" text="Fény melegsége" />
+        <text name="FS25E_tooltip_lightWarmth" text="Finom meleg/hideg színegyensúly a közel azonos érzékelt fényesség megtartásával." />
+        <text name="FS25E_setting_lightTint" text="Fény színárnyalata" />
+        <text name="FS25E_tooltip_lightTint" text="Finom zöld/bíbor egyensúly a lámpák valódi színén." />
+        <text name="FS25E_setting_lightRange" text="Fény hatótávolsága" />
+        <text name="FS25E_tooltip_lightRange" text="Az aktív helyi lámpák eredeti hatótávját skálázza. A nagyobb érték növeli a renderelés költségét." />
+        <text name="FS25E_setting_lightFalloff" text="Fénycsökkenés" />
+        <text name="FS25E_tooltip_lightFalloff" text="A kompatibilis helyi fények natív fénycsökkenését skálázza." />
+        <text name="FS25E_setting_lightCone" text="Fénykúp szélessége" />
+        <text name="FS25E_tooltip_lightCone" text="Az eredeti kúpszöget skálázza, érvényes szögtartományra korlátozva." />
+        <text name="FS25E_setting_lightHighRadius" text="Jó minőségű fények sugara" />
+        <text name="FS25E_tooltip_lightHighRadius" text="A közeli fények nagy árnyékfelbontást és elsőbbséget kapnak a helyi effektekhez." />
+        <text name="FS25E_setting_lightMediumRadius" text="Közepes minőségű fények sugara" />
+        <text name="FS25E_tooltip_lightMediumRadius" text="E sugáron túl korlátozza az IES-t és a szóródást, és csökkenti a fény hatótávját." />
+        <text name="FS25E_setting_relevantLightBudget" text="Fontos fények kerete" />
+        <text name="FS25E_tooltip_relevantLightBudget" text="Az aktív fények fontosság szerinti kerete. Legfeljebb 64 helyi fényt módosít." />
+        <text name="FS25E_setting_behindCameraReduction" text="Csökkentés a kamera mögött" />
+        <text name="FS25E_tooltip_behindCameraReduction" text="Csökkenti a kamera mögötti fények elsőbbségét; 0 kikapcsolja ezt a súlyozást." />
+        <text name="FS25E_setting_iesMode" text="Eredeti IES-profilok" />
+        <text name="FS25E_tooltip_iesMode" text="Csak az objektum meglévő IES-fájljait használja. Inkompatibilis lámpákhoz nem készít profilt." />
+        <text name="FS25E_setting_iesRange" text="IES-hatótáv szorzója" />
+        <text name="FS25E_tooltip_iesRange" text="További hatótávszorzó a meglévő IES-profillal rendelkező lámpákhoz." />
+        <text name="FS25E_setting_iesFalloff" text="IES-fénycsökkenés szorzója" />
+        <text name="FS25E_tooltip_iesFalloff" text="További fénycsökkenési szorzó a meglévő IES-profillal rendelkező lámpákhoz." />
+        <text name="FS25E_setting_iesBudget" text="IES-fények maximális száma" />
+        <text name="FS25E_tooltip_iesBudget" text="A kereten belül előnyben részesíti a meglévő IES-profilokat. A többi fény egyszerű fénykúpot használ." />
+        <text name="FS25E_setting_headlightIES" text="Fényszórók IES-profilja" />
+        <text name="FS25E_tooltip_headlightIES" text="Meglévő IES-profilokat engedélyez a helyi keretben: járműfényszórók." />
+        <text name="FS25E_setting_worklightIES" text="Munkalámpák IES-profilja" />
+        <text name="FS25E_tooltip_worklightIES" text="Meglévő IES-profilokat engedélyez a helyi keretben: első és hátsó munkalámpák." />
+        <text name="FS25E_setting_placeableIES" text="Udvari lámpák IES-profilja" />
+        <text name="FS25E_tooltip_placeableIES" text="Meglévő IES-profilokat engedélyez a helyi keretben: közeli udvari lámpák." />
+        <text name="FS25E_setting_scatteringIntensity" text="Fényszóródás erőssége" />
+        <text name="FS25E_tooltip_scatteringIntensity" text="A kompatibilis aktív fények natív szóródását skálázza; ködben és sötétben a legláthatóbb." />
+        <text name="FS25E_setting_scatteringBudget" text="Szóródó fények maximális száma" />
+        <text name="FS25E_tooltip_scatteringBudget" text="Korlátozza az egyidejű helyi szóródási effektek számát." />
+        <text name="FS25E_setting_scatteringDistance" text="Fényszóródás távolsága" />
+        <text name="FS25E_tooltip_scatteringDistance" text="A szóródás maximális kameratávolsága méterben." />
+        <text name="FS25E_setting_headlightScattering" text="Fényszórók szóródása" />
+        <text name="FS25E_tooltip_headlightScattering" text="Szóródást engedélyez a fontos fényekhez: járműfényszórók." />
+        <text name="FS25E_setting_worklightScattering" text="Munkalámpák szóródása" />
+        <text name="FS25E_tooltip_worklightScattering" text="Szóródást engedélyez a fontos fényekhez: első és hátsó munkalámpák." />
+        <text name="FS25E_setting_placeableScattering" text="Udvari lámpák szóródása" />
+        <text name="FS25E_tooltip_placeableScattering" text="Szóródást engedélyez a fontos fényekhez: közeli udvari lámpák." />
+        <text name="FS25E_setting_scatteringWeatherResponse" text="Fényszóródás időjárásfüggése" />
+        <text name="FS25E_tooltip_scatteringWeatherResponse" text="A mért köd és eső alapján növeli a szóródást. 0 kikapcsolja az időjárásfüggést." />
+        <text name="FS25E_warning_lightApiUnavailable" text="A motor világítási funkciója nem érhető el" />
+        <text name="FS25E_warning_lightWriteRejected" text="A motor nem fogadta el az értéket; a korábbi érték visszaállítva" />
+        <text name="FS25E_warning_lightInvalidValue" text="Érvénytelen fényparaméter" />
+        <text name="FS25E_status_noLocalLights" text="Nincs betöltött kompatibilis helyi fényforrás" />
+        <text name="FS25E_status_lightValuesQueued" text="Várakozik: kompatibilis lámpák bekapcsolásakor alkalmazza" />
+        <text name="FS25E_warning_directionalLightRequired" text="Ez a beállítás csak irányított fényekre hat" />
+        <text name="FS25E_warning_lightMergeIncompatible" text="A fényforrások nem használhatnak közös árnyéktérképet" />
+        <text name="FS25E_warning_lightMergeOwned" text="A meglévő GIANTS- vagy más modhoz tartozó árnyékcsoport megmarad" />
+        <text name="FS25E_setting_rainProfile" text="Esőprofil" />
+        <text name="FS25E_tooltip_rainProfile" text="0: eredeti; 1: enyhe; 2: normál; 3: heves; 4: viharos megjelenés; 5: szélfútta eső. Az aktív csapadék sebességét, szélhatását és turbulenciáját állítja. Nem hoz létre zivatart és nem módosítja az előrejelzést." />
+        <text name="FS25E_setting_rainVelocity" text="Cseppek sebessége" />
+        <text name="FS25E_setting_rainWindInfluence" text="Szél hatása az esőre" />
+        <text name="FS25E_setting_rainTurbulence" text="Eső turbulenciája" />
+        <text name="FS25E_setting_rainBounceStrength" text="Visszapattanás rugalmassága" />
+        <text name="FS25E_setting_rainSplashRandomness" text="Fröccsenés véletlenszerűsége" />
+        <text name="FS25E_setting_rainCameraInfluence" text="Kamerasebesség hatása" />
+        <text name="FS25E_setting_rainDistribution" text="Közeli eső eloszlása" />
+        <text name="FS25E_setting_rainBounceCount" text="Visszapattanások maximális száma" />
+        <text name="FS25E_tooltip_rainVelocity" text="Az eredeti cseppsebesség szorzója. Akkor érhető el, ha az időjárás már megadta az eredeti értéket. Kísérleti; aktív csapadék közben ellenőrizd a megjelenését." />
+        <text name="FS25E_tooltip_rainWindInfluence" text="Az időjárás által vezérelt vízszintes szélerők szorzója. Szél nélkül csekély hatású. A játékmenet időjárási adatait nem módosítja." />
+        <text name="FS25E_tooltip_rainTurbulence" text="A cseppek turbulenciáját skálázza, megőrizve az időjárás időskáláját, impulzushosszát és frekvenciáját." />
+        <text name="FS25E_tooltip_rainBounceStrength" text="Az ütközés után megmaradó sebesség aránya. Aktív visszapattanással rendelkező csapadék szükséges." />
+        <text name="FS25E_tooltip_rainSplashRandomness" text="A visszapattanási szög véletlenszerűségének szorzója. Nulla visszapattanásnál nincs látható hatása." />
+        <text name="FS25E_tooltip_rainCameraInfluence" text="A kamerasebesség esőcsíkokra gyakorolt hatásának szorzója. Mozgó kameránál látható." />
+        <text name="FS25E_tooltip_rainDistribution" text="Az 1 feletti értékek több esőt összpontosítanak a kamera közelébe. A játékmenet globális csapadékmennyiségét nem növeli." />
+        <text name="FS25E_tooltip_rainBounceCount" text="A fröccsenés előtti visszapattanások felső határa. Elsősorban jégesőhöz való; több visszapattanás nagyobb szimulációs terhelést jelent." />
+        <text name="FS25E_setting_paintClearcoat" text="Fedőlakk erőssége" />
+        <text name="FS25E_setting_materialSurfaceProfile" text="Felületi profil" />
+        <text name="FS25E_setting_materialDetailSmoothness" text="Anyagrészletek simasága" />
+        <text name="FS25E_setting_materialWetResponse" text="Járműfesték nedvességreakciója" />
+        <text name="FS25E_setting_materialMicrodetailStrength" text="Mikrorészletek erőssége" />
+        <text name="FS25E_setting_materialNormalDetailScale" text="Normálrészletek erőssége" />
+        <text name="FS25E_tooltip_materialSurfaceProfile" text="0: Eredeti; 1: Természetes; 2: Fényesített; 3: Matt. A fényesség csak az igazolt festést módosítja. Az üveg, gumi és ismeretlen anyagok kimaradnak; a nedvesség független." />
+        <text name="FS25E_tooltip_materialDetailSmoothness" text="Anyagrészletek simasága: 0–10. A fényesség csak az igazolt festést módosítja. Az üveg, gumi és ismeretlen anyagok kimaradnak; a nedvesség független." />
+        <text name="FS25E_tooltip_materialWetResponse" text="A játék által ténylegesen megadott anyagnedvesség szorzója. Csak a shader vizuális csatornája változik; a kosz, hó, karcolások és a játékmenet állapota megmarad. Száraz felületen nincs látható hatás." />
+        <text name="FS25E_tooltip_materialDetailAssets" text="Az eredeti vehicleShader nem kínál erősségszabályzót a részletnormálokhoz. Megfelelő egyedi shader- és normáltextúra-elemek kellenének. A meglévő részletsimaságnak saját szabályzója van." />
+        <text name="FS25E_status_detailAssetsRequired" text="Nem elérhető: a shader nem kínál részletnormál-erősség paramétert" />
+        <text name="FS25E_setting_paintSmoothness" text="Fedőlakk simasága" />
+        <text name="FS25E_setting_paintSSRThreshold" text="Festék SSR-küszöbe" />
+        <text name="FS25E_setting_paintSSRBaseBias" text="Alapréteg SSR-eltolása" />
+        <text name="FS25E_setting_paintSSRCoatBias" text="Fedőlakk SSR-eltolása" />
+        <text name="FS25E_tooltip_paintClearcoat" text="Fedőlakk erőssége: 0–1. A fényesség csak az igazolt festést módosítja. Az üveg, gumi és ismeretlen anyagok kimaradnak; a nedvesség független." />
+        <text name="FS25E_tooltip_paintSmoothness" text="Fedőlakk simasága: 0–1. A fényesség csak az igazolt festést módosítja. Az üveg, gumi és ismeretlen anyagok kimaradnak; a nedvesség független." />
+        <text name="FS25E_tooltip_paintSSRThreshold" text="Festék SSR-küszöbe: 0–1. A fényesség csak az igazolt festést módosítja. Az üveg, gumi és ismeretlen anyagok kimaradnak; a nedvesség független." />
+        <text name="FS25E_tooltip_paintSSRBaseBias" text="Alapréteg SSR-eltolása: -1…1. A fényesség csak az igazolt festést módosítja. Az üveg, gumi és ismeretlen anyagok kimaradnak; a nedvesség független." />
+        <text name="FS25E_tooltip_paintSSRCoatBias" text="Fedőlakk SSR-eltolása: -1…1. A fényesség csak az igazolt festést módosítja. Az üveg, gumi és ismeretlen anyagok kimaradnak; a nedvesség független." />
+        <text name="FS25E_setting_foliageInteractionDetail" text="További növényzetkölcsönhatás" />
+        <text name="FS25E_setting_foliageInteractionRadius" text="Kölcsönhatási terület mérete" />
+        <text name="FS25E_setting_foliageMaximumZones" text="További hajlítási zónák maximális száma" />
+        <text name="FS25E_tooltip_foliageInteractionDetail" text="0: eredeti; 1: jelenlegi jármű; 2: csatlakoztatott eszközökkel együtt. A meglévő aktív növényhajlítási területeken alapul. Kísérleti; az eredeti zónák megmaradnak." />
+        <text name="FS25E_tooltip_foliageInteractionRadius" text="A további növényhajlítási területek szélességének és hosszának szorzója. Engedélyezett növénykölcsönhatás és kompatibilis felszerelés szükséges." />
+        <text name="FS25E_tooltip_foliageMaximumZones" text="Csak az e mod által létrehozott helyi növényhajlítási zónákat korlátozza. A játék meglévő zónáit soha nem törli." />
+        <text name="FS25E_setting_waterFoam" text="Hab mennyisége" />
+        <text name="FS25E_tooltip_waterAssetsRequired" text="Kompatibilis helyi vízszimulációt, terep- és akadályadatokat, valamint víz- és habmegjelenítési elemeket igényel. A natív hozzárendelési hívás ezeket nem hozza létre. Ebben a modban nem elérhető." />
+        <text name="FS25E_status_missingApi" text="A szükséges motor-API nem érhető el" />
+        <text name="FS25E_status_invalidValue" text="Érvénytelen érték" />
+        <text name="FS25E_status_applyFailed" text="A motor értékének visszaolvasása sikertelen" />
+        <text name="FS25E_status_restoreFailed" text="Visszaállítás sikertelen" />
+        <text name="FS25E_status_waitWeatherBaseline" text="Várakozás az időjárás eredeti értékeire" />
+        <text name="FS25E_status_waitParticleBaseline" text="Várakozás kompatibilis részecskekibocsátóra" />
+        <text name="FS25E_status_observedOnly" text="Elküldve; a motor nem biztosít visszaolvasást" />
+        <text name="FS25E_status_noCompatiblePaint" text="Anyagok: —" />
+        <text name="FS25E_status_noVehicle" text="Irányított jármű szükséges" />
+        <text name="FS25E_status_noBendingFootprints" text="Nincs aktív, kompatibilis növényhajlítási terület" />
+        <text name="FS25E_status_waterAssetsRequired" text="Nem elérhető: vízszimulációs és megjelenítési elemek szükségesek" />
+        <text name="FS25E_value_custom" text="Egyéni" />
+        <text name="FS25E_value_surfaceProfile0" text="Eredeti" />
+        <text name="FS25E_value_surfaceProfile1" text="Természetes" />
+        <text name="FS25E_value_surfaceProfile2" text="Fényesített" />
+        <text name="FS25E_value_surfaceProfile3" text="Matt" />
+        <text name="FS25E_value_rainProfile0" text="Eredeti" />
+        <text name="FS25E_value_rainProfile1" text="Enyhe eső" />
+        <text name="FS25E_value_rainProfile2" text="Normál eső" />
+        <text name="FS25E_value_rainProfile3" text="Heves eső" />
+        <text name="FS25E_value_rainProfile4" text="Viharos megjelenés" />
+        <text name="FS25E_value_rainProfile5" text="Szélfútta eső" />
+        <text name="FS25E_setting_debugHud" text="Diagnosztikai réteg" />
+        <text name="FS25E_tooltip_debugHud" text="A mért képkockaidőket, az aktív világítási kereteket és a jelenet besorolását mutatja. A hiányzó hardverérzékelő-adatokat egyértelműen nem elérhetőként jelöli." />
+        <text name="FS25E_status_native_rejected" text="A motor elutasította ezt a felületet. A napló ellenőrzése után töltsd újra a küldetést." />
+        <text name="FS25E_status_asset_required" text="Kompatibilis jelenetelemek szükségesek" />
+        <text name="FS25E_status_sensor_unavailable" text="Nincsenek külső érzékelőadatok" />
+        <text name="FS25E_debug_fps" text="FPS" />
+        <text name="FS25E_debug_frameTime" text="Képkockaidő" />
+        <text name="FS25E_debug_mode" text="Profil" />
+        <text name="FS25E_debug_scene" text="Jelenet" />
+        <text name="FS25E_debug_reserve" text="Becsült tartalék" />
+        <text name="FS25E_debug_onePercent" text="1% alacsony FPS" />
+        <text name="FS25E_debug_shadows" text="Aktív árnyékvető fények" />
+        <text name="FS25E_debug_merged" text="Összevont árnyékcsoportok" />
+        <text name="FS25E_debug_ies" text="Aktív IES-fények" />
+        <text name="FS25E_debug_scattering" text="Fényszóródó fények" />
+        <text name="FS25E_debug_lod" text="Objektum-LOD" />
+        <text name="FS25E_debug_terrain" text="Terep-LOD" />
+        <text name="FS25E_debug_foliage" text="Növényzet-LOD" />
+        <text name="FS25E_debug_particles" text="Részecskekeret" />
+        <text name="FS25E_debug_water" text="Vízszimuláció" />
+        <text name="FS25E_debug_budget" text="Legnagyobb becsült keret" />
+        <text name="FS25E_debug_sensors" text="Rendszerérzékelők" />
+        <text name="FS25E_debug_vram" text="VRAM-használat" />
+        <text name="FS25E_scene_IndoorCab" text="Fülkebelső" />
+        <text name="FS25E_scene_IndoorBuilding" text="Épületbelső" />
+        <text name="FS25E_scene_RoadTravel" text="Közúti haladás" />
+        <text name="FS25E_scene_HeavyRain" text="Heves eső" />
+        <text name="FS25E_scene_Rain" text="Eső" />
+        <text name="FS25E_scene_Fog" text="Köd" />
+        <text name="FS25E_scene_FarmyardNight" text="Gazdasági udvar éjjel" />
+        <text name="FS25E_scene_FarmyardDay" text="Gazdasági udvar nappal" />
+        <text name="FS25E_scene_ClearNight" text="Derült éjszaka" />
+        <text name="FS25E_scene_OpenFieldDay" text="Nyílt szántóföld nappal" />
+        <text name="FS25E_scene_Unclassified" text="Nincs besorolva" />
+        <text name="FS25E_GRAPHICS_PAGE_TITLE" text="Enhanced grafika" />
+        <text name="FS25E_GRAPHICS_PAGE_HINT" text="Válassz profilt vagy nyiss meg egy kategóriát, hogy a beállításokat közvetlenül a jelenetben módosíthasd." />
+        <text name="FS25E_GRAPHICS_PAGE_LIVE_HINT" text="Egy kategória bezárja a szünetmenüt és megnyitja az élő finomhangolást. Az F9 játék közben bármikor megnyitja az Enhanced beállításait." />
+        <text name="FS25E_tooltip_waterFoam" text="A meglévő, regisztrált vízfelületek habfelhalmozódását skálázza. Nem hoz létre pocsolyákat és nem változtatja a vízszintet. Kísérleti." />
+        <text name="FS25E_selection_intro" text="Élő menü testreszabása: válassz kategóriát, majd jelenítsd meg vagy rejtsd el az egyes vezérlőket." />
+        <text name="FS25E_selection_count" text="Az élő menüben:" />
+        <text name="FS25E_selection_hide" text="Elrejtés" />
+        <text name="FS25E_selection_show" text="Megjelenítés" />
+        <text name="FS25E_selection_page" text="Oldal" />
+        <text name="FS25E_selection_hint" text="A kijelölés csak a láthatóságot módosítja. A grafikai értékek megmaradnak." />
+        <text name="FS25E_selection_show_all" text="Kategória megjelenítése" />
+        <text name="FS25E_selection_hide_all" text="Kategória elrejtése" />
+        <text name="FS25E_selection_open" text="Élő menü megnyitása" />
+        <text name="FS25E_selection_available" text="Elérhető · még nincs alkalmazva" />
+        <text name="FS25E_selection_saved" text="Kijelölés mentve." />
+        <text name="FS25E_selection_save_failed" text="A kijelölés mentése sikertelen." />
+        <text name="FS25E_status_selection_empty" text="A kategória összes vezérlője rejtett. Jelöld ki őket újra a játékmenü Enhanced oldalán." />
+        <text name="FS25E_setting_sceneBrightness" text="Kép fényereje" />
+        <text name="FS25E_tooltip_sceneBrightness" text="Az FS25 teljes képének fényereje a játék fokozataival. Nem változtatja a nap helyzetét vagy az időjárást." />
+        <text name="FS25E_status_brightnessUnavailable" text="Ebben a módban az FS25 fényereje nem állítható élőben." />
+        <text name="FS25E_status_ssrDisabled" text="A képernyőtérbeli tükröződések ki vannak kapcsolva." />
+        <text name="FS25E_setting_visibleRadius" text="Hatósugár" />
+        <text name="FS25E_tooltip_visibleRadius" text="Továbbfejlesztett helyi hatások a kamera látómezejében, ezen a távolságon belül. A külső objektumok visszaállnak. A LOD és a látótávolság különálló. A határ nem pixelpontos." />
+        <text name="FS25E_status_globalScopeUnavailable" text="Ez a GIANTS-beállítás globális, nem korlátozható a hatósugárra." />
+        <text name="FS25E_status_scopeControlled" text="Automatikus vezérlés a látható hatásterületen." />
+        <text name="FS25E_menu_presets" text="Mód / Profil" />
+        <text name="FS25E_setting_sunIntensity" text="Nap · Fényerő" />
+        <text name="FS25E_tooltip_sunIntensity" text="Nap · Fényerő: 0–8; 1 = 1×" />
+        <text name="FS25E_setting_sunWarmth" text="Nap · Fény melegsége" />
+        <text name="FS25E_tooltip_sunWarmth" text="Nap · Fény melegsége: -1…1" />
+        <text name="FS25E_setting_sunTint" text="Nap · Fény színárnyalata" />
+        <text name="FS25E_tooltip_sunTint" text="Nap · Fény színárnyalata: -1…1" />
+        <text name="FS25E_status_sunUnavailable" text="Nap: —" />
+        <text name="FS25E_status_sunInactive" text="Nap: Várakozik: kompatibilis lámpák bekapcsolásakor alkalmazza" />
+        <text name="FS25E_menu_environment" text="Környezet" />
+        <text name="FS25E_status_noVerifiedPaint" text="Nincs igazolt festett anyag. Az üveg, gumi és ismeretlen anyagok kimaradnak." />
+        <text name="FS25E_status_waitEnvironmentColor" text="Várakozás a játék által megadott napfényszóródási színre." />
+        <text name="FS25E_setting_environmentSunIntensity" text="Nap · Fényerő" />
+        <text name="FS25E_tooltip_environmentSunIntensity" text="Nap · Fényerő: 0–8; 1 = 1×" />
+        <text name="FS25E_setting_environmentSunWarmth" text="Nap · Fény melegsége" />
+        <text name="FS25E_tooltip_environmentSunWarmth" text="Nap · Fény melegsége: -1…1" />
+        <text name="FS25E_setting_environmentSunTint" text="Nap · Fény színárnyalata" />
+        <text name="FS25E_tooltip_environmentSunTint" text="Nap · Fény színárnyalata: -1…1" />
+        <text name="FS25E_setting_environmentShadowSoftness" text="Árnyékforrás mérete" />
+        <text name="FS25E_tooltip_environmentShadowSoftness" text="Árnyékforrás mérete: 0–20." />
+        <text name="FS25E_setting_environmentShadowDistance" text="Lágy árnyékforrás távolsága" />
+        <text name="FS25E_tooltip_environmentShadowDistance" text="Lágy árnyékforrás távolsága: 0.1–5000 m. A felületi fényforrás és a felület virtuális távolsága méterben. Nem az árnyékok megjelenítési távolsága." />
+        <text name="FS25E_setting_environmentShadowBias" text="Árnyékmélység eltolása" />
+        <text name="FS25E_tooltip_environmentShadowBias" text="Árnyékmélység eltolása: 0–10." />
+        <text name="FS25E_setting_environmentShadowExtrusion" text="Árnyékextrudálás távolsága" />
+        <text name="FS25E_tooltip_environmentShadowExtrusion" text="Árnyékextrudálás távolsága: 0–2000 m." />
+        <text name="FS25E_setting_environmentScatteringWarmth" text="Fényszóródás · Melegség" />
+        <text name="FS25E_tooltip_environmentScatteringWarmth" text="Fényszóródás · Melegség: -1…1; 0 = 1×. Elküldve; a motor nem biztosít visszaolvasást." />
+        <text name="FS25E_setting_environmentScatteringTint" text="Fényszóródás · Árnyalat" />
+        <text name="FS25E_tooltip_environmentScatteringTint" text="Fényszóródás · Árnyalat: -1…1; 0 = 1×. Elküldve; a motor nem biztosít visszaolvasást." />
+        <text name="FS25E_setting_debugSnapshot" text="Diagnosztika naplózása" />
+        <text name="FS25E_tooltip_debugSnapshot" text="Egyszer beolvassa a fontos grafikai adatokat, és a log.txt fájlba írja őket. Nem módosítja a grafikai beállításokat." />
+        <text name="FS25E_setting_debugWatch" text="Változások rögzítése 60 mp-ig" />
+        <text name="FS25E_tooltip_debugWatch" text="A grafikai változásokat 60 másodpercig rögzíti a log.txt fájlba, 2 másodpercenkénti ellenőrzéssel. Újra aktiválva leáll. Nincs automatikus indítás vagy állandó naplózás." />
+        <text name="FS25E_status_probe_written" text="Diagnosztika a log.txt fájlba írva" />
+        <text name="FS25E_status_probe_started" text="Grafikai rögzítés elindítva" />
+        <text name="FS25E_status_probe_stopped" text="Grafikai rögzítés leállítva" />
+        <text name="FS25E_status_probe_unavailable" text="Grafikai diagnosztika nem érhető el" />
+        <text name="FS25E_menu_image" text="Image &amp; tone" />
+        <text name="FS25E_menu_camera" text="Camera &amp; mirrors" />
+        <text name="FS25E_menu_window_hint" text="Title bar: move window - corner: resize - [] resets the layout" />
+        <text name="FS25E_setting_ssao_quality" text="Ambient occlusion (SSAO)" />
+        <text name="FS25E_tooltip_ssao_quality" text="Screen-space ambient occlusion. Darkens contact areas and corners. Higher levels cost GPU time in dense scenes." />
+        <text name="FS25E_setting_tone_mapping_slope" text="Tone curve: contrast" />
+        <text name="FS25E_tooltip_tone_mapping_slope" text="Slope of the filmic tone mapping curve. Higher is more contrast, lower is a flatter image. 1.0 is the engine default." />
+        <text name="FS25E_setting_tone_mapping_toe" text="Tone curve: shadows" />
+        <text name="FS25E_tooltip_tone_mapping_toe" text="Toe of the tone mapping curve. Higher crushes dark areas, lower lifts shadow detail." />
+        <text name="FS25E_setting_tone_mapping_shoulder" text="Tone curve: highlights" />
+        <text name="FS25E_tooltip_tone_mapping_shoulder" text="Shoulder of the tone mapping curve. Controls how bright areas roll off before they clip to white." />
+        <text name="FS25E_setting_tone_mapping_black_clip" text="Tone curve: black point" />
+        <text name="FS25E_tooltip_tone_mapping_black_clip" text="Black clip of the tone mapping curve. Negative values keep more detail in the darkest pixels." />
+        <text name="FS25E_setting_tone_mapping_white_clip" text="Tone curve: white point" />
+        <text name="FS25E_tooltip_tone_mapping_white_clip" text="White clip of the tone mapping curve. Lower values make highlights reach pure white sooner." />
+        <text name="FS25E_setting_cloud_shadows_quality" text="Cloud shadows" />
+        <text name="FS25E_tooltip_cloud_shadows_quality" text="Casts moving cloud shadows onto the world. Costs a little GPU time and changes scene brightness over the day." />
+        <text name="FS25E_setting_shadow_map_filter_size" text="Shadow map filter" />
+        <text name="FS25E_tooltip_shadow_map_filter_size" text="Size of the shadow map filter kernel. The larger setting gives softer shadow edges for more GPU time." />
+        <text name="FS25E_setting_spot_shadow_full_resolution_percentage" text="Spot shadows: full resolution share" />
+        <text name="FS25E_tooltip_spot_shadow_full_resolution_percentage" text="Share of spot lights that get a full resolution shadow map slot. Higher is sharper vehicle and lamp shadows." />
+        <text name="FS25E_setting_spot_shadow_atlas_slot_factor" text="Spot shadows: atlas slots" />
+        <text name="FS25E_tooltip_spot_shadow_atlas_slot_factor" text="Scales how many slots of the spot shadow atlas are handed out. Higher keeps more lamps shadowed at once." />
+        <text name="FS25E_setting_spot_shadow_distance_frequency_factor" text="Spot shadows: distance update rate" />
+        <text name="FS25E_tooltip_spot_shadow_distance_frequency_factor" text="How often distant spot shadows are refreshed. Higher is more stable at distance and costs more GPU time." />
+        <text name="FS25E_setting_spot_shadow_min_cone_angle_percentage" text="Spot shadows: minimum cone angle" />
+        <text name="FS25E_tooltip_spot_shadow_min_cone_angle_percentage" text="Smallest cone angle share a spot light keeps before its shadow is reduced." />
+        <text name="FS25E_setting_spot_shadow_reduced_cone_angle_factor" text="Spot shadows: cone reduction" />
+        <text name="FS25E_tooltip_spot_shadow_reduced_cone_angle_factor" text="How strongly the cone angle is reduced for cheaper spot shadows." />
+        <text name="FS25E_setting_volume_mesh_tessellation_coeff" text="Volume mesh tessellation" />
+        <text name="FS25E_tooltip_volume_mesh_tessellation_coeff" text="Tessellation factor for volume meshes such as fill levels and heaps. Higher is rounder geometry for more GPU time." />
+        <text name="FS25E_setting_tyre_tracks_segments_coeff" text="Tyre track length" />
+        <text name="FS25E_tooltip_tyre_tracks_segments_coeff" text="Length of the tyre track history kept in the world. Higher keeps tracks visible longer and uses more memory." />
+        <text name="FS25E_setting_fovVehicle" text="Field of view (vehicle)" />
+        <text name="FS25E_tooltip_fovVehicle" text="Vertical field of view for vehicle cameras. Written through the game settings and restored when the mod unloads." />
+        <text name="FS25E_setting_fovFirstPerson" text="Field of view (first person)" />
+        <text name="FS25E_tooltip_fovFirstPerson" text="Vertical field of view while walking in first person. Written through the game settings." />
+        <text name="FS25E_setting_fovThirdPerson" text="Field of view (third person)" />
+        <text name="FS25E_tooltip_fovThirdPerson" text="Vertical field of view for the third person player camera. Written through the game settings." />
+        <text name="FS25E_setting_maxMirrors" text="Mirror count" />
+        <text name="FS25E_tooltip_maxMirrors" text="How many vehicle mirrors render at the same time. Each active mirror is an extra scene pass." />
+        <text name="FS25E_setting_lightsProfile" text="Vehicle lights profile" />
+        <text name="FS25E_tooltip_lightsProfile" text="Lights quality profile for vehicles and placeables. Higher profiles keep more real light sources and shadows active." />
+        <text name="FS25E_setting_paintReflectivity" text="Paint reflection" />
+        <text name="FS25E_tooltip_paintReflectivity" text="One slider for the whole paint reflection chain: clear coat, coat smoothness and the roughness bias handed to screen space reflections. Everything is scaled from the values the material was authored with, so gloss and metallic paint become a real mirror while a matte powder coat keeps its look. Glass, bare rubber, wood and fabric are never touched; rubber or plastic carrying its own clear coat is detected and included automatically. Needs screen space reflections switched on." />
+        <text name="FS25E_compare_button_mod" text="MOD ON" />
+        <text name="FS25E_compare_button_vanilla" text="VANILLA" />
+        <text name="FS25E_compare_mod_notice" text="FS25 Enhanced: MOD (all settings applied)" />
+        <text name="FS25E_compare_vanilla_notice" text="FS25 Enhanced: VANILLA (stock look, settings kept)" />
+        <text name="FS25E_setting_compareToggle" text="Compare: MOD / VANILLA" />
+        <text name="FS25E_tooltip_compareToggle" text="Switches every value this mod holds off and back on for a direct comparison with the stock look. Hotkey: Alt+F9. The settings themselves are kept." />
+        <text name="FS25E_setting_groundWetnessScale" text="Ground wetness" />
+        <text name="FS25E_tooltip_groundWetnessScale" text="Multiplies the wetness the weather hands to the renderer. It drives the dark, reflective look of terrain, roads and puddle decals while it rains and while the ground dries. 1.0 is the game value." />
+        <text name="FS25E_setting_groundWetnessHold" text="Drying time" />
+        <text name="FS25E_tooltip_groundWetnessHold" text="Minimum time the ground needs to dry from fully wet to dry after the rain stops. 0 keeps the game speed; higher values leave roads and yards damp longer." />
+        <text name="FS25E_setting_wetSurfaceShininess" text="Wet surfaces: reflection" />
+        <text name="FS25E_tooltip_wetSurfaceShininess" text="Scales how mirror-like buildings, roads and yard surfaces become when wet (placeable shader wetShininess). Only materials with a wet contract change; vegetation and trees are never touched." />
+        <text name="FS25E_setting_wetSurfaceIntensity" text="Wet surfaces: strength" />
+        <text name="FS25E_tooltip_wetSurfaceIntensity" text="Scales how strongly buildings and placeables respond to wetness at all (wetnessScale). 0 keeps them dry, values above 1 darken and glaze them more." />
+        <text name="FS25E_setting_waterReflectionRoughness" text="Water: reflection roughness" />
+        <text name="FS25E_tooltip_waterReflectionRoughness" text="Screen space reflection roughness of water planes (ocean shader ssrRoughness). 0 is a sharp mirror, higher values blur the reflection." />
+        <text name="FS25E_status_waitScan" text="scanning world materials" />
+        <text name="FS25E_status_noWetSurfaces" text="no compatible surface found" />
+        <text name="FS25E_setting_environmentMood" text="Light mood" />
+        <text name="FS25E_tooltip_environmentMood" text="Curated combinations of sun intensity, colour temperature, tint and scattering. Off hands all of them back to the game; any single slider can still be adjusted afterwards." />
+        <text name="FS25E_value_mood0" text="Off" />
+        <text name="FS25E_value_mood1" text="Crisp" />
+        <text name="FS25E_value_mood2" text="Warm evening" />
+        <text name="FS25E_value_mood3" text="Cool overcast" />
+        <text name="FS25E_value_mood4" text="Golden hour" />
+        <text name="FS25E_value_mood5" text="Soft" />
+        <text name="FS25E_setting_uiLanguage" text="Mod language" />
+        <text name="FS25E_tooltip_uiLanguage" text="Language of every text in this window and the HUD. Auto follows the game language; German and English are always available." />
+        <text name="FS25E_value_language_auto" text="Auto (game)" />
+        <text name="FS25E_value_language_de" text="Deutsch" />
+        <text name="FS25E_value_language_en" text="English" />
+        <text name="FS25E_setting_enhancedLevel" text="Quality level (all effects)" />
+        <text name="FS25E_tooltip_enhancedLevel" text="Sets every quality-type control at once: draw distances, shadows, lamps, SSAO, reflections, wet world, rain. Ultra puts each member at its maximum. Colour, field of view, tone curve and moods are not touched. Off hands everything back to the game." />
+        <text name="FS25E_value_level0" text="Off" />
+        <text name="FS25E_value_level1" text="Low" />
+        <text name="FS25E_value_level2" text="Medium" />
+        <text name="FS25E_value_level3" text="High" />
+        <text name="FS25E_value_level4" text="Very high" />
+        <text name="FS25E_value_level5" text="Ultra" />
+        <text name="FS25E_setting_environmentGodRays" text="Sun light shafts (god rays)" />
+        <text name="FS25E_tooltip_environmentGodRays" text="Switches volumetric light scattering on the sun light. Shafts become visible where the air is dense: fog, dust, rain, and with volumetric fog quality above off." />
+        <text name="FS25E_setting_fog_ground_density" text="Fog: ground density" />
+        <text name="FS25E_tooltip_fog_ground_density" text="Density of the height fog at ground level. Denser fog makes sun shafts and lamp cones visible. Only offered when the running build exposes the setter (fs25eApiDump Fog)." />
+        <text name="FS25E_setting_fog_max_height" text="Fog: maximum height" />
+        <text name="FS25E_tooltip_fog_max_height" text="Height above which the height fog fades out. Only offered when the running build exposes the setter." />
+        <text name="FS25E_setting_puddleOpacity" text="Puddles" />
+        <text name="FS25E_tooltip_puddleOpacity" text="Scales the opacity of the map's puddle decals (puddle shader). They follow the ground wetness; this makes them show sooner and stronger. Unavailable on maps without puddle decals." />
+        <text name="FS25E_setting_canopyOcclusion" text="Tree canopy: ambient occlusion" />
+        <text name="FS25E_tooltip_canopyOcclusion" text="Scales the ambient occlusion inside tree crowns (treeBranchShader aoIntensity). More gives darker, deeper canopies; less flattens them." />
+        <text name="FS25E_setting_leafBacklight" text="Tree canopy: backlight" />
+        <text name="FS25E_tooltip_leafBacklight" text="Light that passes through leaves from behind (treeBranchShader backfaceDiffuseScale, authored 0.35). Higher makes crowns glow against the sun." />
+        <text name="FS25E_setting_cropOcclusion" text="Crops: ambient occlusion" />
+        <text name="FS25E_tooltip_cropOcclusion" text="Scales the ambient occlusion inside crop fields (fruitGrowthFoliageShader aoIntensity). Deeper shading between plants at higher values." />
+        <text name="FS25E_setting_cropTranslucency" text="Crops: translucency" />
+        <text name="FS25E_tooltip_cropTranslucency" text="Sunlight shining through crop plants (fruitGrowthFoliageShader translucencyAmount, authored 0). Gives fields a glow in low sun." />
+        <text name="FS25E_setting_foliageTranslucency" text="Foliage: translucency" />
+        <text name="FS25E_tooltip_foliageTranslucency" text="Scales the light transmission of translucent world foliage such as bushes and grass (translucencyShader translucencyAmount, authored 0.35)." />
+        <text name="FS25E_setting_surfaceContrast" text="Painted surfaces: contrast" />
+        <text name="FS25E_tooltip_surfaceContrast" text="Contrast of vertex-painted world surfaces such as roads and yards (vertexPaintShader contrastLuminiosity x). Above 1 deepens texture detail." />
+        <text name="FS25E_setting_surfaceLuminosity" text="Painted surfaces: brightness" />
+        <text name="FS25E_tooltip_surfaceLuminosity" text="Brightness offset of vertex-painted world surfaces (vertexPaintShader contrastLuminiosity y, authored 0). Negative darkens, positive lifts." />
+        <text name="FS25E_setting_treeWind" text="Trees: wind strength" />
+        <text name="FS25E_tooltip_treeWind" text="Scales how strongly leaves and branches move in the wind (treeBranchShader/treeBillboardShader windSnowLeafScale x, authored 1). 0 holds every tree still, 3 makes a storm. Trees the game cut keep their own value." />
+        <text name="FS25E_setting_treeTintVariation" text="Trees: colour variation" />
+        <text name="FS25E_tooltip_treeTintVariation" text="Scales the random per-tree colour tint of the season (seasonalTintIntensity, authored e.g. 0.10 0.10 0.20 for spring/summer/autumn). Higher makes neighbouring trees differ more; 0 gives every tree of a type the same colour." />
+        <text name="FS25E_setting_leafBacklightBase" text="Trees: backlight floor" />
+        <text name="FS25E_tooltip_leafBacklightBase" text="Constant light added to the back side of leaves (treeBranchShader backfaceDiffuseScale y, authored 0). Lifts dark crowns seen against the sun even where no direct light passes through." />
+        <text name="FS25E_setting_cropWind" text="Crops and grass: wind strength" />
+        <text name="FS25E_tooltip_cropWind" text="Scales the wind sway of crops, grass and meadow (fruitGrowthFoliageShader windScale, authored 1). 0 holds the fields still. Only plants rendered as foliage geometry (within roughly 80 m) are affected; farther fields are the distance texture." />
+        <text name="FS25E_setting_buildingMoss" text="Buildings: moss" />
+        <text name="FS25E_tooltip_buildingMoss" text="Scales the moss mask of building materials (buildingShader dirtMossMix x, authored 1). 0 removes the moss, higher fills the mask up to the shader limit." />
+        <text name="FS25E_setting_buildingDirt" text="Buildings: dirt" />
+        <text name="FS25E_tooltip_buildingDirt" text="Scales the dirt mask of building materials (buildingShader dirtMossMix y, authored 1). 0 gives clean walls, higher more weathering." />
+        <text name="FS25E_setting_rockMoss" text="Rocks: moss and dirt" />
+        <text name="FS25E_tooltip_rockMoss" text="Scales the moss/dirt mask of rock materials (placeableShader mossLevel, rockDetail variation, authored 1). 0 gives bare rock." />
+        <text name="FS25E_setting_atmosphere_asymmetry" text="Atmosphere: sun halo concentration" />
+        <text name="FS25E_tooltip_atmosphere_asymmetry" text="Phase asymmetry of the atmospheric scattering (the map's environment.xml asymmetryFactor curve, 0.5 by day and 0.8 at night). Higher concentrates the glow around the sun, lower spreads it over the sky. Only offered when the running build has the setter (see the ApiInventory log lines)." />
+        <text name="input_FS25E_TOGGLE_COMPARE" text="FS25 Enhanced: compare modded / vanilla" />
+        <text name="FS25E_setting_environmentShadowResolution" text="Sun shadow map size" />
+        <text name="FS25E_tooltip_environmentShadowResolution" text="Depth map resolution of the sun light (setLightShadowMap on the mission sun, read back with getLightCastingShadowMap): 1024 to 8192 px. Larger maps give sharper, deeper shadows at a real GPU cost; 8192 needs plenty of video memory. Off hands the exact game size back." />
+    </texts>
+</l10n>

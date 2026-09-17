@@ -1,48 +1,83 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<!--
-  FS25_Enhanced presets.xml — Performance / Balanced / Quality / Cinematic stubs.
-  Phase 2: ProfileManager reads these into SettingsCache requested slots only.
-  NOT applied to engine automatically (autoApply remains off).
--->
-<presets version="0.2">
+<?xml version='1.0' encoding='utf-8'?>
+<presets version="0.5">
     <preset name="Performance" l10n="FS25E_PRESET_PERFORMANCE">
-        <note>Favor frame-time; lowest visual budget.</note>
-        <target key="viewDistanceCoeff" value="0.7"/>
-        <target key="lodDistanceCoeff" value="0.7"/>
-        <target key="foliageViewDistanceCoeff" value="0.6"/>
-        <target key="foliageLodDistanceCoeff" value="0.6"/>
-        <target key="terrainLodDistanceCoeff" value="0.7"/>
-        <target key="maxNumShadowLights" value="2"/>
-        <target key="allowFoliageShadows" value="false"/>
+        <note>Native distance and local-light targets; visual result not yet game-tested; manual locks retained; incompatible light assets skipped.</note>
+        <target key="viewDistanceCoeff" value="0.7" />
+        <target key="lodDistanceCoeff" value="0.7" />
+        <target key="foliageViewDistanceCoeff" value="0.6" />
+        <target key="foliageLodDistanceCoeff" value="0.6" />
+        <target key="terrainLodDistanceCoeff" value="0.7" />
+        <target key="maxNumShadowLights" value="4" />
+        <target key="allowFoliageShadows" value="false" />
+        <target key="localShadowBudget" value="4" />
+        <target key="nearShadowResolution" value="1" />
+        <target key="farShadowResolution" value="0" />
+        <target key="vehicleShadowRange" value="60" />
+        <target key="lightHighRadius" value="25" />
+        <target key="relevantLightBudget" value="12" />
+        <target key="iesBudget" value="6" />
+        <target key="scatteringBudget" value="3" />
+        <target key="shadowSoftness" value="0.9" />
+        <target key="localShadows" value="1" />
     </preset>
     <preset name="Balanced" l10n="FS25E_PRESET_BALANCED" default="true">
-        <note>Default compromise between visuals and performance.</note>
-        <target key="viewDistanceCoeff" value="1.0"/>
-        <target key="lodDistanceCoeff" value="1.0"/>
-        <target key="foliageViewDistanceCoeff" value="1.0"/>
-        <target key="foliageLodDistanceCoeff" value="1.0"/>
-        <target key="terrainLodDistanceCoeff" value="1.0"/>
-        <target key="maxNumShadowLights" value="4"/>
-        <target key="allowFoliageShadows" value="true"/>
+        <note>Native distance and local-light targets; visual result not yet game-tested; manual locks retained; incompatible light assets skipped.</note>
+        <target key="viewDistanceCoeff" value="1.0" />
+        <target key="lodDistanceCoeff" value="1.0" />
+        <target key="foliageViewDistanceCoeff" value="1.0" />
+        <target key="foliageLodDistanceCoeff" value="1.0" />
+        <target key="terrainLodDistanceCoeff" value="1.0" />
+        <target key="maxNumShadowLights" value="6" />
+        <target key="allowFoliageShadows" value="true" />
+        <target key="localShadowBudget" value="6" />
+        <target key="nearShadowResolution" value="2" />
+        <target key="farShadowResolution" value="1" />
+        <target key="vehicleShadowRange" value="90" />
+        <target key="lightHighRadius" value="35" />
+        <target key="relevantLightBudget" value="20" />
+        <target key="iesBudget" value="10" />
+        <target key="scatteringBudget" value="6" />
+        <target key="shadowSoftness" value="1.1" />
+        <target key="localShadows" value="1" />
     </preset>
     <preset name="Quality" l10n="FS25E_PRESET_QUALITY">
-        <note>Higher visual budget; still respects target FPS when adaptive.</note>
-        <target key="viewDistanceCoeff" value="1.25"/>
-        <target key="lodDistanceCoeff" value="1.25"/>
-        <target key="foliageViewDistanceCoeff" value="1.2"/>
-        <target key="foliageLodDistanceCoeff" value="1.2"/>
-        <target key="terrainLodDistanceCoeff" value="1.2"/>
-        <target key="maxNumShadowLights" value="6"/>
-        <target key="allowFoliageShadows" value="true"/>
+        <note>Native distance and local-light targets; visual result not yet game-tested; manual locks retained; incompatible light assets skipped.</note>
+        <target key="viewDistanceCoeff" value="1.05" />
+        <target key="lodDistanceCoeff" value="1.25" />
+        <target key="foliageViewDistanceCoeff" value="1.2" />
+        <target key="foliageLodDistanceCoeff" value="1.2" />
+        <target key="terrainLodDistanceCoeff" value="1.2" />
+        <target key="maxNumShadowLights" value="8" />
+        <target key="allowFoliageShadows" value="true" />
+        <target key="localShadowBudget" value="8" />
+        <target key="nearShadowResolution" value="3" />
+        <target key="farShadowResolution" value="1" />
+        <target key="vehicleShadowRange" value="130" />
+        <target key="lightHighRadius" value="45" />
+        <target key="relevantLightBudget" value="28" />
+        <target key="iesBudget" value="14" />
+        <target key="scatteringBudget" value="8" />
+        <target key="shadowSoftness" value="1.25" />
+        <target key="localShadows" value="1" />
     </preset>
     <preset name="Cinematic" l10n="FS25E_PRESET_CINEMATIC">
-        <note>Max visuals; may allow EXPERIMENTAL caps later. Not for competitive FPS.</note>
-        <target key="viewDistanceCoeff" value="1.5"/>
-        <target key="lodDistanceCoeff" value="1.5"/>
-        <target key="foliageViewDistanceCoeff" value="1.5"/>
-        <target key="foliageLodDistanceCoeff" value="1.5"/>
-        <target key="terrainLodDistanceCoeff" value="1.5"/>
-        <target key="maxNumShadowLights" value="8"/>
-        <target key="allowFoliageShadows" value="true"/>
+        <note>Native distance and local-light targets; visual result not yet game-tested; manual locks retained; incompatible light assets skipped.</note>
+        <target key="viewDistanceCoeff" value="1.05" />
+        <target key="lodDistanceCoeff" value="1.5" />
+        <target key="foliageViewDistanceCoeff" value="1.5" />
+        <target key="foliageLodDistanceCoeff" value="1.5" />
+        <target key="terrainLodDistanceCoeff" value="1.5" />
+        <target key="maxNumShadowLights" value="12" />
+        <target key="allowFoliageShadows" value="true" />
+        <target key="localShadowBudget" value="12" />
+        <target key="nearShadowResolution" value="3" />
+        <target key="farShadowResolution" value="2" />
+        <target key="vehicleShadowRange" value="160" />
+        <target key="lightHighRadius" value="55" />
+        <target key="relevantLightBudget" value="40" />
+        <target key="iesBudget" value="20" />
+        <target key="scatteringBudget" value="12" />
+        <target key="shadowSoftness" value="1.4" />
+        <target key="localShadows" value="1" />
     </preset>
 </presets>

@@ -22,37 +22,24 @@ end
 --- Does NOT uninstall mission hooks — those must survive savegame reload in the same session.
 --- Does NOT call saveHardwareScalability (no hardware profile write without user opt-in).
 function FS25E_RestoreManager.restoreAll()
-    FS25E_Debug.info("RestoreManager", "restoreAll begin (session restore; no saveHardwareScalability)")
-
-    FS25E_Debug.pcall("RestoreManager", "ShadowManager.restoreAll", function()
-        if FS25E_ShadowManager ~= nil and FS25E_ShadowManager.restoreAll ~= nil then
-            FS25E_ShadowManager.restoreAll()
-        end
-    end)
-
-    -- Expert caps restore via CapabilityApplier (shadow-focus-box → setShadowFocusBox(0))
-
-    FS25E_Debug.pcall("RestoreManager", "LodGovernor.restoreAll", function()
-        if FS25E_LodGovernor ~= nil and FS25E_LodGovernor.restoreAll ~= nil then
-            FS25E_LodGovernor.restoreAll()
-        end
-    end)
-
-    FS25E_Debug.pcall("RestoreManager", "CapabilityApplier.restoreAll", function()
-        if FS25E_CapabilityApplier ~= nil and FS25E_CapabilityApplier.restoreAll ~= nil then
-            FS25E_CapabilityApplier.restoreAll()
-        end
-    end)
-
-    local ok1 = FS25E_Debug.pcall("RestoreManager", "SettingsCache.restoreToOriginal", function()
-        if FS25E_SettingsCache ~= nil then
-            FS25E_SettingsCache.restoreToOriginal()
-        end
-    end)
-
-    registeredKeys = {}
-    restoredOnce = true
-    FS25E_Debug.info("RestoreManager", string.format("restoreAll done (cache=%s)", tostring(ok1)))
+    local function restore(module,label)
+        if not module or type(module.restoreAll)~='function' then return true end
+        local ok,result=FS25E_Debug.pcall('RestoreManager',label,module.restoreAll)
+        return ok and result~=false
+    end
+    local success=restore(FS25E_ShadowManager,'ShadowManager.restoreAll')
+    success=restore(FS25E_ModuleRuntime,'ModuleRuntime.restoreAll') and success
+    success=restore(FS25E_LodGovernor,'LodGovernor.restoreAll') and success
+    success=restore(FS25E_CapabilityApplier,'CapabilityApplier.restoreAll') and success
+    if success then
+        -- The native applier already updated readback caches, including newer
+        -- external baselines. Never replace those with older cached originals.
+        if FS25E_SettingsCache then FS25E_SettingsCache.restoreToOriginal(true) end
+        registeredKeys={}
+    end
+    restoredOnce=success
+    FS25E_Debug.info('RestoreManager','restoreAll success='..tostring(success)..'; failed native records remain pending')
+    return success
 end
 
 --- Full unload: restore settings then remove Utils hooks registered by this mod.

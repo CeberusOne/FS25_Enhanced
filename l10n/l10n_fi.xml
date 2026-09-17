@@ -1,0 +1,616 @@
+<?xml version='1.0' encoding='utf-8'?>
+<l10n>
+    <texts>
+        <text name="FS25E_SETTINGS_TITLE" text="FS25 Enhanced · Lisäasetukset" />
+        <text name="FS25E_SETTINGS_SIMPLE" text="Yksinkertainen" />
+        <text name="FS25E_SETTINGS_ADVANCED" text="Lisäasetukset" />
+        <text name="FS25E_HELP_HINT" text="Valitse asetus, niin näet lyhyen selityksen." />
+        <text name="FS25E_SETTING_ENABLED" text="Ota modi käyttöön" />
+        <text name="FS25E_SETTING_ENABLED_TOOLTIP" text="Kytkee modin päälle tai pois. Poiskytkentä palauttaa tämän istunnon aiemmat grafiikka-arvot." />
+        <text name="FS25E_SETTING_PRESET" text="Tila / Esiasetus" />
+        <text name="FS25E_SETTING_PRESET_TOOLTIP" text="Valitse Suorituskyky, Tasapainoinen, Laatu tai Elokuvamainen. Korkeammat profiilit käyttävät enemmän GPU-aikaa." />
+        <text name="FS25E_SETTING_TARGET_FPS" text="Tavoite-FPS" />
+        <text name="FS25E_SETTING_TARGET_FPS_TOOLTIP" text="Mukautuvan ohjauksen tavoite 15–240 FPS. Tämä on laatubudjetti, ei FPS-rajoitin." />
+        <text name="FS25E_SETTING_ADAPTIVE" text="Mukautuva" />
+        <text name="FS25E_SETTING_ADAPTIVE_TOOLTIP" text="Säätää tuettua grafiikkalaatua automaattisesti ruutuaikatavoitteeseen. Manuaaliset lukitukset säilyvät; kokeelliset toiminnot eivät kuulu säätöön." />
+        <text name="FS25E_PRESET_OFF" text="Pois" />
+        <text name="FS25E_PRESET_BALANCED" text="Tasapainoinen" />
+        <text name="FS25E_PRESET_QUALITY" text="Laatu" />
+        <text name="FS25E_PRESET_PERFORMANCE" text="Suorituskyky" />
+        <text name="FS25E_PRESET_CINEMATIC" text="Elokuvamainen" />
+        <text name="FS25E_FPS_30" text="30" />
+        <text name="FS25E_FPS_40" text="40" />
+        <text name="FS25E_FPS_50" text="50" />
+        <text name="FS25E_FPS_60" text="60" />
+        <text name="FS25E_FPS_UNLIMITED" text="Rajoittamaton" />
+        <text name="FS25E_OPT_OFF" text="Pois" />
+        <text name="FS25E_OPT_LOW" text="Matala" />
+        <text name="FS25E_OPT_MED" text="Keskitaso" />
+        <text name="FS25E_OPT_HIGH" text="Korkea" />
+        <text name="FS25E_OPT_ULTRA" text="Ultra" />
+        <text name="FS25E_SECTION_SHADOWS" text="Varjot" />
+        <text name="FS25E_SECTION_LIGHTING" text="Valaistus" />
+        <text name="FS25E_SECTION_LOD" text="LOD / Kasvillisuus" />
+        <text name="FS25E_SETTING_SHADOW_QUALITY" text="Shadow Quality" />
+        <text name="FS25E_SETTING_SHADOW_QUALITY_TOOLTIP" text="What you see: sharper, richer shadows. What it costs: high GPU load at High/Ultra." />
+        <text name="FS25E_SETTING_SHADOW_DISTANCE" text="Shadow Distance" />
+        <text name="FS25E_SETTING_SHADOW_DISTANCE_TOOLTIP" text="What you see: shadows farther from the camera. What it costs: more fill rate when raised." />
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS" text="Max Shadow Lights" />
+        <text name="FS25E_SETTING_MAX_SHADOW_LIGHTS_TOOLTIP" text="What you see: more lights casting shadows. What it costs: can spike frame time in lit yards." />
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS" text="Foliage Shadows" />
+        <text name="FS25E_SETTING_FOLIAGE_SHADOWS_TOOLTIP" text="What you see: crops and trees cast shadows. What it costs: heavy in dense fields." />
+        <text name="FS25E_SETTING_SOFT_SHADOWS" text="Soft Shadows" />
+        <text name="FS25E_SETTING_SOFT_SHADOWS_TOOLTIP" text="What you see: softer shadow edges. What it costs: filter quality adds GPU work." />
+        <text name="FS25E_SETTING_MAX_LIGHTS" text="Max Lights" />
+        <text name="FS25E_SETTING_MAX_LIGHTS_TOOLTIP" text="What you see: more active lights nearby. What it costs: higher lighting budget." />
+        <text name="FS25E_SETTING_LIGHT_SCATTERING" text="Light Scattering" />
+        <text name="FS25E_SETTING_LIGHT_SCATTERING_TOOLTIP" text="What you see: softer glow / haze around lights. What it costs: medium GPU cost when raised." />
+        <text name="FS25E_SETTING_SHADOW_MERGE" text="Shadow Merge" />
+        <text name="FS25E_SETTING_SHADOW_MERGE_TOOLTIP" text="What you see: similar vehicle light shadows combined when safe. What it costs: can be expensive; restored when disabled." />
+        <text name="FS25E_SETTING_VIEW_DISTANCE" text="View Distance" />
+        <text name="FS25E_SETTING_VIEW_DISTANCE_TOOLTIP" text="What you see: objects stay detailed farther away. What it costs: CPU risk if pushed too high." />
+        <text name="FS25E_SETTING_LOD_DISTANCE" text="LOD Distance" />
+        <text name="FS25E_SETTING_LOD_DISTANCE_TOOLTIP" text="What you see: high-detail models kept longer. What it costs: more geometry work." />
+        <text name="FS25E_SETTING_FOLIAGE_VIEW" text="Foliage View Distance" />
+        <text name="FS25E_SETTING_FOLIAGE_VIEW_TOOLTIP" text="What you see: vegetation drawn farther. What it costs: high in large fields." />
+        <text name="FS25E_SETTING_FOLIAGE_LOD" text="Foliage LOD Distance" />
+        <text name="FS25E_SETTING_FOLIAGE_LOD_TOOLTIP" text="What you see: richer plant detail longer. What it costs: foliage LOD is expensive." />
+        <text name="FS25E_SETTING_TERRAIN_LOD" text="Terrain LOD Distance" />
+        <text name="FS25E_SETTING_TERRAIN_LOD_TOOLTIP" text="What you see: ground detail farther out. What it costs: usually medium." />
+        <text name="FS25E_LIVE_TUNING_TITLE" text="Reaaliaikainen hienosäätö" />
+        <text name="FS25E_HOTKEY_LIVE_TUNING" text="Näytä / piilota reaaliaikainen säätö" />
+        <text name="FS25E_SETTING_LIVE_TUNING" text="Reaaliaikainen hienosäätö" />
+        <text name="FS25E_SETTING_LIVE_TUNING_TOOLTIP" text="Näyttää mitatut ruutuajat ja grafiikkabudjetit diagnostiikkapaneelissa. Avaa reaaliaikaiset säädöt Ctrl+F9:llä tai luokkapainikkeilla." />
+        <text name="FS25E_EXPERT_MODE" text="Asiantuntijatila" />
+        <text name="FS25E_EXPERT_MODE_TOOLTIP" text="Ottaa laajennetun diagnostiikan käyttöön. Reaaliaikainen grafiikkavalikko toimii ilman asiantuntijatilaa. Kokeelliset säädöt säilyttävät omat yhteensopivuustarkistuksensa." />
+        <text name="FS25E_CLIENT_ONLY_HINT" text="Grafiikkamuutokset koskevat vain asiakasta" />
+        <text name="FS25E_CLIENT_ONLY_HINT_TOOLTIP" text="Muutokset koskevat vain omaa tietokonettasi. Muut moninpelin pelaajat säilyttävät omat grafiikkansa." />
+        <text name="FS25E_WARN_EXTREME_COST" text="Tämä asetus voi vaikuttaa suorituskykyyn voimakkaasti." />
+        <text name="FS25E_KEY_CONFLICT" text="Näppäinristiriita havaittu. Vaihda näppäin Ohjaus-asetuksissa tai poista ristiriitainen toiminto." />
+        <text name="FS25E_SETTINGS_EXPERT" text="Asiantuntija" />
+        <text name="FS25E_SETTINGS_STATUS" text="Tila" />
+        <text name="FS25E_SETTINGS_SECTION" text="Osio" />
+        <text name="input_FS25E_OPEN_SETTINGS" text="Avaa FS25 Enhanced -asetukset" />
+        <text name="input_FS25E_LIVE_HINT" text="FS25 Enhanced Live Tuning Hint" />
+        <text name="FS25E_LIVE_HINT_LATER" text="Live Tuning coming later" />
+        <text name="FS25E_LIVE_OVERLAY_TITLE" text="FS25E Expert Live Overlay" />
+        <text name="FS25E_LIVE_OVERLAY_OPEN" text="Open Live Overlay" />
+        <text name="FS25E_LIVE_OVERLAY_HINT" text="Wheel/click bar | +/- | R restore | Esc | Ctrl+Shift+E" />
+        <text name="FS25E_LIVE_OVERLAY_GATE_REQUIRED" text="Expert Mode + Live Tuning required" />
+        <text name="FS25E_LIVE_OVERLAY_UNAVAILABLE" text="Live Overlay unavailable" />
+        <text name="FS25E_LIVE_OVERLAY_SESSION" text="Values: session via SettingsCache (persist optional)" />
+        <text name="FS25E_LIVE_OVERLAY_VIEW_DISTANCE" text="View Distance Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_LOD_DISTANCE" text="LOD Distance Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_VIEW" text="Foliage View Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_LOD" text="Foliage LOD Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_TERRAIN_LOD" text="Terrain LOD Coeff" />
+        <text name="FS25E_LIVE_OVERLAY_MAX_SHADOW_LIGHTS" text="Max Shadow Lights" />
+        <text name="FS25E_LIVE_OVERLAY_RAIN_AMOUNT" text="Rain Amount Mult" />
+        <text name="FS25E_LIVE_OVERLAY_SSR_QUALITY" text="SSR Quality" />
+        <text name="FS25E_LIVE_OVERLAY_ATMOSPHERE_QUALITY" text="Atmosphere Quality" />
+        <text name="FS25E_LIVE_OVERLAY_DRS_QUALITY" text="DRS Quality" />
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_FOCUS" text="Shadow Focus Box" />
+        <text name="FS25E_LIVE_OVERLAY_FAST_SHADOW" text="Fast Shadow Update" />
+        <text name="FS25E_LIVE_OVERLAY_RAIN_SHALLOW" text="Rain Shallow Water" />
+        <text name="input_FS25E_TOGGLE_LIVE_OVERLAY" text="Näytä / piilota FS25 Enhanced -reaaliaikapaneeli" />
+        <text name="FS25E_HUD_TITLE_MINI" text="FS25E HUD" />
+        <text name="FS25E_HUD_ENGINE" text="Moottori" />
+        <text name="FS25E_HUD_SYSTEM" text="Järjestelmä" />
+        <text name="FS25E_HUD_DISCONNECTED" text="EI YHTEYTTÄ" />
+        <text name="FS25E_HUD_MS" text="ms" />
+        <text name="FS25E_LIVE_OVERLAY_FOLIAGE_SHADOWS" text="Allow Foliage Shadows" />
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_QUALITY" text="Shadow Quality" />
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_DIST_Q" text="Shadow Distance Quality" />
+        <text name="FS25E_LIVE_OVERLAY_SHADOW_FILTER" text="Shadow Filter Quality" />
+        <text name="FS25E_SETTING_SHADOW_FOCUS" text="Shadow Focus Box" />
+        <text name="FS25E_SETTING_SHADOW_FOCUS_TOOLTIP" text="Experimental: focuses shadow work near you. May look odd; Soft-Apply needed to try live." />
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE" text="Fast Shadow Update" />
+        <text name="FS25E_SETTING_FAST_SHADOW_UPDATE_TOOLTIP" text="Experimental: updates shadows more often. Can hurt FPS; Soft-Apply needed to try live." />
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER" text="Rain Shallow Water Sim" />
+        <text name="FS25E_SETTING_RAIN_SHALLOW_WATER_TOOLTIP" text="Rain/shallow-water sim (expert). Needs Expert Soft-Apply ON; visible effect usually only in rain/near water. Else SKIPPED." />
+        <text name="FS25E_STATUS_HEADER" text="Capability status (read-only)" />
+        <text name="FS25E_STATUS_EMPTY" text="No capability data (Diagnostics/Registry unavailable)." />
+        <text name="FS25E_STATUS_APPLIED" text="APPLIED — works" />
+        <text name="FS25E_STATUS_REJECTED" text="REJECTED — does not work" />
+        <text name="FS25E_STATUS_SKIPPED" text="SKIPPED — idle/ready" />
+        <text name="FS25E_SETTING_EXPERT_SOFT_APPLY" text="Soft Apply (Expert)" />
+        <text name="FS25E_SETTING_EXPERT_SOFT_APPLY_TOOLTIP" text="When on, experimental Expert options can apply for this session. Risk of glitches; off = store only, safer." />
+        <text name="FS25E_SETTING_PERSIST_HW" text="Persist Hardware" />
+        <text name="FS25E_SETTING_PERSIST_HW_TOOLTIP" text="Writes hardware graphics so they survive a restart. Can overwrite your vanilla profile — use with care." />
+        <text name="FS25E_WARN_PERSIST_HW" text="May overwrite vanilla hardware settings. Prefer session-only unless you need persistence." />
+        <text name="FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX" text="Expert Shadow Focus Box" />
+        <text name="FS25E_SETTING_EXPERT_SHADOW_FOCUS_BOX_TOOLTIP" text="Opt-in experimental shadow focus. Needs Soft-Apply to try; may look wrong." />
+        <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE" text="Expert Fast Shadow Update" />
+        <text name="FS25E_SETTING_EXPERT_FAST_SHADOW_UPDATE_TOOLTIP" text="Opt-in experimental faster shadow refresh. Needs Soft-Apply; can cost FPS." />
+        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW" text="Expert Rain Shallow Water" />
+        <text name="FS25E_SETTING_EXPERT_RAIN_SHALLOW_TOOLTIP" text="Same key as Rain Shallow Water. Soft-Apply ON required; little/no effect without rain or shallow water." />
+        <text name="FS25E_SETTING_EXPERT_SSR" text="Expert SSR" />
+        <text name="FS25E_SETTING_EXPERT_SSR_TOOLTIP" text="Opt-in screen-space reflections (gated). Needs Soft-Apply; can be costly." />
+        <text name="FS25E_SETTING_EXPERT_ATMOSPHERE" text="Expert Atmosphere" />
+        <text name="FS25E_SETTING_EXPERT_ATMOSPHERE_TOOLTIP" text="Opt-in atmosphere quality (gated). Needs Soft-Apply; medium–high cost." />
+        <text name="FS25E_SETTING_EXPERT_DRS" text="Expert DRS" />
+        <text name="FS25E_SETTING_EXPERT_DRS_TOOLTIP" text="Opt-in dynamic resolution scale (gated). Needs Soft-Apply; trades sharpness for FPS." />
+        <text name="FS25E_SETTING_EXPERT_RAIN_SUITE" text="Expert Rain Suite" />
+        <text name="FS25E_SETTING_EXPERT_RAIN_SUITE_TOOLTIP" text="Opt-in rain extras as a group. Needs Soft-Apply; visual and cost impact varies." />
+        <text name="FS25E_LIVE_OVERLAY_GATE_NEED_EXPERT" text="Turn on Expert Mode first (Settings → Expert)." />
+        <text name="FS25E_LIVE_OVERLAY_GATE_NEED_LIVE" text="Enable Live Tuning first (Settings → Expert → Open Live Overlay)." />
+        <text name="FS25E_LIVE_OVERLAY_GATE_OK" text="OK" />
+        <text name="FS25E_LIVE_OVERLAY_SOFTAPPLY_HINT" text="SKIPPED: turn Expert Soft-Apply ON to apply experimental caps (value stored only)." />
+        <text name="FS25E_menu_live_title" text="FS25 ENHANCED · Reaaliaikainen hienosäätö" />
+        <text name="FS25E_menu_live_subtitle" text="Tarkka hallinta. Vapaa näkymä. Varmistetut asetukset." />
+        <text name="FS25E_menu_fine_hint" text="Shift: hienosäätö · Napsauta arvoa: kirjoita numero · R: palauta" />
+        <text name="FS25E_menu_controller_hint" text="Ohjain: sauva / ristiohjain · olkapainikkeet: luokka· B: sulje" />
+        <text name="FS25E_menu_reset" text="Palauta" />
+        <text name="FS25E_value_on" text="Päällä" />
+        <text name="FS25E_value_off" text="Pois" />
+        <text name="FS25E_value_locked_short" text="*" />
+        <text name="FS25E_value_auto_short" text="Automaattinen" />
+        <text name="FS25E_status_mission_required" text="Käytettävissä ladatussa pelissä." />
+        <text name="FS25E_status_category_unavailable" text="Tässä näkymässä ei ole yhteensopivia reaaliaikaisia säätöjä. Katso aineistovaatimukset toimintojen ohjeista." />
+        <text name="FS25E_status_unavailable_short" text="—" />
+        <text name="FS25E_status_api_unavailable" text="Tämä moottorin rajapinta ei ole käytettävissä." />
+        <text name="FS25E_status_quality_unavailable" text="Tuettuja laatutasoja ei löytynyt." />
+        <text name="FS25E_status_module_error" text="Moduulivirhe; alkuperäinen tila säilytettiin mahdollisuuksien mukaan." />
+        <text name="FS25E_status_invalid_value" text="Anna kelvollinen numeroarvo." />
+        <text name="FS25E_status_unreadable" text="Nykyistä arvoa ei voida lukea luotettavasti." />
+        <text name="FS25E_status_not_applied" text="Ei otettu käyttöön" />
+        <text name="FS25E_status_readback_mismatch" text="Moottori ei vahvistanut tätä arvoa." />
+        <text name="FS25E_status_applied" text="Käytössä · moottorin arvo tarkistettu" />
+        <text name="FS25E_status_restore_failed" text="Palautus epäonnistui; katso pelin lokia." />
+        <text name="FS25E_status_restored" text="Alkuperäinen arvo palautettu" />
+        <text name="FS25E_status_locked" text="Suojattu automaattisilta muutoksilta" />
+        <text name="FS25E_status_ready" text="Valmis · tämän istunnon muutokset voi perua" />
+        <text name="FS25E_status_live" text="Reaaliaikainen" />
+        <text name="FS25E_status_experimental" text="Kokeellinen" />
+        <text name="FS25E_status_information_unavailable" text="Tietoja ei ole saatavilla; katso loki." />
+        <text name="FS25E_cost_low" text="Pieni kuormitus" />
+        <text name="FS25E_cost_medium" text="Keskisuuri kuormitus" />
+        <text name="FS25E_cost_high" text="Suuri GPU-kuormitus" />
+        <text name="FS25E_cost_extreme" text="Erittäin suuri GPU- / VRAM-kuormitus" />
+        <text name="FS25E_menu_auto" text="Automaattinen" />
+        <text name="FS25E_menu_shadows" text="Varjot" />
+        <text name="FS25E_menu_lighting" text="Valot ja lamput" />
+        <text name="FS25E_menu_atmosphere" text="Ilmakehä" />
+        <text name="FS25E_menu_weather" text="Sää" />
+        <text name="FS25E_menu_water" text="Vesi" />
+        <text name="FS25E_menu_reflections" text="Heijastukset" />
+        <text name="FS25E_menu_materials" text="Materiaalit" />
+        <text name="FS25E_menu_foliage" text="Kasvillisuus" />
+        <text name="FS25E_menu_lod" text="Näköetäisyys / LOD" />
+        <text name="FS25E_menu_performance" text="Suorituskyky" />
+        <text name="FS25E_setting_view_distance_coeff" text="Objektien piirtoetäisyys" />
+        <text name="FS25E_tooltip_view_distance_coeff" text="Määrittää objektien piirtoetäisyyden. Suurempi etäisyys lisää CPU- ja GPU-työtä." />
+        <text name="FS25E_setting_lod_distance_coeff" text="Objektien yksityiskohtien etäisyys" />
+        <text name="FS25E_tooltip_lod_distance_coeff" text="Säilyttää yksityiskohtaiset mallit kauempana kamerasta. Askel 0,001; suuremmat arvot vievät GPU-aikaa." />
+        <text name="FS25E_setting_terrain_lod_distance_coeff" text="Maaston yksityiskohtien etäisyys" />
+        <text name="FS25E_tooltip_terrain_lod_distance_coeff" text="Ohjaa maaston yksityiskohtien siirtymiä muuttamatta korkeutta tai tallennustietoja." />
+        <text name="FS25E_setting_foliage_view_distance_coeff" text="Kasvillisuuden piirtoetäisyys" />
+        <text name="FS25E_tooltip_foliage_view_distance_coeff" text="Näyttää kasvillisuuden kauempana. Tiheät pellot voivat kuormittaa GPU:ta merkittävästi." />
+        <text name="FS25E_setting_foliage_lod_distance_coeff" text="Kasvillisuuden yksityiskohtien etäisyys" />
+        <text name="FS25E_tooltip_foliage_lod_distance_coeff" text="Säilyttää tarkan kasvillisuuden kameran lähellä. Hienosäätö auttaa enemmän kuin kaikkien etäisyyksien maksimointi." />
+        <text name="FS25E_setting_allow_foliage_shadows" text="Kasvillisuuden varjot" />
+        <text name="FS25E_tooltip_allow_foliage_shadows" text="Sallii kasvillisuuden varjot, jos materiaali tukee niitä." />
+        <text name="FS25E_setting_max_num_shadow_lights" text="Varjostavien valojen enimmäismäärä" />
+        <text name="FS25E_tooltip_max_num_shadow_lights" text="Moottorin yleinen budjetti. Useampi valo lisää raskaita varjopiirtoja ja VRAM-kulutusta." />
+        <text name="FS25E_setting_shadow_distance_quality" text="Auringon varjojen etäisyys" />
+        <text name="FS25E_tooltip_shadow_distance_quality" text="FS25:n kolme alkuperäistä etäisyystasoa. Ne ovat erillisiä moottoritasoja." />
+        <text name="FS25E_setting_shadow_filter_quality" text="Pehmeiden varjojen suodatus" />
+        <text name="FS25E_tooltip_shadow_filter_quality" text="FS25:n alkuperäinen pehmeiden varjojen suodatin. Valokohtainen pehmeys säädetään erikseen." />
+        <text name="FS25E_setting_shadow_quality" text="Auringon varjojen laatu" />
+        <text name="FS25E_tooltip_shadow_quality" text="Käyttää FS25:n laatutasoja ja tarkennusalueen lippua. Korkeat tasot voivat aiheuttaa ruutuaikapiikkejä." />
+        <text name="FS25E_setting_ssr_quality" text="Näyttötilan heijastukset" />
+        <text name="FS25E_tooltip_ssr_quality" text="Vain laitteiston tukemat tasot. Tarvitsee heijastavia materiaaleja; SSR ei heijasta kuvan ulkopuolisia objekteja." />
+        <text name="FS25E_setting_atmosphere_quality" text="Ilmakehän laatu" />
+        <text name="FS25E_tooltip_atmosphere_quality" text="Ilmakehän alkuperäinen laatu riippuu renderöijästä. Ei luo sumua kirkkaalla säällä." />
+        <text name="FS25E_setting_volumetric_fog_quality" text="Tilavuussumun laatu" />
+        <text name="FS25E_tooltip_volumetric_fog_quality" text="Parantaa olemassa olevaa tilavuussumua, jos kartta ja sää käyttävät sitä." />
+        <text name="FS25E_setting_lensflare_quality" text="Linssiheijastusten laatu" />
+        <text name="FS25E_tooltip_lensflare_quality" text="Säätää alkuperäisten linssiheijastusten laatua. Vaatii sopivia näkyviä valonlähteitä." />
+        <text name="FS25E_setting_screen_space_shadows_quality" text="Näyttötilan varjot" />
+        <text name="FS25E_tooltip_screen_space_shadows_quality" text="Säätää tuettuja näyttötilan varjoja ja täydentää näkyviä kosketusyksityiskohtia." />
+        <text name="FS25E_setting_drs_quality" text="Dynaaminen resoluutio" />
+        <text name="FS25E_tooltip_drs_quality" text="Renderöijän tukemat erilliset DRS-tilat. Skaalaus voi pehmentää kuvaa; se ei lisää yksityiskohtia." />
+        <text name="FS25E_setting_rain_amount_mult" text="Näkyvän sateen kerroin" />
+        <text name="FS25E_tooltip_rain_amount_mult" text="Skaalaa olemassa olevaa sadetta. Ei aloita sadetta tai muuta sääsimulaatiota. Askel 0,001." />
+        <text name="FS25E_status_mod_disabled" text="Ota Enhanced ensin käyttöön Automaattinen-sivulla." />
+        <text name="FS25E_status_configured" text="Asetukset otettu käyttöön" />
+        <text name="FS25E_menu_execute" text="Suorita" />
+        <text name="FS25E_SETTING_CINEMATIC_SESSION" text="Kuvakaappaustila · 60 sekuntia" />
+        <text name="FS25E_SETTING_CINEMATIC_SESSION_TOOLTIP" text="Ottaa yhteensopivat elokuvamaiset arvot käyttöön tilapäisesti. Palauttaa aiemmat asetukset 60 sekunnin jälkeen tai poiskytkettäessä." />
+        <text name="FS25E_FPS_90" text="90 FPS" />
+        <text name="FS25E_FPS_120" text="120 FPS" />
+        <text name="FS25E_status_external_change" text="Toinen toiminto muutti arvoa; automaattinen ohjaus keskeytetty." />
+        <text name="FS25E_status_profile_unavailable" text="Modiprofiilien tallennus ei ole käytettävissä." />
+        <text name="FS25E_status_profile_missing" text="Tallennettua reaaliaikaista profiilia ei löytynyt." />
+        <text name="FS25E_status_profile_saved" text="Tallennettu modin liveProfile.xml-tiedostoon" />
+        <text name="FS25E_status_profile_loaded" text="Yhteensopivat profiiliarvot ladattu" />
+        <text name="FS25E_status_profile_partial" text="Joitakin arvoja ei voitu käyttää tässä näkymässä." />
+        <text name="FS25E_status_compare_enhanced" text="A/B · Enhanced-arvot palautettu" />
+        <text name="FS25E_status_compare_original" text="A/B · alkuperäiset arvot · palaa painamalla uudelleen" />
+        <text name="FS25E_status_calibration_stopped" text="Kalibrointi pysäytetty" />
+        <text name="FS25E_status_calibration_started" text="Kalibrointi aloitettu · pidä kamera paikallaan" />
+        <text name="FS25E_status_calibration_unavailable" text="Kalibrointi vaatii käytettävissä olevan lukitsemattoman objektietäisyyden säädön." />
+        <text name="FS25E_status_benchmark_started" text="60 sekunnin vertailutesti käynnissä" />
+        <text name="FS25E_status_benchmark_finished" text="Vertailutesti päättynyt" />
+        <text name="FS25E_status_benchmark_missing" text="Tallenna ensin vertailutesti." />
+        <text name="FS25E_status_benchmark_exported" text="Vertailutesti tallennettu modin asetuskansioon." />
+        <text name="FS25E_setting_saveProfile" text="Tallenna reaaliaikainen profiili" />
+        <text name="FS25E_tooltip_saveProfile" text="Tallentaa arvot ja lukitukset modin tiedostoon; ei muuta pelin grafiikkaprofiilia." />
+        <text name="FS25E_setting_loadProfile" text="Lataa reaaliaikainen profiili" />
+        <text name="FS25E_tooltip_loadProfile" text="Ottaa tallennetun profiilin yhteensopivat arvot käyttöön. Näkymästä riippuvat arvot voidaan ohittaa." />
+        <text name="FS25E_setting_compareOriginal" text="A/B: alkuperäinen / Enhanced" />
+        <text name="FS25E_tooltip_compareOriginal" text="Palauttaa alkuperäiset arvot tilapäisesti. Palaa suorittamalla uudelleen. Näkymä pysyy aktiivisena." />
+        <text name="FS25E_setting_resetAll" text="Palauta kaikki grafiikka-arvot" />
+        <text name="FS25E_tooltip_resetAll" text="Palauttaa alkuperäisen grafiikan, poistaa lukitukset ja kytkee Enhancedin pois. Tavoite-FPS säilyy." />
+        <text name="FS25E_setting_calibrate" text="Aloita / lopeta kalibrointi" />
+        <text name="FS25E_tooltip_calibrate" text="Mittaa pienen palautettavan etäisyysmuutoksen vaikutusta ruutuaikoihin. Pidä kamera paikallaan; tulos on arvio, ei erillinen GPU-mittaus." />
+        <text name="FS25E_setting_benchmark" text="Aloita / lopeta vertailutesti" />
+        <text name="FS25E_tooltip_benchmark" text="Tallentaa ruutuajat 60 sekunnin ajan. Vertaa samalla kamerareitillä ja samalla säällä." />
+        <text name="FS25E_setting_exportBenchmark" text="Tallenna vertailuraportti" />
+        <text name="FS25E_tooltip_exportBenchmark" text="Tallentaa viime mittauksen XML-tiedostoksi modin asetuksiin. Tuntemattomat GPU- / VRAM-mittaukset pysyvät poissa käytöstä." />
+        <text name="FS25E_setting_localShadows" text="Parannetut paikalliset varjot" />
+        <text name="FS25E_tooltip_localShadows" text="Ottaa käyttöön oikeat varjokartat tärkeille läheisille ajoneuvo- ja pihavaloille." />
+        <text name="FS25E_setting_vehicleShadowRange" text="Paikallisten varjojen kantama" />
+        <text name="FS25E_tooltip_vehicleShadowRange" text="Paikallisten varjojen enimmäisetäisyys kamerasta metreinä. Tärkeys ja budjetti pätevät edelleen." />
+        <text name="FS25E_setting_localShadowBudget" text="Paikallisten varjojen budjetti" />
+        <text name="FS25E_tooltip_localShadowBudget" text="Varjokartan saavien paikallisten valojen enimmäismäärä. Myös moottorin yleinen raja pätee." />
+        <text name="FS25E_setting_nearShadowResolution" text="Lähivarjojen resoluutio" />
+        <text name="FS25E_tooltip_nearShadowResolution" text="Tasot 0/1/2/3 valitsevat 256/512/1024/2048 pikseliä. Automaattinen jako muuttuu enintään 15 sekunnin välein." />
+        <text name="FS25E_setting_farShadowResolution" text="Kaukovarjojen resoluutio" />
+        <text name="FS25E_tooltip_farShadowResolution" text="Tasot 0/1/2 valitsevat 256/512/1024 pikseliä kaukaisemmille paikallisille valoille." />
+        <text name="FS25E_setting_shadowSoftness" text="Varjojen pehmeys" />
+        <text name="FS25E_tooltip_shadowSoftness" text="Skaalaa alkuperäistä valonlähteen kokoa. 1 säilyttää alkuperäisen; vaatii pehmeät varjot käyttöön." />
+        <text name="FS25E_setting_softShadowBias" text="Pehmeiden varjojen siirtymä" />
+        <text name="FS25E_tooltip_softShadowBias" text="Skaalaa pehmeiden varjojen nykyistä siirtymää. Liian suuri arvo irrottaa varjot objekteista." />
+        <text name="FS25E_setting_shadowExtrusion" text="Varjoekstruusion etäisyys" />
+        <text name="FS25E_tooltip_shadowExtrusion" text="Skaalaa kameran takaista aluetta, jonka varjonheittäjät huomioidaan yhä." />
+        <text name="FS25E_setting_shadowMerge" text="Yhdistä paikalliset varjot" />
+        <text name="FS25E_tooltip_shadowMerge" text="Kokeellinen: yhdistää yhden ajoneuvon yhteensopivia ryhmittämättömiä valoja. Nykyiset GIANTS-ryhmät säilyvät." />
+        <text name="FS25E_setting_lightIntensity" text="Valon voimakkuus" />
+        <text name="FS25E_tooltip_lightIntensity" text="Skaalaa aktiivisten paikallisten lamppujen todellista väriä. 1 säilyttää alkuperäisen kirkkauden." />
+        <text name="FS25E_setting_lightWarmth" text="Valon lämpö" />
+        <text name="FS25E_tooltip_lightWarmth" text="Lampun värin hieno lämmin/kylmä-tasapaino, säilyttäen likimääräisen koetun kirkkauden." />
+        <text name="FS25E_setting_lightTint" text="Valon sävy" />
+        <text name="FS25E_tooltip_lightTint" text="Lampun todellisen värin hieno vihreä/magenta-tasapaino." />
+        <text name="FS25E_setting_lightRange" text="Valon kantama" />
+        <text name="FS25E_tooltip_lightRange" text="Skaalaa aktiivisten paikallisten lamppujen alkuperäistä kantamaa. Suurempi arvo nostaa renderöinnin kustannusta." />
+        <text name="FS25E_setting_lightFalloff" text="Valon vaimeneminen" />
+        <text name="FS25E_tooltip_lightFalloff" text="Skaalaa yhteensopivien paikallisten valojen alkuperäistä vaimenemista." />
+        <text name="FS25E_setting_lightCone" text="Valokeilan leveys" />
+        <text name="FS25E_tooltip_lightCone" text="Skaalaa alkuperäistä keilakulmaa sallitun kulmavälin rajoissa." />
+        <text name="FS25E_setting_lightHighRadius" text="Korkean valolaadun säde" />
+        <text name="FS25E_tooltip_lightHighRadius" text="Läheiset valot saavat korkean varjoresoluution ja etusijan paikallisiin tehosteisiin." />
+        <text name="FS25E_setting_lightMediumRadius" text="Keskitason valolaadun säde" />
+        <text name="FS25E_tooltip_lightMediumRadius" text="Tämän säteen ulkopuolella IES ja sironta rajoittuvat ja valon kantama pienenee." />
+        <text name="FS25E_setting_relevantLightBudget" text="Merkittävien valojen budjetti" />
+        <text name="FS25E_tooltip_relevantLightBudget" text="Aktiivisten valojen budjetti tärkeysjärjestyksessä. Enintään 64 paikallista lähdettä muutetaan." />
+        <text name="FS25E_setting_behindCameraReduction" text="Vähennys kameran takana" />
+        <text name="FS25E_tooltip_behindCameraReduction" text="Vähentää kameran takaisten valojen etusijaa; 0 poistaa painotuksen." />
+        <text name="FS25E_setting_iesMode" text="Alkuperäiset IES-profiilit" />
+        <text name="FS25E_tooltip_iesMode" text="Käyttää vain objektin olemassa olevia IES-tiedostoja. Ei luo profiileja yhteensopimattomille lampuille." />
+        <text name="FS25E_setting_iesRange" text="IES-kantaman kerroin" />
+        <text name="FS25E_tooltip_iesRange" text="Lisäkantamakerroin lampuille, joilla on olemassa oleva IES-profiili." />
+        <text name="FS25E_setting_iesFalloff" text="IES-vaimenemisen kerroin" />
+        <text name="FS25E_tooltip_iesFalloff" text="Lisävaimenemiskerroin lampuille, joilla on olemassa oleva IES-profiili." />
+        <text name="FS25E_setting_iesBudget" text="IES-valojen enimmäismäärä" />
+        <text name="FS25E_tooltip_iesBudget" text="Priorisoi olemassa olevia IES-profiileja budjetissa. Muut lähteet käyttävät yksinkertaista valokeilaa." />
+        <text name="FS25E_setting_headlightIES" text="Ajovalojen IES" />
+        <text name="FS25E_tooltip_headlightIES" text="Sallii olemassa olevat IES-profiilit paikallisessa budjetissa: ajovalot." />
+        <text name="FS25E_setting_worklightIES" text="Työvalojen IES" />
+        <text name="FS25E_tooltip_worklightIES" text="Sallii olemassa olevat IES-profiilit paikallisessa budjetissa: etu- ja takatyövalot." />
+        <text name="FS25E_setting_placeableIES" text="Pihavalojen IES" />
+        <text name="FS25E_tooltip_placeableIES" text="Sallii olemassa olevat IES-profiilit paikallisessa budjetissa: läheiset pihavalot." />
+        <text name="FS25E_setting_scatteringIntensity" text="Valon sironnan voimakkuus" />
+        <text name="FS25E_tooltip_scatteringIntensity" text="Skaalaa yhteensopivien aktiivisten lamppujen alkuperäistä sirontaa; näkyy parhaiten sumussa ja pimeässä." />
+        <text name="FS25E_setting_scatteringBudget" text="Sirontavalojen enimmäismäärä" />
+        <text name="FS25E_tooltip_scatteringBudget" text="Rajoittaa yhtäaikaisten paikallisten sirontatehosteiden määrää." />
+        <text name="FS25E_setting_scatteringDistance" text="Sironnan etäisyys" />
+        <text name="FS25E_tooltip_scatteringDistance" text="Sironnan enimmäisetäisyys kamerasta metreinä." />
+        <text name="FS25E_setting_headlightScattering" text="Ajovalojen sironta" />
+        <text name="FS25E_tooltip_headlightScattering" text="Sallii sironnan merkittäville valoille: ajovalot." />
+        <text name="FS25E_setting_worklightScattering" text="Työvalojen sironta" />
+        <text name="FS25E_tooltip_worklightScattering" text="Sallii sironnan merkittäville valoille: etu- ja takatyövalot." />
+        <text name="FS25E_setting_placeableScattering" text="Pihavalojen sironta" />
+        <text name="FS25E_tooltip_placeableScattering" text="Sallii sironnan merkittäville valoille: läheiset pihavalot." />
+        <text name="FS25E_setting_scatteringWeatherResponse" text="Sironnan säävaste" />
+        <text name="FS25E_tooltip_scatteringWeatherResponse" text="Lisää sirontaa mitatun sumun ja sateen mukaan. 0 poistaa säämukautuksen." />
+        <text name="FS25E_warning_lightApiUnavailable" text="Alkuperäinen valaistustoiminto ei ole käytettävissä" />
+        <text name="FS25E_warning_lightWriteRejected" text="Moottori ei hyväksynyt arvoa; edellinen arvo palautettu" />
+        <text name="FS25E_warning_lightInvalidValue" text="Virheellinen valoparametri" />
+        <text name="FS25E_status_noLocalLights" text="Yhteensopivia paikallisia valonlähteitä ei ole ladattu" />
+        <text name="FS25E_status_lightValuesQueued" text="Jonossa: otetaan käyttöön yhteensopivien lamppujen syttyessä" />
+        <text name="FS25E_warning_directionalLightRequired" text="Asetus vaikuttaa vain suunnattuihin valonlähteisiin" />
+        <text name="FS25E_warning_lightMergeIncompatible" text="Valonlähteet eivät sovi yhteiseen varjokarttaan" />
+        <text name="FS25E_warning_lightMergeOwned" text="Nykyinen GIANTS- tai toisen modin varjoryhmä säilytetään" />
+        <text name="FS25E_setting_rainProfile" text="Sadeprofiili" />
+        <text name="FS25E_tooltip_rainProfile" text="0: alkuperäinen; 1: kevyt sade; 2: tavallinen; 3: rankka; 4: myrskyilme; 5: tuulen ajama sade. Säätää aktiivisen sateen nopeutta, tuulta ja turbulenssia. Ei luo ukkosta tai muuta ennustetta." />
+        <text name="FS25E_setting_rainVelocity" text="Pisaroiden nopeus" />
+        <text name="FS25E_setting_rainWindInfluence" text="Tuulen vaikutus sateeseen" />
+        <text name="FS25E_setting_rainTurbulence" text="Sateen turbulenssi" />
+        <text name="FS25E_setting_rainBounceStrength" text="Kimpoamisen kimmoisuus" />
+        <text name="FS25E_setting_rainSplashRandomness" text="Roiskeiden satunnaisuus" />
+        <text name="FS25E_setting_rainCameraInfluence" text="Kameran nopeuden vaikutus" />
+        <text name="FS25E_setting_rainDistribution" text="Lähisateen jakauma" />
+        <text name="FS25E_setting_rainBounceCount" text="Kimpoamisten enimmäismäärä" />
+        <text name="FS25E_tooltip_rainVelocity" text="Alkuperäisen pisaranopeuden kerroin. Käytettävissä, kun sää antaa alkuperäisen arvon. Kokeellinen; tarkista ulkoasu sateen aikana." />
+        <text name="FS25E_tooltip_rainWindInfluence" text="Sään vaakasuuntaisten tuulivoimien kerroin. Vähäinen vaikutus ilman tuulta. Ei muuta pelin säätietoja." />
+        <text name="FS25E_tooltip_rainTurbulence" text="Skaalaa pisaroiden turbulenssia säilyttäen sään aikaskaalan, pulssin keston ja taajuuden." />
+        <text name="FS25E_tooltip_rainBounceStrength" text="Törmäyksen jälkeen säilyvän nopeuden osuus. Vaatii sadetta, jossa kimpoaminen on käytössä." />
+        <text name="FS25E_tooltip_rainSplashRandomness" text="Kimpoamiskulman satunnaisuuden kerroin. Ei näkyvää vaikutusta, jos kimpoamisten määrä on nolla." />
+        <text name="FS25E_tooltip_rainCameraInfluence" text="Kameran nopeuden vaikutuskerroin sadejuoviin. Näkyy kameran liikkuessa." />
+        <text name="FS25E_tooltip_rainDistribution" text="Yli 1:n arvot keskittävät lisää sadetta kameran lähelle. Ei lisää pelin yleistä sademäärää." />
+        <text name="FS25E_tooltip_rainBounceCount" text="Kimpoamisten enimmäismäärä ennen roisketta. Pääasiassa rakeille; lisäkimpoamiset lisäävät simulaatiokustannusta." />
+        <text name="FS25E_setting_paintClearcoat" text="Kirkaslakan voimakkuus" />
+        <text name="FS25E_setting_materialSurfaceProfile" text="Pintaprofiili" />
+        <text name="FS25E_setting_materialDetailSmoothness" text="Materiaalin yksityiskohtien sileys" />
+        <text name="FS25E_setting_materialWetResponse" text="Ajoneuvomaalin kosteusvaste" />
+        <text name="FS25E_setting_materialMicrodetailStrength" text="Mikroyksityiskohtien voimakkuus" />
+        <text name="FS25E_setting_materialNormalDetailScale" text="Normaaliyksityiskohtien voimakkuus" />
+        <text name="FS25E_tooltip_materialSurfaceProfile" text="0: Alkuperäinen; 1: Luonnollinen; 2: Kiillotettu; 3: Matta. Kiilto muuttaa vain tunnistettua maalipintaa. Lasi, kumi ja tuntemattomat materiaalit ohitetaan; kosteus on erillinen." />
+        <text name="FS25E_tooltip_materialDetailSmoothness" text="Materiaalin yksityiskohtien sileys: 0–10. Kiilto muuttaa vain tunnistettua maalipintaa. Lasi, kumi ja tuntemattomat materiaalit ohitetaan; kosteus on erillinen." />
+        <text name="FS25E_tooltip_materialWetResponse" text="Pelin antaman materiaalikosteuden kerroin. Vain visuaalinen shaderkanava muuttuu; lika, lumi, naarmut ja pelitila säilyvät. Ei näkyvää vaikutusta kuivilla pinnoilla." />
+        <text name="FS25E_tooltip_materialDetailAssets" text="Alkuperäisessä vehicleShaderissa ei ole yksityiskohtanormaalien voimakkuussäätöä. Tarvitsee sopivan mukautetun shaderin tai normaalitekstuurin. Nykyisellä yksityiskohtien sileydellä on oma säätönsä." />
+        <text name="FS25E_status_detailAssetsRequired" text="Ei käytettävissä: shaderissa ei ole yksityiskohtanormaalien voimakkuusparametria" />
+        <text name="FS25E_setting_paintSmoothness" text="Kirkaslakan sileys" />
+        <text name="FS25E_setting_paintSSRThreshold" text="Maalin SSR-kynnys" />
+        <text name="FS25E_setting_paintSSRBaseBias" text="Pohjakerroksen SSR-siirtymä" />
+        <text name="FS25E_setting_paintSSRCoatBias" text="Kirkaslakan SSR-siirtymä" />
+        <text name="FS25E_tooltip_paintClearcoat" text="Kirkaslakan voimakkuus: 0–1. Kiilto muuttaa vain tunnistettua maalipintaa. Lasi, kumi ja tuntemattomat materiaalit ohitetaan; kosteus on erillinen." />
+        <text name="FS25E_tooltip_paintSmoothness" text="Kirkaslakan sileys: 0–1. Kiilto muuttaa vain tunnistettua maalipintaa. Lasi, kumi ja tuntemattomat materiaalit ohitetaan; kosteus on erillinen." />
+        <text name="FS25E_tooltip_paintSSRThreshold" text="Maalin SSR-kynnys: 0–1. Kiilto muuttaa vain tunnistettua maalipintaa. Lasi, kumi ja tuntemattomat materiaalit ohitetaan; kosteus on erillinen." />
+        <text name="FS25E_tooltip_paintSSRBaseBias" text="Pohjakerroksen SSR-siirtymä: -1…1. Kiilto muuttaa vain tunnistettua maalipintaa. Lasi, kumi ja tuntemattomat materiaalit ohitetaan; kosteus on erillinen." />
+        <text name="FS25E_tooltip_paintSSRCoatBias" text="Kirkaslakan SSR-siirtymä: -1…1. Kiilto muuttaa vain tunnistettua maalipintaa. Lasi, kumi ja tuntemattomat materiaalit ohitetaan; kosteus on erillinen." />
+        <text name="FS25E_setting_foliageInteractionDetail" text="Kasvillisuuden lisävuorovaikutus" />
+        <text name="FS25E_setting_foliageInteractionRadius" text="Vuorovaikutusjäljen mittakaava" />
+        <text name="FS25E_setting_foliageMaximumZones" text="Lisätaivutusalueiden enimmäismäärä" />
+        <text name="FS25E_tooltip_foliageInteractionDetail" text="0: alkuperäinen; 1: nykyinen ajoneuvo; 2: myös liitetyt työvälineet. Perustuu olemassa oleviin aktiivisiin taivutusjälkiin. Kokeellinen; alkuperäiset alueet säilyvät." />
+        <text name="FS25E_tooltip_foliageInteractionRadius" text="Lisätaivutusjälkien leveyden ja pituuden kerroin. Vaatii kasvillisuusvuorovaikutuksen ja yhteensopivat laitteet." />
+        <text name="FS25E_tooltip_foliageMaximumZones" text="Rajoittaa vain modin luomia paikallisia taivutusalueita. Pelin alkuperäisiä alueita ei poisteta." />
+        <text name="FS25E_setting_waterFoam" text="Vaahdon määrä" />
+        <text name="FS25E_tooltip_waterAssetsRequired" text="Vaatii yhteensopivan paikallisen vesisimulaation, maasto- ja estetiedot sekä veden ja vaahdon renderöintiaineistot. Alkuperäinen liitoskutsu ei luo niitä. Ei käytettävissä tässä modissa." />
+        <text name="FS25E_status_missingApi" text="Tarvittava moottorin API ei ole käytettävissä" />
+        <text name="FS25E_status_invalidValue" text="Virheellinen arvo" />
+        <text name="FS25E_status_applyFailed" text="Moottorin arvon lukeminen epäonnistui" />
+        <text name="FS25E_status_restoreFailed" text="Palautus epäonnistui" />
+        <text name="FS25E_status_waitWeatherBaseline" text="Odotetaan alkuperäisiä sääarvoja" />
+        <text name="FS25E_status_waitParticleBaseline" text="Odotetaan yhteensopivaa hiukkaslähdettä" />
+        <text name="FS25E_status_observedOnly" text="Lähetetty; moottori ei tarjoa arvojen lukua" />
+        <text name="FS25E_status_noCompatiblePaint" text="Materiaalit: —" />
+        <text name="FS25E_status_noVehicle" text="Vaatii ohjattavan ajoneuvon" />
+        <text name="FS25E_status_noBendingFootprints" text="Ei aktiivisia yhteensopivia taivutusjälkiä" />
+        <text name="FS25E_status_waterAssetsRequired" text="Ei käytettävissä: vaatii vesisimulaation ja renderöintiaineistot" />
+        <text name="FS25E_value_custom" text="Mukautettu" />
+        <text name="FS25E_value_surfaceProfile0" text="Alkuperäinen" />
+        <text name="FS25E_value_surfaceProfile1" text="Luonnollinen" />
+        <text name="FS25E_value_surfaceProfile2" text="Kiillotettu" />
+        <text name="FS25E_value_surfaceProfile3" text="Matta" />
+        <text name="FS25E_value_rainProfile0" text="Alkuperäinen" />
+        <text name="FS25E_value_rainProfile1" text="Kevyt sade" />
+        <text name="FS25E_value_rainProfile2" text="Tavallinen sade" />
+        <text name="FS25E_value_rainProfile3" text="Rankkasade" />
+        <text name="FS25E_value_rainProfile4" text="Myrskyilme" />
+        <text name="FS25E_value_rainProfile5" text="Tuulen ajama sade" />
+        <text name="FS25E_setting_debugHud" text="Diagnostiikkapaneeli" />
+        <text name="FS25E_tooltip_debugHud" text="Näyttää mitatut ruutuajat, aktiiviset valobudjetit ja näkymäluokituksen. Puuttuvat laitteistoanturitiedot merkitään nimenomaisesti puuttuviksi." />
+        <text name="FS25E_status_native_rejected" text="Moottori hylkäsi tämän rajapinnan. Tarkista loki ja lataa tehtävä uudelleen." />
+        <text name="FS25E_status_asset_required" text="Vaatii yhteensopivat näkymäaineistot" />
+        <text name="FS25E_status_sensor_unavailable" text="Ei ulkoisia anturitietoja" />
+        <text name="FS25E_debug_fps" text="FPS" />
+        <text name="FS25E_debug_frameTime" text="Ruutuaika" />
+        <text name="FS25E_debug_mode" text="Profiili" />
+        <text name="FS25E_debug_scene" text="Näkymä" />
+        <text name="FS25E_debug_reserve" text="Arvioitu reservi" />
+        <text name="FS25E_debug_onePercent" text="Alimman 1%:n FPS" />
+        <text name="FS25E_debug_shadows" text="Aktiiviset varjovalot" />
+        <text name="FS25E_debug_merged" text="Yhdistetyt varjoryhmät" />
+        <text name="FS25E_debug_ies" text="Aktiiviset IES-valot" />
+        <text name="FS25E_debug_scattering" text="Sirontavalot" />
+        <text name="FS25E_debug_lod" text="Objektien LOD" />
+        <text name="FS25E_debug_terrain" text="Maaston LOD" />
+        <text name="FS25E_debug_foliage" text="Kasvillisuuden LOD" />
+        <text name="FS25E_debug_particles" text="Hiukkasbudjetti" />
+        <text name="FS25E_debug_water" text="Vesisimulaatio" />
+        <text name="FS25E_debug_budget" text="Suurin arvioitu budjetti" />
+        <text name="FS25E_debug_sensors" text="Järjestelmän anturit" />
+        <text name="FS25E_debug_vram" text="VRAM-käyttö" />
+        <text name="FS25E_scene_IndoorCab" text="Ohjaamon sisätila" />
+        <text name="FS25E_scene_IndoorBuilding" text="Rakennuksen sisätila" />
+        <text name="FS25E_scene_RoadTravel" text="Maantieajo" />
+        <text name="FS25E_scene_HeavyRain" text="Rankkasade" />
+        <text name="FS25E_scene_Rain" text="Sade" />
+        <text name="FS25E_scene_Fog" text="Sumu" />
+        <text name="FS25E_scene_FarmyardNight" text="Piha yöllä" />
+        <text name="FS25E_scene_FarmyardDay" text="Piha päivällä" />
+        <text name="FS25E_scene_ClearNight" text="Kirkas yö" />
+        <text name="FS25E_scene_OpenFieldDay" text="Avoin pelto päivällä" />
+        <text name="FS25E_scene_Unclassified" text="Ei luokiteltu" />
+        <text name="FS25E_GRAPHICS_PAGE_TITLE" text="Enhanced-grafiikka" />
+        <text name="FS25E_GRAPHICS_PAGE_HINT" text="Valitse profiili tai avaa luokka, jotta voit säätää asetuksia suoraan näkymässä." />
+        <text name="FS25E_GRAPHICS_PAGE_LIVE_HINT" text="Luokka sulkee taukovalikon ja avaa reaaliaikaisen säädön. F9 avaa Enhanced-asetukset milloin tahansa pelissä." />
+        <text name="FS25E_tooltip_waterFoam" text="Skaalaa vaahdon kertymistä olemassa oleville rekisteröidyille vesipinnoille. Ei luo lätäköitä tai muuta vedenkorkeutta. Kokeellinen." />
+        <text name="FS25E_selection_intro" text="Mukauta live-valikkoa: valitse luokka ja näytä tai piilota yksittäiset säätimet." />
+        <text name="FS25E_selection_count" text="Live-valikossa:" />
+        <text name="FS25E_selection_hide" text="Piilota" />
+        <text name="FS25E_selection_show" text="Näytä" />
+        <text name="FS25E_selection_page" text="Sivu" />
+        <text name="FS25E_selection_hint" text="Valinta muuttaa vain näkyvyyttä. Grafiikka-arvot säilyvät ennallaan." />
+        <text name="FS25E_selection_show_all" text="Näytä luokka" />
+        <text name="FS25E_selection_hide_all" text="Piilota luokka" />
+        <text name="FS25E_selection_open" text="Avaa live-valikko" />
+        <text name="FS25E_selection_available" text="Käytettävissä · ei vielä käytössä" />
+        <text name="FS25E_selection_saved" text="Valinta tallennettu." />
+        <text name="FS25E_selection_save_failed" text="Valintaa ei voitu tallentaa." />
+        <text name="FS25E_status_selection_empty" text="Kaikki tämän luokan säätimet on piilotettu. Valitse ne uudelleen pelivalikon Enhanced-sivulta." />
+        <text name="FS25E_setting_sceneBrightness" text="Kuvan kirkkaus" />
+        <text name="FS25E_tooltip_sceneBrightness" text="FS25:n koko kuvan kirkkaus pelin tarjoamilla tasoilla. Ei muuta auringon sijaintia tai säätä." />
+        <text name="FS25E_status_brightnessUnavailable" text="FS25:n kirkkautta ei voi säätää reaaliajassa tässä tilassa." />
+        <text name="FS25E_status_ssrDisabled" text="Näyttöavaruuden heijastukset ovat pois käytöstä." />
+        <text name="FS25E_setting_visibleRadius" text="Vaikutussäde" />
+        <text name="FS25E_tooltip_visibleRadius" text="Parannetut paikalliset tehosteet kameran näkökentässä tähän etäisyyteen asti. Ulkopuoliset kohteet palautetaan. LOD ja näkyvyys ovat erillisiä. Raja ei ole pikselintarkka." />
+        <text name="FS25E_status_globalScopeUnavailable" text="Tämä GIANTS-asetus vaikuttaa koko näkymään, eikä sitä voi rajata vaikutussäteeseen." />
+        <text name="FS25E_status_scopeControlled" text="Automaattinen ohjaus näkyvällä vaikutusalueella." />
+        <text name="FS25E_menu_presets" text="Tila / Esiasetus" />
+        <text name="FS25E_setting_sunIntensity" text="Aurinko · Valon voimakkuus" />
+        <text name="FS25E_tooltip_sunIntensity" text="Aurinko · Valon voimakkuus: 0–8; 1 = 1×" />
+        <text name="FS25E_setting_sunWarmth" text="Aurinko · Valon lämpö" />
+        <text name="FS25E_tooltip_sunWarmth" text="Aurinko · Valon lämpö: -1…1" />
+        <text name="FS25E_setting_sunTint" text="Aurinko · Valon sävy" />
+        <text name="FS25E_tooltip_sunTint" text="Aurinko · Valon sävy: -1…1" />
+        <text name="FS25E_status_sunUnavailable" text="Aurinko: —" />
+        <text name="FS25E_status_sunInactive" text="Aurinko: Jonossa: otetaan käyttöön yhteensopivien lamppujen syttyessä" />
+        <text name="FS25E_menu_environment" text="Ympäristö" />
+        <text name="FS25E_status_noVerifiedPaint" text="Tunnistettua maalipintaa ei ole saatavilla. Lasi, kumi ja tuntemattomat materiaalit ohitetaan." />
+        <text name="FS25E_status_waitEnvironmentColor" text="Odotetaan pelin toimittamaa auringonvalon sirontaväriä." />
+        <text name="FS25E_setting_environmentSunIntensity" text="Aurinko · Valon voimakkuus" />
+        <text name="FS25E_tooltip_environmentSunIntensity" text="Aurinko · Valon voimakkuus: 0–8; 1 = 1×" />
+        <text name="FS25E_setting_environmentSunWarmth" text="Aurinko · Valon lämpö" />
+        <text name="FS25E_tooltip_environmentSunWarmth" text="Aurinko · Valon lämpö: -1…1" />
+        <text name="FS25E_setting_environmentSunTint" text="Aurinko · Valon sävy" />
+        <text name="FS25E_tooltip_environmentSunTint" text="Aurinko · Valon sävy: -1…1" />
+        <text name="FS25E_setting_environmentShadowSoftness" text="Varjovalon lähteen koko" />
+        <text name="FS25E_tooltip_environmentShadowSoftness" text="Varjovalon lähteen koko: 0–20." />
+        <text name="FS25E_setting_environmentShadowDistance" text="Pehmeän varjovalon lähteen etäisyys" />
+        <text name="FS25E_tooltip_environmentShadowDistance" text="Pehmeän varjovalon lähteen etäisyys: 0.1–5000 m. Aluevalon lähteen virtuaalinen etäisyys pintaan metreinä. Ei varjojen piirtoetäisyys." />
+        <text name="FS25E_setting_environmentShadowBias" text="Varjojen syvyyssiirtymä" />
+        <text name="FS25E_tooltip_environmentShadowBias" text="Varjojen syvyyssiirtymä: 0–10." />
+        <text name="FS25E_setting_environmentShadowExtrusion" text="Varjojen pursotusetäisyys" />
+        <text name="FS25E_tooltip_environmentShadowExtrusion" text="Varjojen pursotusetäisyys: 0–2000 m." />
+        <text name="FS25E_setting_environmentScatteringWarmth" text="Valon sironta · Lämpimyys" />
+        <text name="FS25E_tooltip_environmentScatteringWarmth" text="Valon sironta · Lämpimyys: -1…1; 0 = 1×. Lähetetty; moottori ei tarjoa arvojen lukua." />
+        <text name="FS25E_setting_environmentScatteringTint" text="Valon sironta · Sävy" />
+        <text name="FS25E_tooltip_environmentScatteringTint" text="Valon sironta · Sävy: -1…1; 0 = 1×. Lähetetty; moottori ei tarjoa arvojen lukua." />
+        <text name="FS25E_setting_debugSnapshot" text="Kirjoita diagnostiikka" />
+        <text name="FS25E_tooltip_debugSnapshot" text="Lukee olennaiset grafiikkatiedot kerran ja kirjoittaa ne log.txt-tiedostoon. Ei muuta grafiikka-asetuksia." />
+        <text name="FS25E_setting_debugWatch" text="Tallenna muutoksia 60 sekuntia" />
+        <text name="FS25E_tooltip_debugWatch" text="Tallentaa grafiikkamuutokset log.txt-tiedostoon 60 sekunnin ajan tarkistaen tiedot 2 sekunnin välein. Pysäytä aktivoimalla uudelleen. Ei automaattista aloitusta tai jatkuvaa lokia." />
+        <text name="FS25E_status_probe_written" text="Diagnostiikka kirjoitettu log.txt-tiedostoon" />
+        <text name="FS25E_status_probe_started" text="Grafiikan tallennus aloitettu" />
+        <text name="FS25E_status_probe_stopped" text="Grafiikan tallennus pysäytetty" />
+        <text name="FS25E_status_probe_unavailable" text="Grafiikan diagnostiikka ei ole käytettävissä" />
+        <text name="FS25E_menu_image" text="Image &amp; tone" />
+        <text name="FS25E_menu_camera" text="Camera &amp; mirrors" />
+        <text name="FS25E_menu_window_hint" text="Title bar: move window - corner: resize - [] resets the layout" />
+        <text name="FS25E_setting_ssao_quality" text="Ambient occlusion (SSAO)" />
+        <text name="FS25E_tooltip_ssao_quality" text="Screen-space ambient occlusion. Darkens contact areas and corners. Higher levels cost GPU time in dense scenes." />
+        <text name="FS25E_setting_tone_mapping_slope" text="Tone curve: contrast" />
+        <text name="FS25E_tooltip_tone_mapping_slope" text="Slope of the filmic tone mapping curve. Higher is more contrast, lower is a flatter image. 1.0 is the engine default." />
+        <text name="FS25E_setting_tone_mapping_toe" text="Tone curve: shadows" />
+        <text name="FS25E_tooltip_tone_mapping_toe" text="Toe of the tone mapping curve. Higher crushes dark areas, lower lifts shadow detail." />
+        <text name="FS25E_setting_tone_mapping_shoulder" text="Tone curve: highlights" />
+        <text name="FS25E_tooltip_tone_mapping_shoulder" text="Shoulder of the tone mapping curve. Controls how bright areas roll off before they clip to white." />
+        <text name="FS25E_setting_tone_mapping_black_clip" text="Tone curve: black point" />
+        <text name="FS25E_tooltip_tone_mapping_black_clip" text="Black clip of the tone mapping curve. Negative values keep more detail in the darkest pixels." />
+        <text name="FS25E_setting_tone_mapping_white_clip" text="Tone curve: white point" />
+        <text name="FS25E_tooltip_tone_mapping_white_clip" text="White clip of the tone mapping curve. Lower values make highlights reach pure white sooner." />
+        <text name="FS25E_setting_cloud_shadows_quality" text="Cloud shadows" />
+        <text name="FS25E_tooltip_cloud_shadows_quality" text="Casts moving cloud shadows onto the world. Costs a little GPU time and changes scene brightness over the day." />
+        <text name="FS25E_setting_shadow_map_filter_size" text="Shadow map filter" />
+        <text name="FS25E_tooltip_shadow_map_filter_size" text="Size of the shadow map filter kernel. The larger setting gives softer shadow edges for more GPU time." />
+        <text name="FS25E_setting_spot_shadow_full_resolution_percentage" text="Spot shadows: full resolution share" />
+        <text name="FS25E_tooltip_spot_shadow_full_resolution_percentage" text="Share of spot lights that get a full resolution shadow map slot. Higher is sharper vehicle and lamp shadows." />
+        <text name="FS25E_setting_spot_shadow_atlas_slot_factor" text="Spot shadows: atlas slots" />
+        <text name="FS25E_tooltip_spot_shadow_atlas_slot_factor" text="Scales how many slots of the spot shadow atlas are handed out. Higher keeps more lamps shadowed at once." />
+        <text name="FS25E_setting_spot_shadow_distance_frequency_factor" text="Spot shadows: distance update rate" />
+        <text name="FS25E_tooltip_spot_shadow_distance_frequency_factor" text="How often distant spot shadows are refreshed. Higher is more stable at distance and costs more GPU time." />
+        <text name="FS25E_setting_spot_shadow_min_cone_angle_percentage" text="Spot shadows: minimum cone angle" />
+        <text name="FS25E_tooltip_spot_shadow_min_cone_angle_percentage" text="Smallest cone angle share a spot light keeps before its shadow is reduced." />
+        <text name="FS25E_setting_spot_shadow_reduced_cone_angle_factor" text="Spot shadows: cone reduction" />
+        <text name="FS25E_tooltip_spot_shadow_reduced_cone_angle_factor" text="How strongly the cone angle is reduced for cheaper spot shadows." />
+        <text name="FS25E_setting_volume_mesh_tessellation_coeff" text="Volume mesh tessellation" />
+        <text name="FS25E_tooltip_volume_mesh_tessellation_coeff" text="Tessellation factor for volume meshes such as fill levels and heaps. Higher is rounder geometry for more GPU time." />
+        <text name="FS25E_setting_tyre_tracks_segments_coeff" text="Tyre track length" />
+        <text name="FS25E_tooltip_tyre_tracks_segments_coeff" text="Length of the tyre track history kept in the world. Higher keeps tracks visible longer and uses more memory." />
+        <text name="FS25E_setting_fovVehicle" text="Field of view (vehicle)" />
+        <text name="FS25E_tooltip_fovVehicle" text="Vertical field of view for vehicle cameras. Written through the game settings and restored when the mod unloads." />
+        <text name="FS25E_setting_fovFirstPerson" text="Field of view (first person)" />
+        <text name="FS25E_tooltip_fovFirstPerson" text="Vertical field of view while walking in first person. Written through the game settings." />
+        <text name="FS25E_setting_fovThirdPerson" text="Field of view (third person)" />
+        <text name="FS25E_tooltip_fovThirdPerson" text="Vertical field of view for the third person player camera. Written through the game settings." />
+        <text name="FS25E_setting_maxMirrors" text="Mirror count" />
+        <text name="FS25E_tooltip_maxMirrors" text="How many vehicle mirrors render at the same time. Each active mirror is an extra scene pass." />
+        <text name="FS25E_setting_lightsProfile" text="Vehicle lights profile" />
+        <text name="FS25E_tooltip_lightsProfile" text="Lights quality profile for vehicles and placeables. Higher profiles keep more real light sources and shadows active." />
+        <text name="FS25E_setting_paintReflectivity" text="Paint reflection" />
+        <text name="FS25E_tooltip_paintReflectivity" text="One slider for the whole paint reflection chain: clear coat, coat smoothness and the roughness bias handed to screen space reflections. Everything is scaled from the values the material was authored with, so gloss and metallic paint become a real mirror while a matte powder coat keeps its look. Glass, bare rubber, wood and fabric are never touched; rubber or plastic carrying its own clear coat is detected and included automatically. Needs screen space reflections switched on." />
+        <text name="FS25E_compare_button_mod" text="MOD ON" />
+        <text name="FS25E_compare_button_vanilla" text="VANILLA" />
+        <text name="FS25E_compare_mod_notice" text="FS25 Enhanced: MOD (all settings applied)" />
+        <text name="FS25E_compare_vanilla_notice" text="FS25 Enhanced: VANILLA (stock look, settings kept)" />
+        <text name="FS25E_setting_compareToggle" text="Compare: MOD / VANILLA" />
+        <text name="FS25E_tooltip_compareToggle" text="Switches every value this mod holds off and back on for a direct comparison with the stock look. Hotkey: Alt+F9. The settings themselves are kept." />
+        <text name="FS25E_setting_groundWetnessScale" text="Ground wetness" />
+        <text name="FS25E_tooltip_groundWetnessScale" text="Multiplies the wetness the weather hands to the renderer. It drives the dark, reflective look of terrain, roads and puddle decals while it rains and while the ground dries. 1.0 is the game value." />
+        <text name="FS25E_setting_groundWetnessHold" text="Drying time" />
+        <text name="FS25E_tooltip_groundWetnessHold" text="Minimum time the ground needs to dry from fully wet to dry after the rain stops. 0 keeps the game speed; higher values leave roads and yards damp longer." />
+        <text name="FS25E_setting_wetSurfaceShininess" text="Wet surfaces: reflection" />
+        <text name="FS25E_tooltip_wetSurfaceShininess" text="Scales how mirror-like buildings, roads and yard surfaces become when wet (placeable shader wetShininess). Only materials with a wet contract change; vegetation and trees are never touched." />
+        <text name="FS25E_setting_wetSurfaceIntensity" text="Wet surfaces: strength" />
+        <text name="FS25E_tooltip_wetSurfaceIntensity" text="Scales how strongly buildings and placeables respond to wetness at all (wetnessScale). 0 keeps them dry, values above 1 darken and glaze them more." />
+        <text name="FS25E_setting_waterReflectionRoughness" text="Water: reflection roughness" />
+        <text name="FS25E_tooltip_waterReflectionRoughness" text="Screen space reflection roughness of water planes (ocean shader ssrRoughness). 0 is a sharp mirror, higher values blur the reflection." />
+        <text name="FS25E_status_waitScan" text="scanning world materials" />
+        <text name="FS25E_status_noWetSurfaces" text="no compatible surface found" />
+        <text name="FS25E_setting_environmentMood" text="Light mood" />
+        <text name="FS25E_tooltip_environmentMood" text="Curated combinations of sun intensity, colour temperature, tint and scattering. Off hands all of them back to the game; any single slider can still be adjusted afterwards." />
+        <text name="FS25E_value_mood0" text="Off" />
+        <text name="FS25E_value_mood1" text="Crisp" />
+        <text name="FS25E_value_mood2" text="Warm evening" />
+        <text name="FS25E_value_mood3" text="Cool overcast" />
+        <text name="FS25E_value_mood4" text="Golden hour" />
+        <text name="FS25E_value_mood5" text="Soft" />
+        <text name="FS25E_setting_uiLanguage" text="Mod language" />
+        <text name="FS25E_tooltip_uiLanguage" text="Language of every text in this window and the HUD. Auto follows the game language; German and English are always available." />
+        <text name="FS25E_value_language_auto" text="Auto (game)" />
+        <text name="FS25E_value_language_de" text="Deutsch" />
+        <text name="FS25E_value_language_en" text="English" />
+        <text name="FS25E_setting_enhancedLevel" text="Quality level (all effects)" />
+        <text name="FS25E_tooltip_enhancedLevel" text="Sets every quality-type control at once: draw distances, shadows, lamps, SSAO, reflections, wet world, rain. Ultra puts each member at its maximum. Colour, field of view, tone curve and moods are not touched. Off hands everything back to the game." />
+        <text name="FS25E_value_level0" text="Off" />
+        <text name="FS25E_value_level1" text="Low" />
+        <text name="FS25E_value_level2" text="Medium" />
+        <text name="FS25E_value_level3" text="High" />
+        <text name="FS25E_value_level4" text="Very high" />
+        <text name="FS25E_value_level5" text="Ultra" />
+        <text name="FS25E_setting_environmentGodRays" text="Sun light shafts (god rays)" />
+        <text name="FS25E_tooltip_environmentGodRays" text="Switches volumetric light scattering on the sun light. Shafts become visible where the air is dense: fog, dust, rain, and with volumetric fog quality above off." />
+        <text name="FS25E_setting_fog_ground_density" text="Fog: ground density" />
+        <text name="FS25E_tooltip_fog_ground_density" text="Density of the height fog at ground level. Denser fog makes sun shafts and lamp cones visible. Only offered when the running build exposes the setter (fs25eApiDump Fog)." />
+        <text name="FS25E_setting_fog_max_height" text="Fog: maximum height" />
+        <text name="FS25E_tooltip_fog_max_height" text="Height above which the height fog fades out. Only offered when the running build exposes the setter." />
+        <text name="FS25E_setting_puddleOpacity" text="Puddles" />
+        <text name="FS25E_tooltip_puddleOpacity" text="Scales the opacity of the map's puddle decals (puddle shader). They follow the ground wetness; this makes them show sooner and stronger. Unavailable on maps without puddle decals." />
+        <text name="FS25E_setting_canopyOcclusion" text="Tree canopy: ambient occlusion" />
+        <text name="FS25E_tooltip_canopyOcclusion" text="Scales the ambient occlusion inside tree crowns (treeBranchShader aoIntensity). More gives darker, deeper canopies; less flattens them." />
+        <text name="FS25E_setting_leafBacklight" text="Tree canopy: backlight" />
+        <text name="FS25E_tooltip_leafBacklight" text="Light that passes through leaves from behind (treeBranchShader backfaceDiffuseScale, authored 0.35). Higher makes crowns glow against the sun." />
+        <text name="FS25E_setting_cropOcclusion" text="Crops: ambient occlusion" />
+        <text name="FS25E_tooltip_cropOcclusion" text="Scales the ambient occlusion inside crop fields (fruitGrowthFoliageShader aoIntensity). Deeper shading between plants at higher values." />
+        <text name="FS25E_setting_cropTranslucency" text="Crops: translucency" />
+        <text name="FS25E_tooltip_cropTranslucency" text="Sunlight shining through crop plants (fruitGrowthFoliageShader translucencyAmount, authored 0). Gives fields a glow in low sun." />
+        <text name="FS25E_setting_foliageTranslucency" text="Foliage: translucency" />
+        <text name="FS25E_tooltip_foliageTranslucency" text="Scales the light transmission of translucent world foliage such as bushes and grass (translucencyShader translucencyAmount, authored 0.35)." />
+        <text name="FS25E_setting_surfaceContrast" text="Painted surfaces: contrast" />
+        <text name="FS25E_tooltip_surfaceContrast" text="Contrast of vertex-painted world surfaces such as roads and yards (vertexPaintShader contrastLuminiosity x). Above 1 deepens texture detail." />
+        <text name="FS25E_setting_surfaceLuminosity" text="Painted surfaces: brightness" />
+        <text name="FS25E_tooltip_surfaceLuminosity" text="Brightness offset of vertex-painted world surfaces (vertexPaintShader contrastLuminiosity y, authored 0). Negative darkens, positive lifts." />
+        <text name="FS25E_setting_treeWind" text="Trees: wind strength" />
+        <text name="FS25E_tooltip_treeWind" text="Scales how strongly leaves and branches move in the wind (treeBranchShader/treeBillboardShader windSnowLeafScale x, authored 1). 0 holds every tree still, 3 makes a storm. Trees the game cut keep their own value." />
+        <text name="FS25E_setting_treeTintVariation" text="Trees: colour variation" />
+        <text name="FS25E_tooltip_treeTintVariation" text="Scales the random per-tree colour tint of the season (seasonalTintIntensity, authored e.g. 0.10 0.10 0.20 for spring/summer/autumn). Higher makes neighbouring trees differ more; 0 gives every tree of a type the same colour." />
+        <text name="FS25E_setting_leafBacklightBase" text="Trees: backlight floor" />
+        <text name="FS25E_tooltip_leafBacklightBase" text="Constant light added to the back side of leaves (treeBranchShader backfaceDiffuseScale y, authored 0). Lifts dark crowns seen against the sun even where no direct light passes through." />
+        <text name="FS25E_setting_cropWind" text="Crops and grass: wind strength" />
+        <text name="FS25E_tooltip_cropWind" text="Scales the wind sway of crops, grass and meadow (fruitGrowthFoliageShader windScale, authored 1). 0 holds the fields still. Only plants rendered as foliage geometry (within roughly 80 m) are affected; farther fields are the distance texture." />
+        <text name="FS25E_setting_buildingMoss" text="Buildings: moss" />
+        <text name="FS25E_tooltip_buildingMoss" text="Scales the moss mask of building materials (buildingShader dirtMossMix x, authored 1). 0 removes the moss, higher fills the mask up to the shader limit." />
+        <text name="FS25E_setting_buildingDirt" text="Buildings: dirt" />
+        <text name="FS25E_tooltip_buildingDirt" text="Scales the dirt mask of building materials (buildingShader dirtMossMix y, authored 1). 0 gives clean walls, higher more weathering." />
+        <text name="FS25E_setting_rockMoss" text="Rocks: moss and dirt" />
+        <text name="FS25E_tooltip_rockMoss" text="Scales the moss/dirt mask of rock materials (placeableShader mossLevel, rockDetail variation, authored 1). 0 gives bare rock." />
+        <text name="FS25E_setting_atmosphere_asymmetry" text="Atmosphere: sun halo concentration" />
+        <text name="FS25E_tooltip_atmosphere_asymmetry" text="Phase asymmetry of the atmospheric scattering (the map's environment.xml asymmetryFactor curve, 0.5 by day and 0.8 at night). Higher concentrates the glow around the sun, lower spreads it over the sky. Only offered when the running build has the setter (see the ApiInventory log lines)." />
+        <text name="input_FS25E_TOGGLE_COMPARE" text="FS25 Enhanced: compare modded / vanilla" />
+        <text name="FS25E_setting_environmentShadowResolution" text="Sun shadow map size" />
+        <text name="FS25E_tooltip_environmentShadowResolution" text="Depth map resolution of the sun light (setLightShadowMap on the mission sun, read back with getLightCastingShadowMap): 1024 to 8192 px. Larger maps give sharper, deeper shadows at a real GPU cost; 8192 needs plenty of video memory. Off hands the exact game size back." />
+    </texts>
+</l10n>

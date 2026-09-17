@@ -46,7 +46,7 @@ local function syncEnablesFromSchema()
     local map = {
         shadowFocusBox = "expertShadowFocusBox",
         fastShadowUpdate = "expertFastShadowUpdate",
-        rainShallowWater = "expertRainShallowWater",
+        rainShallowWater = "rainShallowWater", -- unified GUI/Overlay/Soft-Apply key (was expertRainShallowWater)
         ssrQuality = "expertSsrQuality",
         atmosphereQuality = "expertAtmosphereQuality",
         drsQuality = "expertDrsQuality",
@@ -182,7 +182,7 @@ local function applyGated(capabilityId, value)
     if value == nil then
         return false, "value required for " .. tostring(capabilityId)
     end
-    local gateOk, gateErr = FS25E_CapabilityApplier.checkGatedSupport(capabilityId)
+    local gateOk, gateErr = FS25E_CapabilityApplier.checkGatedSupport(capabilityId, value)
     if not gateOk then
         FS25E_Debug.warning(LOG, string.format(
             "GATED reject/skip capabilityId=%s reason=%s",

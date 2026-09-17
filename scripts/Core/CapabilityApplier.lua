@@ -1,335 +1,228 @@
--- FS25_Enhanced / Core/CapabilityApplier.lua
--- Generic apply/restore for CONFIRMED (+ Expert EXPERIMENTAL/GATED/ASSET when allowed).
--- Session-only (no saveHardwareScalability). Every setter: type(fn)==function + pcall;
--- fail → REJECTED + restore + log capabilityId.
-
+-- Reversible scalar capability adapter. Typed asset/light APIs have dedicated managers.
 FS25E_CapabilityApplier = {}
-
-local unpack = rawget(_G, "unpack") or table.unpack
-
-local applied = {} -- cacheKey -> { capabilityId, setterName, getterName, argsPrefix, original, appliedValue }
-
--- GATED setters must pass paired getSupports* before set (capability-matrix / wave2).
-local GATED_SUPPORT = {
-    ["ssr-quality"] = "getSupportsScreenSpaceReflectionsQuality",
-    ["atmosphere-quality"] = "getSupportsAtmosphereQuality",
-    ["drs-quality"] = "getSupportsDRSQuality",
+local M=FS25E_CapabilityApplier
+local unpackValues=table.unpack or unpack
+local applied={}
+local GATED_SUPPORT={
+    ["volumetric-fog-quality"]="getSupportsVolumetricFogQuality",
+    ["lensflare-quality"]="getSupportsLensFlareQuality",
+    ["screen-space-shadows-quality"]="getSupportsScreenSpaceShadowsQuality",
+    ["ssr-quality"]="getSupportsScreenSpaceReflectionsQuality",
+    ["atmosphere-quality"]="getSupportsAtmosphereQuality",
+    ["drs-quality"]="getSupportsDRSQuality",
 }
-
 local function resolveGlobal(name)
-    if name == nil or name == "" or name == "NONE" then
-        return nil
-    end
-    local fn = _G[name]
-    if type(fn) == "function" then
-        return fn
-    end
-    return nil
+    return name~=nil and type(_G[name])=="function" and _G[name] or nil
 end
-
-local function cacheKey(capabilityId, argsPrefix)
-    if argsPrefix == nil or argsPrefix == "" then
-        return tostring(capabilityId)
-    end
-    return tostring(capabilityId) .. "|" .. tostring(argsPrefix)
+local function equal(a,b)
+    if a==b then return true end
+    return type(a)=="number" and type(b)=="number" and math.abs(a-b)<1e-4
 end
-
-local function callGetter(getterName, prefixArgs)
-    local getter = resolveGlobal(getterName)
-    if getter == nil then
-        return nil, false
+local function read(getterName,prefix,withFocus)
+    local getter=resolveGlobal(getterName)
+    if not getter then return nil end
+    local ok,value=pcall(getter,unpackValues(prefix or {}))
+    if not ok or value==nil then return nil end
+    if type(value)=="number" and (value~=value or math.abs(value)==math.huge) then return nil end
+    local out={value}
+    if withFocus then
+        local fn=resolveGlobal("getHasShadowFocusBox")
+        if not fn then return nil end
+        local focusOk,focus=pcall(fn)
+        if not focusOk or type(focus)~="boolean" then return nil end
+        out[2]=focus
     end
-    local ok, result
-    if prefixArgs ~= nil and #prefixArgs > 0 then
-        ok, result = pcall(getter, unpack(prefixArgs))
-    else
-        ok, result = pcall(getter)
-    end
-    if not ok then
-        return nil, false
-    end
-    return result, true
+    return out
 end
-
-local function callSetter(setterName, prefixArgs, valueArgs)
-    local setter = resolveGlobal(setterName)
-    if type(setter) ~= "function" then
-        return false, "setter missing: " .. tostring(setterName)
-    end
-    local args = {}
-    if prefixArgs ~= nil then
-        for i = 1, #prefixArgs do
-            args[#args + 1] = prefixArgs[i]
-        end
-    end
-    if valueArgs ~= nil then
-        for i = 1, #valueArgs do
-            args[#args + 1] = valueArgs[i]
-        end
-    end
-    local ok, err = pcall(function()
-        setter(unpack(args))
-    end)
-    if not ok then
-        return false, err
-    end
-    return true, nil
-end
-
-local function resolveExpertFlag(opts)
-    if opts ~= nil and opts.expertMode ~= nil then
-        return opts.expertMode == true
-    end
-    if FS25E_SettingsSchema ~= nil and FS25E_SettingsSchema.get ~= nil then
-        return FS25E_SettingsSchema.get("expertMode") == true
-    end
-    return false
-end
-
---- Check GATED getSupports* gate. Returns ok, errOrNil.
-function FS25E_CapabilityApplier.checkGatedSupport(capabilityId)
-    local supportName = GATED_SUPPORT[capabilityId]
-    if supportName == nil then
-        return true, nil
-    end
-    local fn = resolveGlobal(supportName)
-    if type(fn) ~= "function" then
-        return false, "support gate missing: " .. tostring(supportName)
-    end
-    local ok, supported = pcall(fn)
-    if not ok then
-        return false, "support gate pcall failed: " .. tostring(supported)
-    end
-    if supported ~= true then
-        return false, "getSupports* returned false (" .. tostring(supportName) .. ")"
-    end
-    return true, nil
-end
-
---- Apply a capability when registry allowsApply (CONFIRMED, or Expert statuses with expertMode).
---- opts = { prefixArgs, values|value, keySuffix, skipRestoreRegister, expertMode, skipGateCheck }
---- Returns ok, errOrNil
-function FS25E_CapabilityApplier.apply(capabilityId, opts)
-    opts = opts or {}
-    local cap = FS25E_CapabilityRegistry ~= nil and FS25E_CapabilityRegistry.get(capabilityId) or nil
-    if cap == nil then
-        return false, "unknown capability"
-    end
-
-    local expert = resolveExpertFlag(opts)
-    if FS25E_CapabilityRegistry.allowsApply == nil
-        or not FS25E_CapabilityRegistry.allowsApply(capabilityId, expert) then
-        if FS25E_CapabilityRegistry.markSkipped ~= nil then
-            FS25E_CapabilityRegistry.markSkipped(capabilityId, "not allowed (expertMode=" .. tostring(expert) .. " status=" .. tostring(cap.status) .. ")")
-        end
-        return false, "not allowed (expertMode=" .. tostring(expert) .. " status=" .. tostring(cap.status) .. ")"
-    end
-    if cap.setter == nil or cap.setter == "" or cap.setter == "NONE" then
-        return false, "no setter (query-only)"
-    end
-    if cap.applyMode == "RESTART" then
-        return false, "RESTART applyMode blocked on Fast path"
-    end
-
-    -- Never call these without explicit opt-in elsewhere; block if somehow registered for apply.
-    if capabilityId == "save-hardware-scalability" or capabilityId == "apply-performance-class"
-        or capabilityId == "terrain-quality" then
-        return false, "blocked: requires explicit opt-in / not Fast path"
-    end
-
-    local setter = resolveGlobal(cap.setter)
-    if type(setter) ~= "function" then
-        FS25E_CapabilityRegistry.reject(capabilityId, "setter not a function: " .. tostring(cap.setter))
-        FS25E_Debug.warning("CapabilityApplier", string.format(
-            "REJECTED capabilityId=%s reason=setter not a function setter=%s",
-            tostring(capabilityId), tostring(cap.setter)
-        ))
-        return false, "setter not a function"
-    end
-
-    -- GATED: getSupports* BEFORE set
-    local base = cap.baseStatus or cap.status
-    if not opts.skipGateCheck
-        and (base == "GATED" or cap.status == "GATED" or GATED_SUPPORT[capabilityId] ~= nil) then
-        local gateOk, gateErr = FS25E_CapabilityApplier.checkGatedSupport(capabilityId)
-        if not gateOk then
-            FS25E_Debug.warning("CapabilityApplier", string.format(
-                "GATED skip capabilityId=%s reason=%s",
-                tostring(capabilityId), tostring(gateErr)
-            ))
-            return false, gateErr
-        end
-    end
-
-    local prefixArgs = opts.prefixArgs or {}
-    local values = opts.values or {}
-    if #values == 0 and opts.value ~= nil then
-        values = { opts.value }
-    end
-
-    local key = cacheKey(capabilityId, opts.keySuffix or (prefixArgs[1] ~= nil and tostring(prefixArgs[1]) or ""))
-
-    -- Capture original once via getter when available
-    local original = nil
-    local hadGetter = false
-    if FS25E_SettingsCache ~= nil then
-        local existing = FS25E_SettingsCache.get(key)
-        if existing ~= nil and existing.original ~= nil then
-            original = existing.original
-            hadGetter = true
-        end
-    end
-    if not hadGetter then
-        local gVal, gOk = callGetter(cap.getter, prefixArgs)
-        if gOk then
-            original = gVal
-            hadGetter = true
-        end
-        if FS25E_SettingsCache ~= nil then
-            FS25E_SettingsCache.captureOriginal(key, original)
-            local e = FS25E_SettingsCache.get(key)
-            if e ~= nil then
-                e.applyMode = FS25E_SettingsCache.APPLY_MODE.SESSION
-                e.needsCalibration = true
-                e.capabilityId = capabilityId
-            end
-        end
-    end
-
-    local okSet, errSet = callSetter(cap.setter, prefixArgs, values)
-    if not okSet then
-        FS25E_CapabilityRegistry.reject(capabilityId, "apply pcall failed: " .. tostring(errSet))
-        if hadGetter and original ~= nil then
-            callSetter(cap.setter, prefixArgs, { original })
-        elseif cap.restoreStrategy == "shadowFocusBoxReset" then
-            local resetFn = resolveGlobal("setShadowFocusBox")
-            if type(resetFn) == "function" then
-                pcall(resetFn, 0)
-            end
-        end
-        FS25E_Debug.warning("CapabilityApplier", string.format(
-            "apply failed REJECTED capabilityId=%s err=%s",
-            tostring(capabilityId), tostring(errSet)
-        ))
-        return false, errSet
-    end
-
-    if FS25E_SettingsCache ~= nil then
-        FS25E_SettingsCache.setRequested(key, values[1])
-        local e = FS25E_SettingsCache.get(key)
-        if e ~= nil then
-            e.current = values[1]
-            e.needsCalibration = true
-        end
-    end
-
-    applied[key] = {
-        capabilityId = capabilityId,
-        setterName = cap.setter,
-        getterName = cap.getter,
-        prefixArgs = prefixArgs,
-        original = original,
-        hadGetter = hadGetter,
-        appliedValue = values[1],
-        appliedValues = values,
-        restoreStrategy = cap.restoreStrategy,
-    }
-
-    if FS25E_CapabilityRegistry.markApplied ~= nil then
-        FS25E_CapabilityRegistry.markApplied(capabilityId, key)
-    end
-
-    if not opts.skipRestoreRegister and FS25E_RestoreManager ~= nil and FS25E_RestoreManager.registerCapabilityRestore ~= nil then
-        FS25E_RestoreManager.registerCapabilityRestore(key)
-    end
-
-    if FS25E_CapabilityRegistry.markApplied ~= nil then
-        FS25E_CapabilityRegistry.markApplied(capabilityId)
-    end
-
-    FS25E_Debug.info("CapabilityApplier", string.format(
-        "APPLIED capabilityId=%s key=%s setter=%s session-only needsCalibration=true expertMode=%s",
-        tostring(capabilityId), key, tostring(cap.setter), tostring(expert)
-    ))
-    return true, nil
-end
-
---- Restore a single applied capability by cache key.
-function FS25E_CapabilityApplier.restoreOne(key)
-    local entry = applied[key]
-    if entry == nil then
-        return true
-    end
-    if entry.restoreStrategy == "NO" then
-        applied[key] = nil
-        return true
-    end
-
-    if entry.restoreStrategy == "splitLightShadow" then
-        local split = resolveGlobal("splitLightShadow")
-        if type(split) == "function" and entry.prefixArgs ~= nil and entry.prefixArgs[1] ~= nil then
-            local ok, err = pcall(split, entry.prefixArgs[1])
-            if not ok then
-                FS25E_Debug.warning("CapabilityApplier", "splitLightShadow restore failed: " .. tostring(err))
-            end
-        end
-        applied[key] = nil
-        return true
-    end
-
-    if entry.restoreStrategy == "shadowFocusBoxReset" then
-        local resetFn = resolveGlobal("setShadowFocusBox")
-        if type(resetFn) == "function" then
-            local ok, err = pcall(resetFn, 0)
-            if not ok then
-                FS25E_Debug.warning("CapabilityApplier", "setShadowFocusBox(0) restore failed: " .. tostring(err))
-            end
-        end
-        applied[key] = nil
-        return true
-    end
-
-    if entry.hadGetter and entry.original ~= nil then
-        local ok, err = callSetter(entry.setterName, entry.prefixArgs, { entry.original })
-        if not ok then
-            FS25E_Debug.warning("CapabilityApplier", string.format("restoreOne failed key=%s err=%s", tostring(key), tostring(err)))
-            return false
-        end
-    else
-        FS25E_Debug.info("CapabilityApplier", string.format("restoreOne skip (no original) key=%s", tostring(key)))
-    end
-    applied[key] = nil
+local function same(a,b)
+    if a==nil or b==nil or #a~=#b then return false end
+    for i=1,#a do if not equal(a[i],b[i]) then return false end end
     return true
 end
-
---- Restore all capabilities applied through the applier (LIFO).
-function FS25E_CapabilityApplier.restoreAll()
-    FS25E_Debug.info("CapabilityApplier", "restoreAll begin")
-    local keys = {}
-    for k in pairs(applied) do
-        keys[#keys + 1] = k
+local function write(setterName,prefix,values)
+    -- This hardware buffer multiplier is not the current weather intensity.
+    -- A zero-sized rain buffer crashes the game; also guard rollback/restore.
+    -- Natural setRainActiveDropsMultiplier(..., 0) transitions are unrelated.
+    if setterName=="setRainAmountMultiplier" and
+        (type(values[1])~="number" or values[1]<=0 or values[1]~=values[1]) then
+        return false,"rain amount hardware multiplier must be positive"
     end
+    local setter=resolveGlobal(setterName)
+    if not setter then return false,"setter unavailable" end
+    local args={}
+    for _,v in ipairs(prefix or {}) do args[#args+1]=v end
+    for _,v in ipairs(values or {}) do args[#args+1]=v end
+    local ok,result=pcall(setter,unpackValues(args))
+    if not ok then return false,tostring(result) end
+    if result==false then return false,"setter returned false" end
+    return true
+end
+local function noteRejected(id,reason,fatal)
+    if FS25E_CapabilityRegistry then
+        if fatal and FS25E_CapabilityRegistry.reject then FS25E_CapabilityRegistry.reject(id,reason)
+        elseif FS25E_CapabilityRegistry.markSkipped then FS25E_CapabilityRegistry.markSkipped(id,reason) end
+    end
+    if FS25E_Debug then FS25E_Debug.warning("CapabilityApplier",tostring(id)..": "..tostring(reason)) end
+end
+local function cacheUpdate(key,id,original,current,requested)
+    if not FS25E_SettingsCache then return end
+    FS25E_SettingsCache.captureOriginal(key,original[1])
+    FS25E_SettingsCache.setRequested(key,requested[1])
+    local e=FS25E_SettingsCache.get(key)
+    if e then
+        e.original=original[1]; e.current=current[1]; e.requested=requested[1]
+        e.capabilityId=id; e.needsCalibration=true
+        if FS25E_SettingsCache.APPLY_MODE then e.applyMode=FS25E_SettingsCache.APPLY_MODE.SESSION end
+    end
+end
+function M.checkGatedSupport(id,value)
+    local name=GATED_SUPPORT[id]
+    if not name then return true end
+    local fn=resolveGlobal(name)
+    if not fn then return false,"support gate unavailable: "..name end
+    local ok,supported=pcall(fn,value)
+    if not ok or supported~=true then return false,"requested quality unsupported: "..name end
+    return true
+end
+function M.apply(id,opts)
+    opts=opts or {}
+    local registry=FS25E_CapabilityRegistry
+    local cap=registry and registry.get and registry.get(id)
+    if not cap then return false,"unknown capability" end
+    if id=="fast-shadow-update" or id=="shadow-focus-box" or id=="rain-shallow-water-simulation" then
+        return false,"requires a camera/shape/simulation asset; not a global boolean"
+    end
+    if id=="save-hardware-scalability" or id=="apply-performance-class" or id=="terrain-quality" or cap.applyMode=="RESTART" then
+        return false,"not a live session setting"
+    end
+    local prefix=opts.prefixArgs or {}
+    if cap.scope=="per-light" or #prefix>0 or id=="light-shadow-map" or id=="merge-light-shadows" then
+        return false,"use the typed, owned light/asset adapter"
+    end
+    local expert=opts.expertMode
+    if expert==nil and FS25E_SettingsSchema and FS25E_SettingsSchema.get then expert=FS25E_SettingsSchema.get("expertMode") end
+    if not registry.allowsApply or not registry.allowsApply(id,expert==true) then return false,"capability is not allowed" end
+    if not resolveGlobal(cap.setter) then return false,"setter unavailable" end
+    local values={}
+    for i,v in ipairs(opts.values or {}) do values[i]=v end
+    if #values==0 and opts.value~=nil then values[1]=opts.value end
+    if #values==0 or (#values~=1 and id~="shadow-quality") or #values>2 then return false,"invalid scalar argument count" end
+    if type(values[1])~="number" and type(values[1])~="boolean" then return false,"invalid scalar value" end
+    if type(values[1])=="number" and (values[1]~=values[1] or math.abs(values[1])==math.huge) then return false,"non-finite value" end
+    if id=="rain-amount-mult" or cap.setter=="setRainAmountMultiplier" then
+        if type(values[1])~="number" then return false,"rain amount must be numeric" end
+        values[1]=math.max(0.01,values[1])
+    end
+    if not opts.skipGateCheck and (GATED_SUPPORT[id] or cap.status=="GATED" or cap.baseStatus=="GATED") then
+        local ok,reason=M.checkGatedSupport(id,values[1]); if not ok then return false,reason end
+    end
+    local focus=id=="shadow-quality"
+    local before=read(cap.getter,prefix,focus)
+    if not before then return false,"native original value unavailable; write blocked" end
+    if cap.setter=="setRainAmountMultiplier" and (type(before[1])~="number" or before[1]<=0) then
+        return false,"rain amount original is not safely restorable; write blocked"
+    end
+    if focus then
+        if values[2]==nil then values[2]=before[2] end
+        if type(values[2])~="boolean" then return false,"shadow focus must be boolean" end
+    end
+    local suffix=opts.keySuffix
+    local key=tostring(id)..((suffix~=nil and suffix~="") and ("|"..tostring(suffix)) or "")
+    local previous=applied[key]
+    local original=before
+    if previous and same(before,previous.appliedValues) then
+        original=previous.originalValues or {previous.original}
+        if focus and original[2]==nil then original[2]=previous.originalFocus end
+    end
+    if same(before,values) then
+        cacheUpdate(key,id,original,before,values)
+        return true
+    end
+    local entry={capabilityId=id,setterName=cap.setter,getterName=cap.getter,prefixArgs=prefix,
+        original=original[1],originalValues=original,originalFocus=focus and original[2] or nil,
+        hadGetter=true,appliedValue=values[1],appliedValues=values,restoreStrategy="YES",withFocus=focus}
+    -- Preserve false in the second member; Lua's and/or shorthand loses it.
+    if focus then entry.originalFocus=original[2] end
+    local setOk,setReason=write(cap.setter,prefix,values)
+    local actual=read(cap.getter,prefix,focus)
+    if not setOk or not same(actual,values) then
+        local rollbackOk=write(cap.setter,prefix,before)
+        local rolledBack=read(cap.getter,prefix,focus)
+        if not rollbackOk or not same(rolledBack,before) then
+            -- A partially accepted native setter must remain restorable even
+            -- though this request was rejected and never marked APPLIED.
+            entry.appliedValues=actual or values; entry.appliedValue=entry.appliedValues[1]
+            entry.pendingRestore=true; applied[key]=entry
+            if FS25E_RestoreManager and FS25E_RestoreManager.registerCapabilityRestore then FS25E_RestoreManager.registerCapabilityRestore(key) end
+        elseif previous then
+            applied[key]=previous
+        end
+        local reason=setReason or "engine did not accept requested value (read-back mismatch)"
+        -- A rejected value with a verified rollback does not mean the entire
+        -- interface is broken. Keep lower/supported values available to retry.
+        noteRejected(id,reason,not rollbackOk or not same(rolledBack,before))
+        return false,reason
+    end
+    applied[key]=entry
+    cacheUpdate(key,id,original,actual,values)
+    if not opts.skipRestoreRegister and FS25E_RestoreManager and FS25E_RestoreManager.registerCapabilityRestore then
+        FS25E_RestoreManager.registerCapabilityRestore(key)
+    end
+    if registry.markApplied then registry.markApplied(id,key) end
+    return true
+end
+function M.restoreOne(key)
+    local entry=applied[key]
+    if not entry then return true end
+    local original=entry.originalValues
+    if not original and entry.hadGetter and entry.original~=nil then
+        original={entry.original}; if entry.originalFocus~=nil then original[2]=entry.originalFocus end
+    end
+    if not original then entry.pendingRestore=true; return false,"restore original unavailable" end
+    local before=read(entry.getterName,entry.prefixArgs,entry.withFocus or entry.originalFocus~=nil)
+    if not before then entry.pendingRestore=true; return false,"restore getter unavailable" end
+    if not entry.pendingRestore and entry.appliedValues and not same(before,entry.appliedValues) then
+        -- The game or another mod owns the newer value. Never resurrect a stale
+        -- original after graphics/profile changes outside this mod.
+        cacheUpdate(key,entry.capabilityId,before,before,before)
+        applied[key]=nil
+        return true
+    end
+    local ok,reason=write(entry.setterName,entry.prefixArgs,original)
+    local actual=read(entry.getterName,entry.prefixArgs,entry.withFocus or entry.originalFocus~=nil)
+    if not ok or not same(actual,original) then
+        entry.pendingRestore=true
+        if actual then entry.appliedValues=actual; entry.appliedValue=actual[1] end
+        return false,reason or "restore read-back mismatch"
+    end
+    cacheUpdate(key,entry.capabilityId,original,actual,original)
+    applied[key]=nil
+    return true
+end
+function M.restoreAll()
+    local keys={}; for key in pairs(applied) do keys[#keys+1]=key end
     table.sort(keys)
-    for i = #keys, 1, -1 do
-        FS25E_CapabilityApplier.restoreOne(keys[i])
+    local success=true
+    for i=#keys,1,-1 do
+        local ok,reason=M.restoreOne(keys[i])
+        if not ok then
+            success=false
+            if FS25E_Debug then FS25E_Debug.warning("CapabilityApplier","restore pending "..keys[i]..": "..tostring(reason)) end
+        end
     end
-    applied = {}
-    FS25E_Debug.info("CapabilityApplier", "restoreAll done (session restore; no saveHardwareScalability)")
+    return success
 end
-
-function FS25E_CapabilityApplier.getApplied()
-    return applied
+function M.getApplied() return applied end
+function M.retryPending()
+    local success=true
+    for key,entry in pairs(applied) do
+        if entry.pendingRestore then success=M.restoreOne(key) and success end
+    end
+    return success
 end
-
-function FS25E_CapabilityApplier.reset()
-    applied = {}
+function M.reset()
+    -- Never silently discard a failed native restore record.
+    return M.restoreAll()
 end
-
---- Resolve global by name with type(fn)=="function" check (shared helper).
-function FS25E_CapabilityApplier.resolveGlobal(name)
-    return resolveGlobal(name)
-end
-
-function FS25E_CapabilityApplier.getGatedSupportMap()
-    return GATED_SUPPORT
-end
+function M.resolveGlobal(name) return resolveGlobal(name) end
+function M.getGatedSupportMap() return GATED_SUPPORT end

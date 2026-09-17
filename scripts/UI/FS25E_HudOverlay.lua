@@ -1,5 +1,5 @@
 -- FS25_Enhanced / UI/FS25E_HudOverlay.lua
--- Lightweight Pro Live HUD: engine FPS/frametime + optional system sidecar telemetry.
+-- Compact live status: FPS and frame time only. Slider controls live separately.
 -- Data ONLY via FS25E_SettingsAPI.getHudTelemetry() — never invent sensor numbers.
 
 FS25E_HudOverlay = {}
@@ -11,7 +11,7 @@ local miniForcedOff = false
 local MINI = {
     x = 0.012,
     y = 0.88,
-    w = 0.22,
+    w = 0.17,
     h = 0.10,
     pad = 0.008,
     titleSize = 0.013,
@@ -25,6 +25,7 @@ local function dbg(msg)
 end
 
 local function t(key, fallback)
+    if FS25E_Localization then return FS25E_Localization.t(key, fallback) end
     if g_i18n ~= nil and g_i18n.getText ~= nil then
         local ok, text = pcall(function()
             return g_i18n:getText(key)
@@ -33,8 +34,8 @@ local function t(key, fallback)
             return text
         end
     end
-    if FS25E_SettingsController ~= nil and FS25E_SettingsController.t ~= nil then
-        return FS25E_SettingsController.t(key, fallback)
+    if FS25E_Localization ~= nil and FS25E_Localization.t ~= nil then
+        return FS25E_Localization.t(key, fallback)
     end
     return fallback or key
 end
@@ -85,13 +86,6 @@ local function fmtNum(n, digits)
     return string.format("%." .. tostring(d) .. "f", n)
 end
 
-local function fmtPct(n)
-    if n == nil then
-        return "—"
-    end
-    return string.format("%.0f%%", n * 100)
-end
-
 --- Fetch telemetry; never synthesize system metrics.
 function FS25E_HudOverlay.getTelemetry()
     if FS25E_SettingsAPI == nil or FS25E_SettingsAPI.getHudTelemetry == nil then
@@ -104,84 +98,14 @@ function FS25E_HudOverlay.getTelemetry()
     return snap
 end
 
---- Build engine + system lines (real numbers only).
---- Returns lines = { {text, r,g,b}, ... }
+--- Two live status values; do not mix diagnostics or slider settings into the HUD.
 function FS25E_HudOverlay.formatLines(compact)
-    local snap = FS25E_HudOverlay.getTelemetry()
-    local eng = snap.engine
-    local sys = snap.system
-    local lines = {}
-
-    local fpsA, fpsL, msA, msL = "—", "—", "—", "—"
-    if type(eng) == "table" then
-        if eng.fpsAvg ~= nil then fpsA = fmtNum(eng.fpsAvg, 1) end
-        if eng.fpsLast ~= nil then fpsL = fmtNum(eng.fpsLast, 1) end
-        if eng.frameMsAvg ~= nil then msA = fmtNum(eng.frameMsAvg, 2) end
-        if eng.frameMsLast ~= nil then msL = fmtNum(eng.frameMsLast, 2) end
-    end
-
-    if compact then
-        lines[#lines + 1] = {
-            text = string.format("%s %s/%s  %sms %s/%s",
-                t("FS25E_HUD_ENGINE", "ENG"), fpsA, fpsL, t("FS25E_HUD_MS", ""), msA, msL),
-            r = 0.85, g = 0.95, b = 1.0,
-        }
-    else
-        lines[#lines + 1] = {
-            text = string.format("%s  fpsAvg=%s  fpsLast=%s",
-                t("FS25E_HUD_ENGINE", "Engine"), fpsA, fpsL),
-            r = 0.85, g = 0.95, b = 1.0,
-        }
-        lines[#lines + 1] = {
-            text = string.format("  frameMsAvg=%s  frameMsLast=%s", msA, msL),
-            r = 0.70, g = 0.80, b = 0.90,
-        }
-    end
-
-    local connected = type(sys) == "table" and sys.connected == true
-    if not connected then
-        lines[#lines + 1] = {
-            text = string.format("%s  %s",
-                t("FS25E_HUD_SYSTEM", "System"),
-                t("FS25E_HUD_DISCONNECTED", "DISCONNECTED")),
-            r = 0.95, g = 0.55, b = 0.35,
-        }
-    else
-        local d = sys.data or {}
-        if compact then
-            lines[#lines + 1] = {
-                text = string.format("%s CPU %s GPU %s  VRAM %s/%s  RAM %s/%s",
-                    t("FS25E_HUD_SYSTEM", "SYS"),
-                    fmtPct(d.cpuLoad),
-                    fmtPct(d.gpuLoad),
-                    d.vramUsedMB ~= nil and tostring(math.floor(d.vramUsedMB)) or "—",
-                    d.vramTotalMB ~= nil and tostring(math.floor(d.vramTotalMB)) or "—",
-                    d.ramUsedMB ~= nil and tostring(math.floor(d.ramUsedMB)) or "—",
-                    d.ramTotalMB ~= nil and tostring(math.floor(d.ramTotalMB)) or "—"),
-                r = 0.55, g = 0.95, b = 0.65,
-            }
-        else
-            local cpuT = d.cpuTempC ~= nil and string.format(" %.0f°C", d.cpuTempC) or ""
-            local gpuT = d.gpuTempC ~= nil and string.format(" %.0f°C", d.gpuTempC) or ""
-            lines[#lines + 1] = {
-                text = string.format("%s  cpu=%s%s  gpu=%s%s",
-                    t("FS25E_HUD_SYSTEM", "System"),
-                    fmtPct(d.cpuLoad), cpuT,
-                    fmtPct(d.gpuLoad), gpuT),
-                r = 0.55, g = 0.95, b = 0.65,
-            }
-            lines[#lines + 1] = {
-                text = string.format("  vram=%s/%s MB  ram=%s/%s MB",
-                    d.vramUsedMB ~= nil and tostring(math.floor(d.vramUsedMB)) or "—",
-                    d.vramTotalMB ~= nil and tostring(math.floor(d.vramTotalMB)) or "—",
-                    d.ramUsedMB ~= nil and tostring(math.floor(d.ramUsedMB)) or "—",
-                    d.ramTotalMB ~= nil and tostring(math.floor(d.ramTotalMB)) or "—"),
-                r = 0.50, g = 0.85, b = 0.60,
-            }
-        end
-    end
-
-    return lines
+    local telemetry=FS25E_HudOverlay.getTelemetry()
+    local perf=telemetry.engine or {}
+    return {
+        {text=t('FS25E_debug_fps', 'FPS')..': '..fmtNum(perf.fpsAvg,1),r=.82,g=.88,b=.9},
+        {text=t('FS25E_debug_frameTime', 'Frametime')..': '..fmtNum(perf.frameMsAvg,2)..' ms',r=.82,g=.88,b=.9},
+    }
 end
 
 --- Draw telemetry block at absolute position (for LiveOverlay header).
@@ -217,7 +141,7 @@ function FS25E_HudOverlay.shouldDrawMini()
         return false
     end
     if FS25E_LiveOverlay ~= nil and FS25E_LiveOverlay.isVisible ~= nil and FS25E_LiveOverlay.isVisible() then
-        -- Full HUD lives in overlay header; skip duplicate mini
+        -- Keep the status HUD out of the slider interface.
         return false
     end
     -- Always-on mini when liveTuningEnabled (expert live path active)
@@ -228,12 +152,10 @@ function FS25E_HudOverlay.drawMini()
     if not FS25E_HudOverlay.shouldDrawMini() then
         return
     end
-    local title = t("FS25E_HUD_TITLE_MINI", "FS25E HUD")
     FS25E_HudOverlay.drawAt(MINI.x, MINI.y + MINI.h, MINI.w, {
         compact = true,
         background = true,
         alpha = 0.62,
-        title = title,
         pad = MINI.pad,
     })
 end

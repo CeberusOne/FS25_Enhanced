@@ -14,7 +14,7 @@ local values = {}
 
 --- GUI Gen-1 keys + Core toggles. Governor stays off until user acts.
 local DEFAULTS = {
-    enabled = false,
+    enabled = true,
     adaptive = false,
     autoApply = false,
     softApply = false,
@@ -39,11 +39,15 @@ local DEFAULTS = {
     fastShadowUpdate = false,
     rainShallowWater = false,
     liveTuningEnabled = false,
+    liveHiddenControls = "",
+    -- "auto" follows the game language; "de"/"en" pin every mod text
+    uiLanguage = "auto",
+    -- "x,y,w,h" in the overlay's 1920x1080 layout space; empty = default dock
+    liveWindowRect = "",
     -- Expert Soft-Apply / ExperimentalCaps toggles (default OFF)
     expertSoftApply = false,
     expertShadowFocusBox = false,
     expertFastShadowUpdate = false,
-    expertRainShallowWater = false,
     expertSsrQuality = false,
     expertAtmosphereQuality = false,
     expertDrsQuality = false,
@@ -54,6 +58,8 @@ local DEFAULTS = {
 local ALIASES = {
     governorEnabled = "enabled",
     activePreset = "preset",
+    -- Legacy Soft-Apply key → unified GUI/Overlay key
+    expertRainShallowWater = "rainShallowWater",
 }
 
 local function resolveKey(id)
@@ -78,6 +84,12 @@ local function coerceStored(value, default)
     end
     if value == nil then return default end
     return tostring(value)
+end
+
+local function normalizeTarget(value)
+    local n=tonumber(value)
+    if n==nil or n~=n or math.abs(n)==math.huge then return nil end
+    return tostring(math.max(15,math.min(240,math.floor(n+0.5))))
 end
 
 local function seedDefaults()
@@ -155,12 +167,19 @@ function FS25E_ModSettings.get(id)
 end
 
 function FS25E_ModSettings.set(id, value)
-    local rawId = id
     id = resolveKey(id)
     if id == nil or DEFAULTS[id] == nil then
         return false
     end
-    values[id] = coerceStored(value, DEFAULTS[id])
+    if id=="adaptive" or id=="autoApply" or id=="softApply" or id=="expertSoftApply" then value=false end
+    if id=="targetFps" then
+        local target=normalizeTarget(value)
+        if target==nil then return false end
+        values[id]=target
+        if FS25E_PerformanceMonitor and FS25E_PerformanceMonitor.setTargetFps then FS25E_PerformanceMonitor.setTargetFps(tonumber(target)) end
+    else
+        values[id] = coerceStored(value, DEFAULTS[id])
+    end
     return true
 end
 
@@ -178,6 +197,11 @@ end
 
 --- Push toggles into live modules (no engine quality setters here).
 function FS25E_ModSettings.applyToRuntime()
+    values.adaptive=false; values.autoApply=false; values.softApply=false; values.expertSoftApply=false
+    values.targetFps=normalizeTarget(values.targetFps) or DEFAULTS.targetFps
+    if FS25E_PerformanceMonitor and FS25E_PerformanceMonitor.setTargetFps then
+        FS25E_PerformanceMonitor.setTargetFps(tonumber(values.targetFps))
+    end
     local enabled = FS25E_ModSettings.get("enabled") == true
     local adaptive = FS25E_ModSettings.get("adaptive") == true
     local autoApply = FS25E_ModSettings.get("autoApply") == true
@@ -190,6 +214,10 @@ function FS25E_ModSettings.applyToRuntime()
     local expert = FS25E_ModSettings.get("expertMode") == true
     local preset = FS25E_ModSettings.get("preset") or "Balanced"
 
+    -- Select before enabling: setAutoApply can immediately write the preset.
+    if FS25E_ProfileManager ~= nil and FS25E_ProfileManager.selectPreset ~= nil then
+        FS25E_ProfileManager.selectPreset(tostring(preset))
+    end
     if FS25E_GraphicsGovernor ~= nil then
         if FS25E_GraphicsGovernor.setEnabled ~= nil then
             FS25E_GraphicsGovernor.setEnabled(enabled)
@@ -213,7 +241,7 @@ function FS25E_ModSettings.applyToRuntime()
     ))
 end
 
-function FS25E_ModSettings.load()
+function FS25E_ModSettings.load(deferRuntime)
     seedDefaults()
     local path = FS25E_ModSettings.getFilePath(SETTINGS_FILE)
     FS25E_Debug.info("ModSettings", "load " .. tostring(path))
@@ -241,6 +269,8 @@ function FS25E_ModSettings.load()
         end
         if deleteXMLFile ~= nil then
             deleteXMLFile(xmlId)
+        elseif delete ~= nil then
+            delete(xmlId)
         end
     end)
     if not ok then
@@ -248,7 +278,11 @@ function FS25E_ModSettings.load()
         seedDefaults()
     end
 
-    FS25E_ModSettings.applyToRuntime()
+    -- Migrate old disabled sessions and automatic options to the manual UI.
+    values.enabled=true; values.adaptive=false; values.autoApply=false; values.softApply=false; values.expertSoftApply=false
+    -- Legacy "unlimited" never controlled the native frame limiter; its previous runtime fallback was 60.
+    values.targetFps=normalizeTarget(values.targetFps) or DEFAULTS.targetFps
+    if not deferRuntime then FS25E_ModSettings.applyToRuntime() end
     return true
 end
 
@@ -298,6 +332,8 @@ function FS25E_ModSettings.save()
         saveXMLFile(xmlId)
         if deleteXMLFile ~= nil then
             deleteXMLFile(xmlId)
+        elseif delete ~= nil then
+            delete(xmlId)
         end
     end)
     if not ok then

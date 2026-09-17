@@ -46,7 +46,8 @@ end
 function FS25E_SettingsCache.setRequested(key, value)
     local e = entries[key]
     if e == nil then
-        e = FS25E_SettingsCache.ensure(key, value)
+        -- A requested value is not an observation of the engine state.
+        e = FS25E_SettingsCache.ensure(key, nil)
     end
     if e.locked then
         return false
@@ -84,7 +85,7 @@ end
 
 function FS25E_SettingsCache.getOriginal(key)
     local e = entries[key]
-    return e and e.original or nil
+    return e and e.original
 end
 
 function FS25E_SettingsCache.all()
@@ -101,10 +102,12 @@ function FS25E_SettingsCache.applyRequestedSoft()
 end
 
 --- Restore current toward original (cache only; RestoreManager coordinates engine).
-function FS25E_SettingsCache.restoreToOriginal()
+function FS25E_SettingsCache.restoreToOriginal(preserveNativeReadback)
     for _, e in pairs(entries) do
+        if not preserveNativeReadback or e.capabilityId==nil then
         e.current = e.original
         e.requested = e.original
+        end
     end
 end
 

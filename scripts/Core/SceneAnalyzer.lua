@@ -1,269 +1,141 @@
--- FS25_Enhanced / Core/SceneAnalyzer.lua
--- Phase 2: read-only scene snapshot from g_currentMission (nil-safe).
--- Update on Medium/Slow cadence only. NO engine writes.
-
+-- Read-only FS25 scene information. Missing sensors remain nil, never guessed engine values.
 FS25E_SceneAnalyzer = {}
-
-local INTERVAL_MEDIUM_MS = 250
-local INTERVAL_SLOW_MS = 1000
-local accumMediumMs = 0
-local accumSlowMs = 0
-local enabled = true
-local debugLog = false
-local tickCount = 0
-
-local snapshot = {
-    hasMission = false,
-    cameraId = nil,
-    playerPresent = false,
-    inVehicle = false,
-    vehicleName = nil,
-    hour = nil,
-    minute = nil,
-    isDay = nil,
-    sunHeightAngle = nil,
-    weatherType = nil,
-    fogActive = nil,
-    rainActive = nil,
-    rainAmount = nil,
-    updatedAtMedium = 0,
-    updatedAtSlow = 0,
-}
-
-local function safeGet(tbl, key)
-    if tbl == nil then
-        return nil
-    end
-    local ok, value = pcall(function()
-        return tbl[key]
-    end)
-    if ok then
-        return value
-    end
-    return nil
+local M=FS25E_SceneAnalyzer
+local snapshot, clockMs, accumulator, tickCount, enabled, debugLog = {},0,0,0,true,false
+local function call(object,name,...)
+    if object and type(object[name])=='function' then local ok,a,b,c=pcall(object[name],object,...); if ok then return a,b,c end end
 end
-
-local function resolveMission()
-    if g_currentMission ~= nil then
-        return g_currentMission
-    end
-    return nil
+local function native(name,...)
+    local fn=_G[name]; if type(fn)=='function' then local ok,a,b,c=pcall(fn,...); if ok then return a,b,c end end
 end
-
-local function readCameraId(mission)
-    if getCamera ~= nil then
-        local ok, cam = pcall(getCamera)
-        if ok and cam ~= nil then
-            return cam
-        end
-    end
-    local cam = safeGet(mission, "camera")
-    if cam ~= nil then
-        return cam
-    end
-    return safeGet(mission, "activeCamera")
+local function valid(node) return type(node)=='number' and node~=0 and (entityExists==nil or native('entityExists',node)==true) end
+local function position(node)
+    if not valid(node) then return nil end
+    local x,y,z=native('getWorldTranslation',node)
+    if type(x)=='number' and type(y)=='number' and type(z)=='number' then return {x=x,y=y,z=z} end
 end
-
-local function readEnvironment(mission)
-    local env = safeGet(mission, "environment")
-    if env == nil then
-        return
+local function distance(a,b) if not a or not b then return nil end return math.sqrt((a.x-b.x)^2+(a.y-b.y)^2+(a.z-b.z)^2) end
+local function sceneClasses(s)
+    local tags={}
+    if s.indoorCab then tags[#tags+1]='Indoor Cab' elseif s.indoor then tags[#tags+1]='Indoor Building' end
+    if s.vehicleSpeedKph and s.vehicleSpeedKph>30 then tags[#tags+1]='Road Travel' end
+    if s.rainAmount and s.rainAmount>.65 then tags[#tags+1]='Heavy Rain' elseif s.rainActive then tags[#tags+1]='Rain' end
+    if s.fogActive then tags[#tags+1]='Fog' end
+    if s.nearbyPlaceableLights and s.nearbyPlaceableLights>=3 then tags[#tags+1]=s.isDay==false and 'Farmyard Night' or 'Farmyard Day' end
+    if s.isDay==false and not s.rainActive and not s.fogActive then tags[#tags+1]='Clear Night' end
+    if s.isDay==true and #tags==0 then tags[#tags+1]='Open Field Day' end
+    if #tags==0 then tags[1]='Unclassified' end
+    s.classes=tags; s.sceneKey=table.concat(tags,'+')
+end
+function M.refresh()
+    local old=snapshot
+    local s={hasMission=g_currentMission~=nil,updatedAtMedium=tickCount,updatedAtSlow=tickCount,source='FS25 read-only',observedAtMs=clockMs}
+    snapshot=s
+    local mission=g_currentMission; if not mission then s.inVehicle=false; s.playerPresent=false; sceneClasses(s); return s end
+    local player=g_localPlayer or mission.player
+    local vehicle=call(player,'getCurrentVehicle') or mission.controlledVehicle or mission.currentVehicle
+    s.playerPresent=player~=nil; s.inVehicle=vehicle~=nil; s.vehicle=vehicle
+    if vehicle then
+        s.vehicleName=call(vehicle,'getName') or vehicle.name or vehicle.typeName
+        s.vehiclePosition=position(vehicle.rootNode); s.vehicleSpeedKph=call(vehicle,'getLastSpeed')
+        local active=call(vehicle,'getActiveCamera'); if active then s.indoorCab=active.isInside==true end
     end
-    snapshot.hour = safeGet(env, "currentHour") or safeGet(env, "dayTime")
-    snapshot.minute = safeGet(env, "currentMinute")
-    local lighting = safeGet(env, "lighting") or safeGet(env, "lightSystem")
-    if lighting ~= nil then
-        snapshot.sunHeightAngle = safeGet(lighting, "sunHeightAngle") or safeGet(lighting, "sunDirY")
+    local px,py,pz=call(player,'getPosition'); if type(px)=='number' and type(py)=='number' and type(pz)=='number' then s.playerPosition={x=px,y=py,z=pz} end
+    s.cameraId=native('getCamera'); if not valid(s.cameraId) then s.cameraId=nil end
+    s.cameraPosition=position(s.cameraId)
+    if s.cameraId then
+        s.fovY=native('getFovY',s.cameraId)
+        local x,y,z=native('localDirectionToWorld',s.cameraId,0,0,-1)
+        if type(x)=='number' then s.cameraDirection={x=x,y=y,z=z} end
     end
-    if type(snapshot.hour) == "number" then
-        local h = snapshot.hour
-        if h > 24 then
-            h = (h / 3600000) % 24
-            snapshot.hour = h
-        end
-        snapshot.isDay = h >= 6 and h < 20
+    local moved=distance(old.cameraPosition,s.cameraPosition)
+    if moved and old.observedAtMs and clockMs>old.observedAtMs then s.cameraSpeedMps=moved*1000/(clockMs-old.observedAtMs) end
+    if old.cameraDirection and s.cameraDirection then
+        local a,b=old.cameraDirection,s.cameraDirection
+        s.cameraTurnRadians=math.acos(math.max(-1,math.min(1,a.x*b.x+a.y*b.y+a.z*b.z)))
     end
-
-    local weather = safeGet(env, "weather")
-    if weather ~= nil then
-        snapshot.weatherType = safeGet(weather, "currentWeatherType")
-            or safeGet(weather, "weatherType")
-            or safeGet(weather, "type")
-        local fog = safeGet(weather, "fog") or safeGet(env, "fog")
-        if type(fog) == "boolean" then
-            snapshot.fogActive = fog
-        elseif fog ~= nil then
-            snapshot.fogActive = safeGet(fog, "isActive") or safeGet(fog, "active")
-            if snapshot.fogActive == nil and safeGet(fog, "density") ~= nil then
-                local d = safeGet(fog, "density")
-                snapshot.fogActive = type(d) == "number" and d > 0.01
+    local p=s.cameraPosition or s.playerPosition or s.vehiclePosition
+    if p then s.indoor=call(mission.indoorMask,'getIsIndoorAtWorldPosition',p.x,p.z) end
+    local env=mission.environment
+    if env then
+        if type(env.currentHour)=='number' then s.hour=env.currentHour
+        elseif type(env.dayTime)=='number' then s.hour=(env.dayTime/3600000)%24 end
+        s.minute=env.currentMinute
+        if type(env.isSunOn)=='boolean' then s.isDay=env.isSunOn elseif s.hour then s.isDay=s.hour>=6 and s.hour<20 end
+        local weather=env.weather
+        s.rainAmount=call(weather,'getRainFallScale'); s.rainActive=call(weather,'getIsRaining')
+        if s.rainActive==nil and type(s.rainAmount)=='number' then s.rainActive=s.rainAmount>.01 end
+        s.groundWetness=call(weather,'getGroundWetness')
+        -- Fog range is read only if the engine explicitly provides its native getter.
+        -- No raw weather internals are interpreted as a density sensor.
+    end
+    local count=0; local vehicles=mission.vehicleSystem and mission.vehicleSystem.vehicles
+    if vehicles then for _ in pairs(vehicles) do count=count+1 end; s.vehicleCount=count end
+    local lights=FS25E_LightDiscovery and FS25E_LightDiscovery.getEntries and FS25E_LightDiscovery.getEntries()
+    if lights then
+        local nearby=0; s.relevantLightSources=0
+        for _,e in pairs(lights) do
+            if e.active~=false then
+                local d=distance(p,position(e.node or e.handle))
+                if d and d<100 then s.relevantLightSources=s.relevantLightSources+1; if e.kind=='placeable' then nearby=nearby+1 end end
             end
         end
-        local rain = safeGet(weather, "rain") or safeGet(weather, "precipitation")
-        if type(rain) == "boolean" then
-            snapshot.rainActive = rain
-        elseif rain ~= nil then
-            snapshot.rainActive = safeGet(rain, "isActive") or safeGet(rain, "active")
-            snapshot.rainAmount = safeGet(rain, "amount") or safeGet(rain, "rainAmount") or safeGet(rain, "value")
-        end
-        if snapshot.rainActive == nil then
-            local amt = safeGet(weather, "rainAmount") or safeGet(weather, "precipitationAmount")
-            if type(amt) == "number" then
-                snapshot.rainAmount = amt
-                snapshot.rainActive = amt > 0.01
-            end
-        end
+        s.nearbyPlaceableLights=nearby
     end
-end
-
-local function readPlayerVehicle(mission)
-    local player = safeGet(mission, "player")
-    snapshot.playerPresent = player ~= nil
-    local vehicle = safeGet(mission, "controlledVehicle")
-        or safeGet(mission, "currentVehicle")
-    if vehicle == nil and player ~= nil then
-        vehicle = safeGet(player, "controlledVehicle") or safeGet(player, "vehicle")
-    end
-    snapshot.inVehicle = vehicle ~= nil
-    if vehicle ~= nil then
-        snapshot.vehicleName = safeGet(vehicle, "name")
-            or safeGet(vehicle, "typeName")
-            or safeGet(vehicle, "configFileName")
-    else
-        snapshot.vehicleName = nil
-    end
-end
-
-function FS25E_SceneAnalyzer.refresh()
-    local mission = resolveMission()
-    snapshot.hasMission = mission ~= nil
-    if mission == nil then
-        snapshot.cameraId = nil
-        snapshot.playerPresent = false
-        snapshot.inVehicle = false
-        snapshot.vehicleName = nil
-        snapshot.hour = nil
-        snapshot.minute = nil
-        snapshot.isDay = nil
-        snapshot.sunHeightAngle = nil
-        snapshot.weatherType = nil
-        snapshot.fogActive = nil
-        snapshot.rainActive = nil
-        snapshot.rainAmount = nil
-        return snapshot
-    end
-
-    FS25E_Debug.pcall("SceneAnalyzer", "refresh", function()
-        snapshot.cameraId = readCameraId(mission)
-        readPlayerVehicle(mission)
-        readEnvironment(mission)
-    end)
-    return snapshot
-end
-
-function FS25E_SceneAnalyzer.init()
-    accumMediumMs = 0
-    accumSlowMs = 0
-    tickCount = 0
-    enabled = true
-    debugLog = false
-    FS25E_SceneAnalyzer.refresh()
-    FS25E_Debug.info("SceneAnalyzer", "init (read-only; Medium/Slow cadence; no engine writes)")
-end
-
-function FS25E_SceneAnalyzer.setEnabled(value)
-    enabled = value == true
-end
-
-function FS25E_SceneAnalyzer.setDebugLog(value)
-    debugLog = value == true
-end
-
-function FS25E_SceneAnalyzer.isEnabled()
-    return enabled
-end
-
-function FS25E_SceneAnalyzer.getSnapshot()
-    return snapshot
-end
-
-function FS25E_SceneAnalyzer.getLoadHint()
-    local score = 0
-    if snapshot.inVehicle then
-        score = score + 1
-    end
-    if snapshot.fogActive == true then
-        score = score + 1
-    end
-    if snapshot.rainActive == true then
-        score = score + 1
-    end
-    if snapshot.isDay == false then
-        score = score + 1
-    end
-    if score >= 3 then
-        return 2
-    elseif score >= 1 then
-        return 1
-    end
-    return 0
-end
-
-function FS25E_SceneAnalyzer.getTickCount()
-    return tickCount
-end
-
-function FS25E_SceneAnalyzer.update(dt)
-    if not enabled or dt == nil then
-        return
-    end
-    local dtMs = dt * 1000.0
-    accumMediumMs = accumMediumMs + dtMs
-    accumSlowMs = accumSlowMs + dtMs
-
-    if accumMediumMs >= INTERVAL_MEDIUM_MS then
-        accumMediumMs = 0
-        tickCount = tickCount + 1
-        snapshot.updatedAtMedium = tickCount
-        FS25E_SceneAnalyzer.refresh()
-    end
-
-    if accumSlowMs >= INTERVAL_SLOW_MS then
-        accumSlowMs = 0
-        snapshot.updatedAtSlow = tickCount
-        local shouldLog = debugLog or (tickCount <= 1) or (tickCount % 10 == 0)
-        if shouldLog then
-            FS25E_Debug.info("SceneAnalyzer", string.format(
-                "slow tick#%d mission=%s inVehicle=%s hour=%s fog=%s rain=%s loadHint=%d",
-                tickCount,
-                tostring(snapshot.hasMission),
-                tostring(snapshot.inVehicle),
-                tostring(snapshot.hour),
-                tostring(snapshot.fogActive),
-                tostring(snapshot.rainActive),
-                FS25E_SceneAnalyzer.getLoadHint()
-            ))
+    s.renderWidth=g_screenWidth; s.renderHeight=g_screenHeight
+    s.resolutionSource='display size; internal render resolution unknown'
+    -- These read-only settings are used by stock SettingsModel. They describe
+    -- a graphics profile/upscaler configuration, not GPU identity or timings.
+    local profile,custom=native('getPerformanceClass')
+    if type(profile)=='number' then s.graphicsProfile=tostring(profile)..(custom==true and ':custom' or '') end
+    local upscalers,known={},0
+    for _,enumName in ipairs({'DLSSQuality','FidelityFxSRQuality','FidelityFxSR30Quality','XeSSQuality'}) do
+        local enum=_G[enumName]; local value=native('get'..enumName)
+        if type(enum)=='table' and enum.OFF~=nil and type(value)=='number' then
+            known=known+1
+            if value~=enum.OFF and value~=enum.NUM then upscalers[#upscalers+1]=enumName..':'..tostring(value) end
         end
     end
+    if #upscalers>0 then s.upscaler=table.concat(upscalers,'+') elseif known==4 then s.upscaler='OFF' end
+    s.mapId=mission.missionInfo and (mission.missionInfo.mapId or mission.missionInfo.mapTitle)
+    sceneClasses(s)
+    s.changed=old.sceneKey~=s.sceneKey
+    return s
 end
-
-function FS25E_SceneAnalyzer.reset()
-    accumMediumMs = 0
-    accumSlowMs = 0
-    tickCount = 0
-    snapshot.hasMission = false
-    snapshot.cameraId = nil
-    snapshot.playerPresent = false
-    snapshot.inVehicle = false
-    snapshot.vehicleName = nil
-    snapshot.hour = nil
-    snapshot.minute = nil
-    snapshot.isDay = nil
-    snapshot.sunHeightAngle = nil
-    snapshot.weatherType = nil
-    snapshot.fogActive = nil
-    snapshot.rainActive = nil
-    snapshot.rainAmount = nil
-    snapshot.updatedAtMedium = 0
-    snapshot.updatedAtSlow = 0
+function M.init() clockMs=0; accumulator=0; tickCount=0; snapshot={}; enabled=true; M.refresh() end
+function M.reset() snapshot={hasMission=false,inVehicle=false,classes={'Unclassified'},sceneKey='Unclassified'}; clockMs=0; accumulator=0; tickCount=0 end
+function M.setEnabled(v) enabled=v==true end
+function M.isEnabled() return enabled end
+function M.setDebugLog(v) debugLog=v==true end
+function M.getSnapshot() return snapshot end
+function M.getTickCount() return tickCount end
+function M.getLoadHint()
+    local n=(snapshot.inVehicle and 1 or 0)+(snapshot.rainActive and 1 or 0)+(snapshot.fogActive and 1 or 0)+(snapshot.isDay==false and 1 or 0)
+    return n>=3 and 2 or n>=1 and 1 or 0
+end
+function M.update(dt)
+    if not enabled or type(dt)~='number' or dt<=0 or dt>1000 then return end
+    clockMs=clockMs+dt; accumulator=accumulator+dt
+    if accumulator>=500 then accumulator=accumulator%500; tickCount=tickCount+1; M.refresh()
+        if debugLog and tickCount%20==0 and FS25E_Debug then FS25E_Debug.info('SceneAnalyzer',snapshot.sceneKey) end
+    end
+end
+-- Importance is a heuristic, not an occlusion query. Callers can supply verified visibility/fog.
+function M.scoreImportance(object,scene)
+    object=object or {}; scene=scene or snapshot
+    if object.active==false then return 0 end
+    if object.owner~=nil and object.owner==scene.vehicle then return object.kind=='light' and 95 or 100 end
+    local p=object.position or position(object.node or object.handle)
+    local d=object.distance or distance(p,scene.cameraPosition or scene.playerPosition) or 1000
+    local score=100/(1+d/45)
+    local direction=scene.cameraDirection; local camera=scene.cameraPosition
+    if camera and direction and p and d>.001 then
+        local dot=((p.x-camera.x)*direction.x+(p.y-camera.y)*direction.y+(p.z-camera.z)*direction.z)/d
+        if dot<0 then score=math.min(score,10) else score=score*(.65+.35*dot) end
+    end
+    if object.visible==false then score=math.min(score,10) end
+    if object.fogOccluded==true then score=math.min(score,5) end
+    if object.interacting then score=math.max(score,95) end
+    if object.kind=='workLight' and d<25 then score=math.max(score,90) end
+    return math.max(0,math.min(100,score))
 end

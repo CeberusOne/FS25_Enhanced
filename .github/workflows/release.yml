@@ -1,0 +1,60 @@
+name: Release
+
+# Pushing a tag like v0.5.0.0 validates the mod, packs it as FS25_Enhanced.zip
+# (always that name, never with a version suffix) and publishes a GitHub
+# release with that single asset. The tag must match the version in modDesc.xml.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lua 5.1 and Python
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.1 python3
+
+      - name: Check that the tag matches modDesc.xml
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(sed -n 's/.*<version>\(.*\)<\/version>.*/\1/p' modDesc.xml | head -1)"
+          echo "tag=$tag modDesc=$version"
+          test "$tag" = "$version"
+          test "$(cat VERSION)" = "$version"
+
+      - name: Validate and run the offline tests
+        run: |
+          python3 tools/validateConfig.py
+          python3 tools/validateLocalization.py
+          for t in smokeBootstrap smokeControls smokeMaterials smokeWetSurfaces smokeVanillaGuard; do
+            MOD_DIR="$PWD" lua5.1 "tools/$t.lua"
+          done
+
+      - name: Build FS25_Enhanced.zip
+        run: |
+          mkdir -p build
+          python3 tools/packageMod.py build/FS25_Enhanced.zip --lua lua5.1
+          unzip -l build/FS25_Enhanced.zip | tail -3
+
+      - name: Release notes from the changelog
+        run: |
+          # everything from the first "## " header up to the next "## " header
+          awk 'BEGIN{p=0} /^## /{ if(p){exit} p=1 } p' docs/CHANGELOG.md > build/notes.md
+          cat build/notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" build/FS25_Enhanced.zip \
+            --title "FS25 Enhanced ${GITHUB_REF_NAME#v}" \
+            --notes-file build/notes.md

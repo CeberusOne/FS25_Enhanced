@@ -3,6 +3,18 @@
 
 FS25E_SettingsAPI = {}
 
+-- Existing preset levels exposed by the normal menu. Convert labels to native
+-- values in one place so the menu and live controls use the same apply path.
+local MANUAL_CONTROLS = {
+    viewDistance = {"view-distance-coeff", {low=0.7, med=1, high=1.25, ultra=1.5}},
+    lodDistance = {"lod-distance-coeff", {low=0.7, med=1, high=1.25, ultra=1.5}},
+    foliageViewDistance = {"foliage-view-distance-coeff", {low=0.6, med=1, high=1.2, ultra=1.5}},
+    foliageLodDistance = {"foliage-lod-distance-coeff", {low=0.6, med=1, high=1.2, ultra=1.5}},
+    terrainLodDistance = {"terrain-lod-distance-coeff", {low=0.7, med=1, high=1.2, ultra=1.5}},
+    maxShadowLights = {"max-num-shadow-lights", {low=2, med=4, high=6, ultra=8}},
+    foliageShadows = {"allow-foliage-shadows"},
+}
+
 function FS25E_SettingsAPI.get(id)
     if FS25E_ModSettings ~= nil then
         return FS25E_ModSettings.get(id)
@@ -14,6 +26,20 @@ function FS25E_SettingsAPI.set(id, value)
     if FS25E_ModSettings == nil then
         return false
     end
+    local manual = MANUAL_CONTROLS[id]
+    if manual ~= nil then
+        local native = manual[2] and manual[2][value]
+        if manual[2] == nil then native = value == true and 1 or 0 end
+        if native == nil then return false, "invalid quality level" end
+        local applied, err = FS25E_SettingsAPI.liveApply(manual[1], native)
+        if not applied then return false, err end
+        -- Explicit manual tuning should survive the next automatic update.
+        FS25E_ModSettings.set("adaptive", false)
+        FS25E_ModSettings.set("autoApply", false)
+        if FS25E_GraphicsGovernor ~= nil and FS25E_GraphicsGovernor.setAutoApply ~= nil then
+            FS25E_GraphicsGovernor.setAutoApply(false)
+        end
+    end
     local ok = FS25E_ModSettings.set(id, value)
     if not ok then
         return false
@@ -23,7 +49,7 @@ function FS25E_SettingsAPI.set(id, value)
     if key == "activePreset" then key = "preset" end
 
     if key == "enabled" and FS25E_GraphicsGovernor ~= nil then
-        FS25E_GraphicsGovernor.setEnabled(value == true)
+        if FS25E_GraphicsGovernor.setEnabled(value == true)==false then return false,'FS25E_status_restore_failed' end
     elseif key == "adaptive" then
         -- Casual Simple: Adaptive ↔ autoApply (Wave-1 governor only)
         FS25E_ModSettings.set("autoApply", value == true)
@@ -153,9 +179,9 @@ function FS25E_SettingsAPI.liveGet(capabilityId, opts)
     return {
         key = key,
         capabilityId = capabilityId,
-        requested = e ~= nil and e.requested or nil,
-        current = e ~= nil and e.current or nil,
-        original = e ~= nil and e.original or nil,
+        requested = e and e.requested,
+        current = e and e.current,
+        original = e and e.original,
         locked = e ~= nil and e.locked == true or false,
         status = status,
         lastResult = last,
@@ -184,7 +210,9 @@ local function liveApplyViaManagers(capabilityId, n, opts)
 
     -- Global Wave-1 managers when available
     if FS25E_LodGovernor ~= nil then
-        if capabilityId == "view-distance-coeff" and FS25E_LodGovernor.setViewDistanceCoeff ~= nil then
+        if capabilityId == "allow-foliage-shadows" and FS25E_LodGovernor.setAllowFoliageShadows ~= nil then
+            return FS25E_LodGovernor.setAllowFoliageShadows(n >= 0.5)
+        elseif capabilityId == "view-distance-coeff" and FS25E_LodGovernor.setViewDistanceCoeff ~= nil then
             return FS25E_LodGovernor.setViewDistanceCoeff(n)
         elseif capabilityId == "lod-distance-coeff" and FS25E_LodGovernor.setLODDistanceCoeff ~= nil then
             return FS25E_LodGovernor.setLODDistanceCoeff(n)

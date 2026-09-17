@@ -46,10 +46,10 @@ local function pushRing(entry)
     end
 end
 
---- File log disabled: Giants io.open allows write mode ('w') only — append ('a')
---- spams Warning "io.open, only write mode ('w') is allowed" thousands of times.
---- Ring buffer remains the source of truth (fs25eDumpDiagLog / getRing).
 function FS25E_Diagnostics.appendFile(line)
+    -- File log disabled: Giants io.open allows write mode ('w') only — append ('a')
+    -- spams Warning "io.open, only write mode ('w') is allowed" thousands of times.
+    -- Ring buffer remains the source of truth (fs25eDumpDiagLog / getRing).
     return false
 end
 
@@ -441,16 +441,22 @@ function FS25E_Diagnostics.installHooks()
     if wrapOnce(FS25E_CapabilityApplier, "restoreAll", function(original)
         return function()
             FS25E_Diagnostics.record("*", FS25E_Diagnostics.RESULT.APPLIED, nil, { kind = "restore", source = "applier.restoreAll", detail = "begin" })
-            original()
-            FS25E_Diagnostics.record("*", FS25E_Diagnostics.RESULT.APPLIED, nil, { kind = "restore", source = "applier.restoreAll", detail = "done" })
+            -- The result must pass through: callers (compare toggle, VanillaGuard,
+            -- reset paths) decide "restored or not" from it.
+            local ok, reason = original()
+            FS25E_Diagnostics.record("*", ok == false and FS25E_Diagnostics.RESULT.REJECTED or FS25E_Diagnostics.RESULT.APPLIED, ok == false and tostring(reason or "restore failed") or nil, { kind = "restore", source = "applier.restoreAll", detail = "done" })
+            return ok, reason
         end
     end) then n = n + 1 end
 
     if wrapOnce(FS25E_RestoreManager, "restoreAll", function(original)
         return function()
             FS25E_Diagnostics.record("*", FS25E_Diagnostics.RESULT.APPLIED, nil, { kind = "restore", source = "RestoreManager.restoreAll", detail = "begin" })
-            original()
-            FS25E_Diagnostics.record("*", FS25E_Diagnostics.RESULT.APPLIED, nil, { kind = "restore", source = "RestoreManager.restoreAll", detail = "done" })
+            -- The result must pass through: callers (compare toggle, VanillaGuard,
+            -- reset paths) decide "restored or not" from it.
+            local ok, reason = original()
+            FS25E_Diagnostics.record("*", ok == false and FS25E_Diagnostics.RESULT.REJECTED or FS25E_Diagnostics.RESULT.APPLIED, ok == false and tostring(reason or "restore failed") or nil, { kind = "restore", source = "RestoreManager.restoreAll", detail = "done" })
+            return ok, reason
         end
     end) then n = n + 1 end
 

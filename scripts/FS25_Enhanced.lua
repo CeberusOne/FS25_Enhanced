@@ -1,10 +1,5 @@
--- FS25_Enhanced.lua — Bootstrap (Phase 2 + Lights Spec Probe + Gen-1 Settings GUI)
--- Mission-level service only. Client-local. Auto-apply OFF by default.
--- Phase 2: SceneAnalyzer + hysteresis + preset stubs; no new automatic engine setters.
--- Lights: Spec-based RealLight discovery (no global scan); Soft-Apply off by default.
--- Expert-path: EXPERIMENTAL/GATED/ASSET behind expertMode (default false); Soft-Apply off.
--- GUI Gen-1: MessageDialog settings; values via ModSettings; Expert+Status tabs.
--- Session-only apply + restore (no saveHardwareScalability / applyPerformanceClass).
+-- Client-local graphics lifecycle. Restore before the mission deletes render entities.
+-- Only modSettings are persisted; no game.xml hardware writes or binary hooks.
 
 local modName = g_currentModName
 local modDirectory = g_currentModDirectory
@@ -12,7 +7,7 @@ local modDirectory = g_currentModDirectory
 FS25_Enhanced = {}
 FS25_Enhanced.modName = modName
 FS25_Enhanced.modDirectory = modDirectory
-FS25_Enhanced.VERSION = "0.4.2.6"
+FS25_Enhanced.VERSION = "0.4.2.7"
 FS25_Enhanced.initialized = false
 FS25_Enhanced.missionActive = false
 
@@ -21,6 +16,7 @@ local function safeCall(label, fn)
 end
 
 local function onLoadMap(mission)
+    if g_dedicatedServer~=nil then return end
     safeCall("onLoadMap", function()
         FS25E_Debug.info("Bootstrap", "loadMap begin mod=" .. tostring(FS25_Enhanced.modName))
         FS25_Enhanced.missionActive = true
@@ -30,7 +26,11 @@ local function onLoadMap(mission)
 
         if FS25E_ModSettings ~= nil then
             FS25E_ModSettings.init()
-            FS25E_ModSettings.load()
+            FS25E_ModSettings.load(true)
+        end
+        -- Settings are only known now; a pinned language must win over the game's.
+        if FS25E_Localization ~= nil and FS25E_Localization.setLanguage ~= nil then
+            FS25E_Localization.setLanguage(FS25E_Localization.getLanguageSetting())
         end
         if FS25E_SettingsSchema ~= nil then
             FS25E_SettingsSchema.init()
@@ -69,6 +69,7 @@ local function onLoadMap(mission)
         if FS25E_LightDiscovery ~= nil and FS25E_LightDiscovery.init ~= nil then
             FS25E_LightDiscovery.init() -- softApply=false; profile subscribe; console
         end
+        if FS25E_ModuleRuntime then safeCall("ModuleRuntime.init", FS25E_ModuleRuntime.init) end
         if FS25E_ProfileManager ~= nil then
             FS25E_ProfileManager.init(FS25_Enhanced.modDirectory)
         end
@@ -94,12 +95,20 @@ local function onLoadMap(mission)
         if FS25E_ModSettings ~= nil and FS25E_ModSettings.applyToRuntime ~= nil then
             FS25E_ModSettings.applyToRuntime()
         end
+        if FS25E_RuntimeControls then
+            safeCall("RuntimeControls.init", function()
+                FS25E_RuntimeControls.init()
+                FS25E_VisualControls.registerProvider(FS25E_RuntimeControls)
+                FS25E_VisualControls.registerProvider(FS25E_VisualProfiles)
+                FS25E_VisualControls.registerProvider(FS25E_ProbeSession)
+            end)
+        end
         if FS25E_CompatibilityManager ~= nil then
             FS25E_CompatibilityManager.init()
             FS25E_CompatibilityManager.scan()
         end
         if FS25E_ConsoleCommands ~= nil then
-            FS25E_ConsoleCommands.register()
+            safeCall("ConsoleCommands.register", FS25E_ConsoleCommands.register)
         end
         if FS25E_Input ~= nil and FS25E_Input.register ~= nil then
             FS25E_Input.register()
@@ -115,7 +124,6 @@ local function onLoadMap(mission)
         if FS25E_HudOverlay ~= nil and FS25E_HudOverlay.registerHooks ~= nil then
             FS25E_HudOverlay.registerHooks()
         end
-        -- Lazy GUI: do not force loadGui here; hotkey/console triggers ensureSettingsDialog.
 
         FS25_Enhanced.initialized = true
         local capCount = 0
@@ -123,7 +131,7 @@ local function onLoadMap(mission)
             capCount = FS25E_CapabilityRegistry.count()
         end
         FS25E_Debug.info("Bootstrap", string.format(
-            "loadMap complete v%s caps=%d lightsProbe=on softApply=off expertSoftApply=off auto-apply off gui=gen1 (phase2+lights+settings+expertCaps; no global scan)",
+            "loadMap complete v%s caps=%d menu input registration complete; graphics use current user settings",
             FS25_Enhanced.VERSION,
             capCount
         ))
@@ -131,14 +139,24 @@ local function onLoadMap(mission)
 end
 
 local function onDeleteMap()
+    if FS25E_ProbeSession then FS25E_ProbeSession.reset() end
+    if FS25E_ApiInventory then FS25E_ApiInventory.reset() end
     safeCall("onDeleteMap", function()
         FS25E_Debug.info("Bootstrap", "deleteMap begin — restore path")
+        if FS25E_CalibrationManager and FS25E_CalibrationManager.cancel then
+            safeCall("Calibration.cancelBeforeRestore", function() FS25E_CalibrationManager.cancel('mission end') end)
+        end
+        if FS25E_VisualProfiles then safeCall("Compare.endBeforeSave", FS25E_VisualProfiles.endCompare) end
+        if FS25E_GraphicsGovernor and FS25E_GraphicsGovernor.endCinematic then
+            safeCall("Cinematic.endBeforeSave", FS25E_GraphicsGovernor.endCinematic)
+        end
         if FS25E_ModSettings ~= nil and FS25E_ModSettings.save ~= nil then
             safeCall("ModSettings.save", function()
                 FS25E_ModSettings.save()
             end)
         end
         FS25_Enhanced.missionActive = false
+        if FS25E_RestoreManager then safeCall("RestoreManager.earlyRestore", FS25E_RestoreManager.restoreAll) end
 
         if FS25E_Input ~= nil and FS25E_Input.unregister ~= nil then
             FS25E_Input.unregister()
@@ -148,9 +166,6 @@ local function onDeleteMap()
         end
         if FS25E_HudOverlay ~= nil and FS25E_HudOverlay.reset ~= nil then
             FS25E_HudOverlay.reset()
-        end
-        if FS25E_GuiLoader ~= nil and FS25E_GuiLoader.reset ~= nil then
-            FS25E_GuiLoader.reset()
         end
         if FS25E_Diagnostics ~= nil and FS25E_Diagnostics.reset ~= nil then
             FS25E_Diagnostics.reset()
@@ -201,6 +216,10 @@ local function onDeleteMap()
             FS25E_Diagnostics.reset()
         end
 
+        if FS25E_RuntimeControls then FS25E_RuntimeControls.reset() end
+        if FS25E_VisualProfiles then FS25E_VisualProfiles.reset() end
+        if FS25E_CompatibilityManager and FS25E_CompatibilityManager.reset then FS25E_CompatibilityManager.reset() end
+        if FS25E_ModuleRuntime then safeCall("ModuleRuntime.reset", FS25E_ModuleRuntime.reset) end
         FS25_Enhanced.initialized = false
         FS25E_Debug.info("Bootstrap", "deleteMap complete (hooks retained for session reload)")
     end)
@@ -212,6 +231,18 @@ local function onUpdate(mission, dt)
     end
     if dt == nil then
         return
+    end
+    if FS25E_ProbeSession then safeCall("ProbeSession.update", function() FS25E_ProbeSession.update(dt) end) end
+    -- Menu rendering is not a representative sample of scene performance.
+    -- The custom live overlay is drawn in the scene and does not set this flag.
+    if g_gui and type(g_gui.getIsGuiVisible)=='function' then
+        local ok,menuVisible=pcall(g_gui.getIsGuiVisible,g_gui)
+        if ok and menuVisible then
+            if FS25E_CalibrationManager and FS25E_CalibrationManager.isRunning() then
+                FS25E_CalibrationManager.cancel('menu opened')
+            end
+            return
+        end
     end
 
     safeCall("TelemetryReader.update", function()
@@ -232,6 +263,11 @@ local function onUpdate(mission, dt)
         end
     end)
 
+    safeCall("ModuleRuntime.update", function() FS25E_ModuleRuntime.update(dt) end)
+    -- Once per mission: which atmosphere/tone names the installed build has.
+    if FS25E_ApiInventory and not FS25E_ApiInventory.done then
+        safeCall("ApiInventory.log", function() FS25E_ApiInventory.log() end)
+    end
     safeCall("GraphicsGovernor.update", function()
         if FS25E_GraphicsGovernor ~= nil then
             FS25E_GraphicsGovernor.update(dt)
@@ -272,7 +308,7 @@ local function registerMissionHooks()
             end)
         end
         if FSBaseMission.delete ~= nil then
-            FS25E_HookManager.register(FSBaseMission, "delete", "appended", function(self)
+            FS25E_HookManager.register(FSBaseMission, "delete", "prepended", function(self)
                 onDeleteMap()
             end)
         end
@@ -282,12 +318,17 @@ local function registerMissionHooks()
 end
 
 safeCall("bootstrap", function()
+    if g_dedicatedServer~=nil then return end
     FS25E_Debug.info("Bootstrap", string.format(
         "FS25_Enhanced %s loading as %s dir=%s",
         FS25_Enhanced.VERSION,
         tostring(modName),
         tostring(modDirectory)
     ))
+    if FS25E_Localization then FS25E_Localization.init(modDirectory) end
+    if FS25E_ModuleRuntime then FS25E_ModuleRuntime.install() end
+    -- The vanilla settings page and the game's saves must never see mod values.
+    if FS25E_VanillaGuard then safeCall("VanillaGuard.install", FS25E_VanillaGuard.install) end
     registerMissionHooks()
     if FS25E_LiveOverlay ~= nil and FS25E_LiveOverlay.registerHooks ~= nil then
         FS25E_LiveOverlay.registerHooks()

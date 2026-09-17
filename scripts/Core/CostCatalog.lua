@@ -39,45 +39,28 @@ local function seedFallback()
     end
 end
 
-local function parseXmlText(text)
-    if text == nil or text == "" then
-        return 0
-    end
-    local n = 0
-    for tag in string.gmatch(text, "<cap%s+[^>]+/?>") do
-        local id = string.match(tag, 'id%s*=%s*"([^"]+)"')
-        if id ~= nil then
-            local cost = string.match(tag, 'cost%s*=%s*"([^"]+)"') or "med"
-            local warnStr = string.match(tag, 'warn%s*=%s*"([^"]+)"')
-            local notes = string.match(tag, 'notes%s*=%s*"([^"]*)"')
-            entries[id] = {
-                id = id,
-                cost = cost,
-                warn = (warnStr == "true"),
-                notes = notes,
-            }
-            n = n + 1
-        end
-    end
-    return n
-end
-
 function FS25E_CostCatalog.load(modDirectory)
     entries = {}
     seedFallback()
     local path = (modDirectory or "") .. "config/costCatalog.xml"
     local loaded = 0
     pcall(function()
-        if io == nil or io.open == nil then
-            return
-        end
-        local f = io.open(path, "r")
-        if f == nil then
-            return
-        end
-        local content = f:read("*a")
-        f:close()
-        loaded = parseXmlText(content)
+        if type(loadXMLFile)~="function" or type(getXMLString)~="function" or type(delete)~="function" then return end
+        if type(fileExists)=="function" and not fileExists(path) then return end
+        local xml=loadXMLFile("FS25E_costCatalog",path)
+        if not xml or xml==0 then return end
+        local ok,err=pcall(function()
+            for i=0,1023 do
+                local key="costCatalog.cap("..i..")"
+                local id=getXMLString(xml,key.."#id")
+                if id==nil then break end
+                entries[id]={id=id,cost=getXMLString(xml,key.."#cost") or "med",
+                    warn=getXMLString(xml,key.."#warn")=="true",notes=getXMLString(xml,key.."#notes")}
+                loaded=loaded+1
+            end
+        end)
+        delete(xml)
+        if not ok then error(err) end
     end)
     FS25E_Debug.info("CostCatalog", string.format(
         "ready entries=%d xmlParsed=%d path=%s",

@@ -2,22 +2,14 @@
 <!-- FS25 Enhanced — descVersion must match game (log: ModDesc Version 113). -->
 <modDesc descVersion="113">
     <author>CeberusOne</author>
-    <version>0.4.2.6</version>
+    <version>0.4.2.7</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
     </title>
     <description>
-        <en><![CDATA[Client-local adaptive graphics and performance governor for Farming Simulator 25.
-Uses only documented Giants Engine / Settings APIs. No binary hooks.
-v0.4.2.4: descVersion 113 for current FS25; install as mods/FS25_Enhanced/ folder (not nested zip).
-Hover-help, Casual-Automatik Wave-1 Adaptive (default off), Expert Live Overlay, Pro HUD.
-Soft-Apply off by default. No engine setters from GUI. Multiplayer: client-local only.]]></en>
-        <de><![CDATA[Client-lokaler adaptiver Grafik- und Performance-Governor für Landwirtschafts-Simulator 25.
-Nur dokumentierte Giants-Engine-/Settings-APIs. Keine Binary-Hooks.
-v0.4.2.4: descVersion 113 für aktuelles FS25; Installation als Ordner mods/FS25_Enhanced/ (keine verschachtelte Zip).
-Hover-Hilfe, Casual-Automatik Wave-1 Adaptive (Standard aus), Expert Live-Overlay, Pro-HUD.
-Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nur client-lokal.]]></de>
+        <en><![CDATA[Manual graphics controls for Farming Simulator 25, all in one movable live window (F9). Quality levels Low to Ultra for every effect, strictly decoupled from the game menu (the vanilla settings page never sees mod values), MOD/VANILLA comparison (Alt+F9), mod language switch, wet environment with puddles and drying time, sun light shafts and light moods, canopy, crop and foliage light shaders, filmic tone mapping, spot shadow tuning, field of view, mirror count, lamp scattering and shadows, paint reflection that scales each material from its own finish. Heavy engine options stay in the main menu. Asset-dependent controls require compatible game assets.]]></en>
+        <de><![CDATA[Manuelle Grafikeinstellungen für Landwirtschafts-Simulator 25, alles in einem verschiebbaren Live-Fenster (F9). Qualitätsstufen Niedrig bis Ultra für alle Effekte, strikt vom Spielmenü entkoppelt (die Grafikseite des Spiels sieht nie Mod-Werte), MOD/VANILLA-Vergleich (Alt+F9), Mod-Sprachumschaltung, nasse Umgebung mit Pfützen und Abtrockenzeit, Sonnen-Lichtstrahlen und Lichtstimmungen, Licht-Shader für Baumkronen, Feldfrucht und Vegetation, filmische Tonwertkurve, Spotschatten-Feinabstimmung, Sichtfeld, Spiegelanzahl, Lampenstreuung und -schatten, Lackspiegelung, die jedes Material aus seiner eigenen Lackierung skaliert. Schwere Engine-Optionen bleiben im Hauptmenü. Assetabhängige Regler benötigen passende Spiel-Assets.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
@@ -34,6 +26,7 @@ Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nu
         <specialization name="enhancedPlaceableLightsProbe" className="EnhancedPlaceableLightsProbe" filename="scripts/Placeables/EnhancedPlaceableLightsProbe.lua"/>
     </placeableSpecializations>
     <extraSourceFiles>
+        <sourceFile filename="scripts/Core/Localization.lua"/>
         <sourceFile filename="scripts/Core/Debug.lua"/>
         <sourceFile filename="scripts/Core/HookManager.lua"/>
         <sourceFile filename="scripts/Core/CapabilityRegistry.lua"/>
@@ -41,6 +34,9 @@ Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nu
         <sourceFile filename="scripts/Core/CapabilityApplier.lua"/>
         <sourceFile filename="scripts/Core/RestoreManager.lua"/>
         <sourceFile filename="scripts/Core/Diagnostics.lua"/>
+        <sourceFile filename="scripts/Core/RuntimeProbe.lua"/>
+        <sourceFile filename="scripts/Core/ApiInventory.lua"/>
+        <sourceFile filename="scripts/Core/ProbeSession.lua"/>
         <sourceFile filename="scripts/Core/PerformanceMonitor.lua"/>
         <sourceFile filename="scripts/Shadows/ShadowManager.lua"/>
         <sourceFile filename="scripts/Core/ExperimentalCaps.lua"/>
@@ -56,9 +52,23 @@ Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nu
         <sourceFile filename="scripts/Core/SettingsAPI.lua"/>
         <sourceFile filename="scripts/Core/SettingsSchema.lua"/>
         <sourceFile filename="scripts/Core/ConsoleCommands.lua"/>
-        <sourceFile filename="scripts/UI/FS25E_SettingsController.lua"/>
-        <sourceFile filename="scripts/UI/FS25E_SettingsDialog.lua"/>
-        <sourceFile filename="scripts/UI/FS25E_GuiLoader.lua"/>
+        <sourceFile filename="scripts/Lighting/LightTuning.lua"/>
+        <sourceFile filename="scripts/Lighting/GlobalLighting.lua"/>
+        <sourceFile filename="scripts/Lighting/EnvironmentLighting.lua"/>
+        <sourceFile filename="scripts/Lighting/LightingMoods.lua"/>
+        <sourceFile filename="scripts/Weather/WeatherManager.lua"/>
+        <sourceFile filename="scripts/Materials/MaterialManager.lua"/>
+        <sourceFile filename="scripts/World/FoliageManager.lua"/>
+        <sourceFile filename="scripts/Water/WaterManager.lua"/>
+        <sourceFile filename="scripts/Water/WetSurfaceManager.lua"/>
+        <sourceFile filename="scripts/Core/GameSettingsControls.lua"/>
+        <sourceFile filename="scripts/Core/QualityLevels.lua"/>
+        <sourceFile filename="scripts/Core/VisualControls.lua"/>
+        <sourceFile filename="scripts/Core/ModuleRuntime.lua"/>
+        <sourceFile filename="scripts/Core/RuntimeControls.lua"/>
+        <sourceFile filename="scripts/Core/VisualProfiles.lua"/>
+        <sourceFile filename="scripts/Core/VanillaGuard.lua"/>
+        <sourceFile filename="scripts/UI/FS25E_LiveSelection.lua"/>
         <sourceFile filename="scripts/UI/FS25E_Input.lua"/>
         <sourceFile filename="scripts/UI/FS25E_HudOverlay.lua"/>
         <sourceFile filename="scripts/UI/FS25E_LiveOverlay.lua"/>
@@ -69,6 +79,7 @@ Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nu
         <action name="FS25E_OPEN_SETTINGS" category="SYSTEM" ignoreComboMask="false" />
         <action name="FS25E_TOGGLE_LIVE_OVERLAY" category="SYSTEM" ignoreComboMask="false" />
         <action name="FS25E_LIVE_HINT" category="SYSTEM" ignoreComboMask="false" />
+        <action name="FS25E_TOGGLE_COMPARE" category="SYSTEM" ignoreComboMask="false" />
     </actions>
     <inputBinding>
         <actionBinding action="FS25E_OPEN_SETTINGS">
@@ -79,6 +90,9 @@ Soft-Apply standardmäßig aus. Keine Engine-Setter aus der GUI. Multiplayer: nu
             <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_f9" />
             <binding device="KB_MOUSE_DEFAULT" input="KEY_lshift KEY_f9" />
             <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lshift KEY_e" />
+        </actionBinding>
+        <actionBinding action="FS25E_TOGGLE_COMPARE">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_f9" />
         </actionBinding>
     </inputBinding>
 </modDesc>

@@ -20,3 +20,10 @@ desktop.ini
 *.tmp
 .env
 .env.*
+
+# Local backups and packaging output
+_audit_backup*/
+_core_hotfix_backup*/
+*.manifest.json
+
+__pycache__/

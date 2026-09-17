@@ -13,7 +13,10 @@ local VALID_KINDS = {
 
 --- Register a Utils hook. kind = "prepended" | "appended" | "overwritten"
 --- Always uses Utils.prependedFunction / appendedFunction / overwrittenFunction (never raw assignment).
-function FS25E_HookManager.register(target, key, kind, wrapper)
+--- token: optional stable identity. A second register() with the same
+--- target/key/token is a no-op, so callers that run again on a mission reload
+--- do not stack another wrapper onto the same function.
+function FS25E_HookManager.register(target, key, kind, wrapper, token)
     if target == nil or key == nil or wrapper == nil then
         FS25E_Debug.warning("HookManager", "register: missing target/key/wrapper")
         return false
@@ -25,6 +28,15 @@ function FS25E_HookManager.register(target, key, kind, wrapper)
     if Utils == nil then
         FS25E_Debug.warning("HookManager", "Utils not available")
         return false
+    end
+
+    if token ~= nil then
+        for i = 1, #hooks do
+            local e = hooks[i]
+            if e.target == target and e.key == key and e.token == token then
+                return true
+            end
+        end
     end
 
     local original = target[key]
@@ -53,8 +65,10 @@ function FS25E_HookManager.register(target, key, kind, wrapper)
         key = key,
         original = original,
         kind = kind,
+        token = token,
     })
-    FS25E_Debug.info("HookManager", string.format("registered %s on %s", kind, tostring(key)))
+    FS25E_Debug.info("HookManager", string.format("registered %s on %s%s", kind, tostring(key),
+        token ~= nil and (" [" .. tostring(token) .. "]") or ""))
     return true
 end
 
