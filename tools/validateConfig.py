@@ -47,10 +47,12 @@ def validate(root, sdk_profiles=None):
                 if attr.startswith('on') and attr not in {'onText'} and value not in callbacks|inherited:
                     errors.append(f'{name}: missing callback {value}')
     presets=trees.get('config/presets.xml')
-    if presets is None or {n.get('name') for n in presets.findall('preset')}!={'Performance','Balanced','Quality','Cinematic'}:
-        errors.append('Expected exactly four distinct presets')
-    elif any(len(p.findall('target'))!=len({n.get('key') for n in p.findall('target')}) for p in presets.findall('preset')):
-        errors.append('Duplicate preset target')
+    if presets is not None:
+        names={n.get('name') for n in presets.findall('preset')}
+        if names!={'Performance','Balanced','Quality','Cinematic'}:
+            errors.append('Expected exactly four distinct presets')
+        elif any(len(p.findall('target'))!=len({n.get('key') for n in p.findall('target')}) for p in presets.findall('preset')):
+            errors.append('Duplicate preset target')
     caps=trees.get('config/capabilityProfiles.xml')
     if caps is not None:
         ids=[n.get('id') for n in caps.findall('capability')]

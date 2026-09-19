@@ -612,5 +612,41 @@
         <text name="input_FS25E_TOGGLE_COMPARE" text="FS25 Enhanced: compare modded / vanilla" />
         <text name="FS25E_setting_environmentShadowResolution" text="Sun shadow map size" />
         <text name="FS25E_tooltip_environmentShadowResolution" text="Depth map resolution of the sun light (setLightShadowMap on the mission sun, read back with getLightCastingShadowMap): 1024 to 8192 px. Larger maps give sharper, deeper shadows at a real GPU cost; 8192 needs plenty of video memory. Off hands the exact game size back." />
+        <text name="FS25E_setting_paintFacingGloss" text="Facing gloss" />
+        <text name="FS25E_tooltip_paintFacingGloss" text="For looking straight at the panel: sharpens clear coat and the base layer so the weak facing reflection (Fresnel ~4%) actually shows the environment. 1 is stock, 2 is clearly glossier from the front without a wrap. Needs SSR on. Glossy solid and metallic paint only." />
+        <text name="FS25E_setting_paintBaseGloss" text="Base gloss" />
+        <text name="FS25E_tooltip_paintBaseGloss" text="Smoothness of the paint base layer (smoothnessScale). Higher = sharper reflection even without clear coat. 1 is typical stock." />
+        <text name="FS25E_setting_paintMetalness" text="Metallic amount" />
+        <text name="FS25E_tooltip_paintMetalness" text="Multiplier of the metallic mask (metalnessScale). Only useful on metallic paint. Solid paint stays unchanged at 1 because the mask is 0." />
+        <text name="FS25E_setting_paintDetailNormal" text="Paint micro-normals" />
+        <text name="FS25E_tooltip_paintDetailNormal" text="Very fine orange peel, not rough. Off keeps the authored map. Very fine = weak high-frequency normal. Giants calibrated = calibratedPaint_normal. The previous coarse map is gone. Plastic, rubber, glass and matte paint are not changed." />
+        <text name="FS25E_value_paintNormal0" text="Off (authored)" />
+        <text name="FS25E_value_paintNormal1" text="Very fine" />
+        <text name="FS25E_value_paintNormal2" text="Giants calibrated" />
+        <text name="FS25E_setting_cropBend" text="Crops: bending" />
+        <text name="FS25E_tooltip_cropBend" text="Foliage bending deformation (fruitGrowthFoliageShader bendScale). 0 holds plants rigid, 1 is the game value. Near geometry only." />
+        <text name="FS25E_setting_cropScreenAO" text="Crops: SSAO in plants" />
+        <text name="FS25E_tooltip_cropScreenAO" text="Y of aoIntensity on the crop shader: how strongly SSAO darkens inside plants. 1 is stock. Needs SSAO on." />
+        <text name="FS25E_setting_cropDetailDistance" text="Crops: detail distance" />
+        <text name="FS25E_tooltip_cropDetailDistance" text="Scales fadeOut of fruitGrowthFoliageShader (Z/W of fadeInOutStartEnd). Higher keeps 3D plants longer before the distance texture. GPU cost. 1 is the map value." />
+        <text name="FS25E_setting_oceanWindDetail" text="Water: wave normals" />
+        <text name="FS25E_tooltip_oceanWindDetail" text="oceanShader windScale: boosts water normals in wind. More surface structure. Shader max is 1." />
+        <text name="FS25E_setting_oceanDepth" text="Water: depth" />
+        <text name="FS25E_tooltip_oceanDepth" text="oceanShader depthScale: smaller looks shallower, larger deeper. 1 is the map value." />
+        <text name="FS25E_setting_oceanBumpScale" text="Water: wave scale" />
+        <text name="FS25E_tooltip_oceanBumpScale" text="Z of bumpSpeedScale: texture scale of wave normals. Higher = finer waves." />
+        <text name="FS25E_setting_oceanFogIntensity" text="Water: underwater colour" />
+        <text name="FS25E_tooltip_oceanFogIntensity" text="W of underwaterFogColor: intensity of the deep-water colour. 1 is the map value." />
+        <text name="FS25E_setting_puddleRipple" text="Puddles: ripple" />
+        <text name="FS25E_tooltip_puddleRipple" text="puddleShader rippleUVCoords: UV scale of puddle ripples. Maps with puddle decals only." />
+        <text name="FS25E_setting_waterCaustics" text="Water: caustics" />
+        <text name="FS25E_tooltip_waterCaustics" text="waterCausticsShader glowAmmount: brightness of underwater light patterns. 0 off, 1 stock. Only where caustic meshes exist." />
+        <text name="FS25E_setting_hideUnavailable" text="Hide unavailable controls" />
+        <text name="FS25E_tooltip_hideUnavailable" text="Hides sliders that cannot act in this scene (missing API, still scanning, no matching assets). Turn off to see why a control is blocked." />
+        <text name="FS25E_setting_resetCategory" text="Reset this category" />
+        <text name="FS25E_tooltip_resetCategory" text="Hands every control in the currently open category back to the game. Other categories stay as they are." />
+        <text name="FS25E_menu_reset_tab" text="Reset tab" />
+        <text name="FS25E_setting_nightYard" text="Night yard look" />
+        <text name="FS25E_tooltip_nightYard" text="Boosts nearby vehicle and placeable lamps: intensity, IES, scattering and local shadow budget. Does not change the sun. Off restores those lamp controls." />
     </texts>
 </l10n>

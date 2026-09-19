@@ -15,7 +15,6 @@ local definitions = {
     {"shadowSoftness","shadows",0,4,0.005,1,"medium"},
     {"softShadowBias","shadows",0.1,4,0.005,1,"low"},
     {"shadowExtrusion","shadows",0.1,2,0.005,1,"medium"},
-    {"shadowMerge","shadows",0,1,1,0,"medium"},
     {"lightIntensity","lighting",0,8,0.005,1,"low"},
     {"lightWarmth","lighting",-1,1,0.005,0,"low"},
     {"lightTint","lighting",-1,1,0.005,0,"low"},
@@ -165,11 +164,13 @@ function M.restoreAll()
     -- Otherwise enabling one slider later silently reapplies earlier sliders.
     for _,d in ipairs(definitions) do settings[d[1]]=d[6] end
     requested={}
+    M.nightYard=false
     return ok
 end
 function M.reset()
     M.restoreAll()
     locks={}; elapsed=0; slowElapsed=20000; lastScene={}
+    M.nightYard=false
     for _,d in ipairs(definitions) do settings[d[1]]=d[6] end
 end
 function M.init()
@@ -409,7 +410,7 @@ function M.refresh(scene,allowResolution)
     -- set regain their native state. No map-wide rendering grid is overwritten.
     for key,r in pairs(records) do if not touched[r.node] then restoreRecord(key,r) end end
     for node in pairs(merges) do if not touched[node] then splitOwned(node) end end
-    if allowResolution and requested.shadowMerge then mergeEligible(ranked) end
+    -- Shadow merge is not offered: it mutates GIANTS groups and cannot restore foreign state.
     result.shadows,result.ies,result.scattering=shadowCount,iesCount,scatterCount
     lastResult=result
     return result.failed==0, result.failed>0 and "FS25E_warning_lightWriteRejected" or (result.active==0 and "FS25E_status_lightValuesQueued" or nil)
@@ -490,5 +491,32 @@ function M.getControls()
             restore=function() return M.restoreControl(id) end,
             available=function() return available(id) end}
     end
+    local NIGHT={
+        lightIntensity=1.45,relevantLightBudget=40,iesMode=1,scatteringBudget=12,
+        headlightScattering=1,worklightScattering=1,placeableScattering=1,
+        localShadows=1,localShadowBudget=8,scatteringDistance=80
+    }
+    out[#out+1]={id='nightYard',category='lighting',min=0,max=1,step=1,kind='bool',cost='medium',
+        labelKey='FS25E_setting_nightYard',tooltipKey='FS25E_tooltip_nightYard',verification='configuration',
+        read=function() return M.nightYard and 1 or 0 end,
+        write=function(value)
+            local on=value>=0.5
+            if on==M.nightYard then return true end
+            if on then
+                for id,v in pairs(NIGHT) do if index[id] then M.set(id,v) end end
+                M.nightYard=true
+                return true
+            end
+            for id in pairs(NIGHT) do if requested[id] then M.restoreControl(id) end end
+            M.nightYard=false
+            return true
+        end,
+        restore=function()
+            if not M.nightYard then return true end
+            for id in pairs(NIGHT) do if requested[id] then M.restoreControl(id) end end
+            M.nightYard=false
+            return true
+        end,
+        available=function() return available('lightIntensity') end}
     return out
 end

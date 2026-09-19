@@ -1,5 +1,83 @@
 # Änderungen
 
+## 0.4.2.8 – 2026-09-20 – aktuellen lokalen Modstand übernommen
+
+Fortsetzung der GitHub-Version 0.4.2.7. Übernommen wurde der installierte
+Modstand aus dem FS25-Modordner. VERSION, FS25_Enhanced.VERSION, modDesc.xml,
+Laufzeitversion und README verwenden einheitlich 0.4.2.8.
+
+Gegenüber 0.4.2.7:
+
+- Neuaufbau: eine Qualitätsstufe Niedrig–Ultra nur für Aufwand (Sichtweite,
+  Schatten, Lampen, SSAO, Reflexionen). Lack, Nässe, Farbe, Sichtfeld,
+  Tonwertkurve und Stimmungen bleiben eigene Regler.
+- Nur noch **F9** für das Live-Fenster. Shift+F9, Strg+F9 und Strg+E entfernt.
+- Governor-, Expert- und Preset-Schicht entfernt (Performance/Balanced/Quality/
+  Cinematic, Adaptive, Ziel-FPS, DRS, Shadow-Focus, Fast-Shadow-Update).
+- Lack: Mikrostruktur, Frontalspiegelung, Frontalglanz, Grundglanz, Metallic-
+  Anteil; eigene feinere Normalen (`textures/paintUni_n.png`, `paintMetallic_n.png`).
+- Umgebung, Pflanzen, Wasser: Shader-Regler aus den GIANTS-XMLs (Feldfrucht-
+  Biegung, SSAO in Pflanzen, Detail-Distanz, Wasser-Normalen/Tiefe/Wellen,
+  Pfützen-Kräuselung, Kaustik).
+- FOV in Grad (Fahrzeug 50–80°). God-Rays-Regler entfernt (keine sichtbare Wirkung).
+- ZIP-Pfade mit Schrägstrich, damit GIANTS Lua lädt.
+
+Die nachfolgenden 0.5.x/0.6.x-Einträge dokumentieren frühere lokale Arbeitsstände;
+sie sind keine neueren Veröffentlichungen dieser GitHub-Versionsreihe.
+
+## 0.6.0.9 – 2026-09-19 – Umgebung, Pflanzen, Wasser
+
+Neue Shader-Regler aus den GIANTS-XMLs: Feldfrucht-Biegung, SSAO in Pflanzen, Detail-Distanz (3D-Pflanzen länger), Wasser-Normalen/Tiefe/Wellenmaßstab/Unterwasserfarbe, Pfützen-Kräuselung, Kaustik. Kein Bloom/Belichtung (kein Live-API). Terrain-Shader bleibt Engine-intern.
+
+## 0.6.0.8 – 2026-09-19 – Frontalglanz + feine Normalen
+
+Grobe Micro-Normalen ersetzt durch sehr schwache Karten (Detail-Normale wird addiert, starke Maps wirken wie abgelaugter Lack). Neuer Regler Frontalglanz (Klarlack-Glätte + smoothnessScale). Extra: Grundglanz, Metallic-Anteil. Mikrostruktur: Aus / Sehr fein / GIANTS kalibriert.
+
+## 0.6.0.7 – 2026-09-19 – Echter Lack, kein Schleier
+
+Klarlack geht nicht mehr auf 1,0 / SSR-Bias −1 (Folien-Look). Nur glänzender Uni- und Metallic-Lack; Plastik, Gummi, Glas, Matt, Rough und Pulverlack bleiben. Eigene feinere Normalen im Mod (`textures/paintUni_n.png`, `paintMetallic_n.png`).
+
+## 0.6.0.6 – 2026-09-19 – Lack-Regler immer sichtbar
+
+Lack-Mikrostruktur und Lackspiegelung bleiben in der Liste, auch während die Weltsuche läuft oder SSR aus ist. Flat/Default-Normalen ohne Custom-Map werden jetzt erkannt.
+
+## 0.6.0.5 – 2026-09-19 – Frontal-Lackspiegelung
+
+Lackspiegelung skaliert den Klarlack nicht mehr nur (0,1×3 bleibt 0,3 und unter der SSR-Schwelle 0,25). Werte über 1 füllen Klarlack und Glätte und setzen die SSR-Schwelle auf 0, damit Spiegelung auch von vorn bleibt, nicht nur im Streiflicht.
+
+## 0.6.0.4 – 2026-09-19 – Lack-Mikrostruktur
+
+Neuer Regler *Lack-Mikrostruktur*: ersetzt `flat_normal` auf Fahrzeuglack durch GIANTS-Karten `calibratedPaint_normal`, `calibratedPaintBumpy_normal` oder `metallicPaint_normal`. Kein eigener Shader, kein Tausch der Karosserie-Normalen.
+
+## 0.6.0.3 – 2026-09-19 – F9, FOV, God Rays
+
+- X öffnete das Fenster, weil Tastencode 120 (X) als F9 galt. Nur noch die echte F9-Taste.
+- FOV wird in Grad bedient (Fahrzeug 50–80°). Vorher wurden Grad ins Bogenmaß-Feld geschrieben; 30 blieb hängen. Reset und nächster Start bekommen den Spielwert zurück.
+- God-Rays-Regler entfernt (keine sichtbare Wirkung).
+
+## 0.6.0.2 – 2026-09-19 – ZIP-Pfade für GIANTS
+
+Windows hatte die ZIP mit Backslash-Pfaden geschrieben. Die Engine lädt nur `scripts/Core/...` mit Schrägstrich — deshalb kam kein Lua-Skript, F9 tat nichts.
+
+## 0.6.0.1 – 2026-09-19 – F9 öffnet das Live-Fenster
+
+Nur noch **F9** (öffnen und schließen). Shift+F9, Strg+F9 und Strg+E entfernt — die Extra-Kombinationen haben das einfache F9 in der Engine oft geschluckt. F9-Hook sitzt jetzt schon beim Mod-Laden, nicht erst nach Missionsstart. Zeichnen und Katalog sind gegen Lua-Fehler abgesichert.
+
+## 0.6.0.0 – 2026-09-19 – Neuaufbau
+
+Ein Bedienmodell, keine Governor-Schicht, keine Expert-Bools für APIs die Shapes oder Neustart brauchen.
+
+- **Eine Qualitätsstufe** Niedrig–Ultra nur für Aufwand. Lack, Nässe, Farbe, Sichtfeld, Tonwertkurve und Stimmungen sind keine Mitglieder mehr.
+- Alte Profile Performance/Balanced/Quality/Cinematic, Adaptive, Ziel-FPS, Expert-Soft-Apply, DRS, Shadow-Focus, Fast-Shadow-Update und persistHardware entfernt.
+- Tote Dateien entfernt: Governor, Kalibrierung, Benchmark, Budget, VisibleScope, LodGovernor, ShadowManager, SettingsSchema, SettingsAPI, Partikel-Reste, Probe-Session, Diagnostics, capabilityProfiles.xml, presets.xml.
+- Live-Fenster blendet nicht verfügbare Regler aus; Tab-Reset; **Hof bei Nacht** für lokale Lampen.
+- Sonnenschattenkarte 1024/2048/4096 (8192 raus). Shadow-Merge nicht mehr angeboten.
+- Höhennebel- und Atmosphären-Asymmetrie-Regler entfernt (kein belastbarer Live-Vertrag).
+- VanillaGuard nimmt GameSettings (FOV/Spiegel/Lichtprofil) auch ohne Compare-Helfer vor dem Speichern zurück.
+- VERSION, modDesc, Laufzeit und README stehen einheitlich auf 0.6.0.0.
+
+Frühere 0.4.x/0.5.x-Einträge beschreiben den Stand vor diesem Neuaufbau.
+
 ## 0.4.2.7 – 2026-09-17 – aktuellen lokalen Modstand übernommen
 
 Fortsetzung der GitHub-Version 0.4.2.6. Übernommen wurde der installierte
@@ -10,7 +88,6 @@ modDesc.xml, Laufzeitversion und README verwenden einheitlich 0.4.2.7.
 Die nachfolgenden 0.5.x-Einträge dokumentieren frühere lokale Arbeitsstände;
 sie sind keine neueren Veröffentlichungen dieser GitHub-Versionsreihe.
 Lokale Sicherungen, Python-Caches und Build-Artefakte gehören nicht zum Quellstand.
-
 
 ## 0.5.1.0 – lokaler Stand nach dem zweiten Spieltest (Log 14.09., 20:39–21:17), noch nicht veröffentlicht
 
@@ -374,6 +451,6 @@ Spielmenüregistrierung, F9-Layout, Live-Textzustände, LIGHT_SOURCE-Klassengren
 - Eigene Live-Profile, Original/Enhanced-Vergleich und 60-Sekunden-Cinematic mit Zustandssicherung. 27 Sprachdateien, Formatvalidator, Configprüfung und reproduzierbarer ZIP-Build.
 - Syntax-/Mockregressionen dokumentiert. Keine vorgetäuschte Ingame-/Visual-/Performance-Freigabe.
 
-## 0.4.2.8
+## Entwicklungsstand 0.4.2.8
 
 Reparatur von Start, Konsolenregistrierung, GUI-Profilen und ersten nativen Live-Einstellungen auf Basis des vorhandenen Modordners.

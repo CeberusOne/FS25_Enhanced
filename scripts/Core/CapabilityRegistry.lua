@@ -68,7 +68,8 @@ local WAVE1_FALLBACK = {
     { id = "foliage-view-distance-coeff", status = "CONFIRMED", apiName = "setFoliageViewDistanceCoeff", getter = "getFoliageViewDistanceCoeff", setter = "setFoliageViewDistanceCoeff", applyMode = "UNKNOWN", restoreStrategy = "YES", scope = "global", notes = "LodGovernor" },
     { id = "foliage-lod-distance-coeff", status = "CONFIRMED", apiName = "setFoliageLODDistanceCoeff", getter = "getFoliageLODDistanceCoeff", setter = "setFoliageLODDistanceCoeff", applyMode = "UNKNOWN", restoreStrategy = "YES", scope = "global", notes = "LodGovernor" },
     { id = "terrain-lod-distance-coeff", status = "CONFIRMED", apiName = "setTerrainLODDistanceCoeff", getter = "getTerrainLODDistanceCoeff", setter = "setTerrainLODDistanceCoeff", applyMode = "UNKNOWN", restoreStrategy = "YES", scope = "global", notes = "LodGovernor" },
-    { id = "allow-foliage-shadows", status = "CONFIRMED", apiName = "setAllowFoliageShadows", getter = "getAllowFoliageShadows", setter = "setAllowFoliageShadows", applyMode = "UNKNOWN", restoreStrategy = "YES", scope = "global", notes = "LodGovernor" },
+    { id = "allow-foliage-shadows", status = "CONFIRMED", apiName = "setAllowFoliageShadows", getter = "getAllowFoliageShadows", setter = "setAllowFoliageShadows", applyMode = "LIVE", restoreStrategy = "YES", scope = "global", notes = "SettingsModel" },
+    { id = "rain-amount-mult", status = "CONFIRMED", apiName = "setRainAmountMultiplier", getter = "getRainAmountMultiplier", setter = "setRainAmountMultiplier", applyMode = "LIVE", restoreStrategy = "YES", scope = "global", notes = "Engine Precipitation" },
     { id = "light-shadow-priority", status = "CONFIRMED", apiName = "setLightShadowPriority", getter = "getLightShadowPriority", setter = "setLightShadowPriority", applyMode = "UNKNOWN", restoreStrategy = "YES", scope = "per-light", notes = "Engine Lighting" },
     { id = "light-shadow-map", status = "CONFIRMED", apiName = "setLightShadowMap", getter = "getLightCastingShadowMap", setter = "setLightShadowMap", applyMode = "UNKNOWN", restoreStrategy = "YES", scope = "per-light", notes = "Engine Lighting" },
     { id = "light-soft-shadow-size", status = "CONFIRMED", apiName = "setLightSoftShadowSize", getter = "getLightSoftShadowSize", setter = "setLightSoftShadowSize", applyMode = "UNKNOWN", restoreStrategy = "YES", scope = "per-light", notes = "Engine Lighting" },
@@ -170,12 +171,7 @@ local function seedFallback()
             n = n + 1
         end
     end
-    for i = 1, #EXPERT_FALLBACK do
-        if storeEntry(EXPERT_FALLBACK[i]) then
-            n = n + 1
-        end
-    end
-    FS25E_Debug.info("CapabilityRegistry", string.format("seeded Lua fallback wave1+expert count=%d", n))
+    FS25E_Debug.info("CapabilityRegistry", string.format("seeded Lua fallback count=%d", n))
     return n
 end
 
@@ -239,13 +235,17 @@ function FS25E_CapabilityRegistry.load(modDirectory)
     local path = (modDirectory or "") .. "config/capabilityProfiles.xml"
     FS25E_Debug.info("CapabilityRegistry", "load from " .. path)
 
-    local success, info = tryParseXml(path)
     local loadedXml = false
-    if success then
-        loadedXml = true
-        FS25E_Debug.info("CapabilityRegistry", string.format("XML loaded count=%s", tostring(info)))
+    if fileExists and fileExists(path) then
+        local success, info = tryParseXml(path)
+        if success then
+            loadedXml = true
+            FS25E_Debug.info("CapabilityRegistry", string.format("XML loaded count=%s", tostring(info)))
+        else
+            FS25E_Debug.warning("CapabilityRegistry", "XML soft-fail: " .. tostring(info) .. "; using Lua fallback")
+            seedFallback()
+        end
     else
-        FS25E_Debug.warning("CapabilityRegistry", "XML soft-fail: " .. tostring(info) .. "; using Lua fallback")
         seedFallback()
     end
 

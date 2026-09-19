@@ -8,15 +8,33 @@ local M=FS25E_MaterialManager
 local defs={
  {id='paintClearcoat',parameter='clearCoatIntensity',index=1,min=0,max=1,step=0.001},
  {id='paintSmoothness',parameter='clearCoatSmoothness',index=1,min=0,max=1,step=0.001},
+ {id='paintBaseGloss',parameter='smoothnessScale',index=1,min=0,max=4,step=0.001},
+ {id='paintMetalness',parameter='metalnessScale',index=1,min=0,max=1,step=0.001},
  {id='paintSSRThreshold',parameter='ssrParameters',index=1,min=0,max=1,step=0.001},
  {id='paintSSRBaseBias',parameter='ssrParameters',index=2,min=-1,max=1,step=0.001},
  {id='paintSSRCoatBias',parameter='ssrParameters',index=3,min=-1,max=1,step=0.001},
  {id='materialDetailSmoothness',parameter='smoothnessScale',index=1,min=0,max=10,step=0.001},
  {id='materialWetResponse',parameter='scratches_dirt_snow_wetness',index=4,min=0,max=2,step=0.001,relative=true,dynamic=true}
 }
--- paintReflectivity drives the whole clear-coat/SSR chain at once and is
--- relative to each material's authored gloss, so it needs its own parameter set.
-local COMPOSITE={clearCoatIntensity=true,clearCoatSmoothness=true,ssrParameters=true}
+-- paintReflectivity / paintFacingGloss write these as a set and restore them together.
+local COMPOSITE={clearCoatIntensity=true,clearCoatSmoothness=true,ssrParameters=true,smoothnessScale=true}
+local function mapTail(path)
+ if type(path)~='string' then return '' end
+ path=path:gsub('\\','/'):lower():gsub('%.dds$','.png')
+ return path:match('detaillibrary/(.+)$') or path:match('([^/]+)$') or path
+end
+local function modPaintNormal(kind)
+ local dir=(FS25_Enhanced and FS25_Enhanced.modDirectory) or g_currentModDirectory or ''
+ if kind=='metallic' then return dir..'textures/paintMetallic_n.png' end
+ return dir..'textures/paintUni_n.png'
+end
+local SWAP_NORMAL={
+ ['flat_normal.png']=true,
+ ['nonmetallic/default_normal.png']=true,
+ ['calibrated/calibratedpaint_normal.png']=true,
+ ['calibrated/calibratedpaintbumpy_normal.png']=true,
+ ['calibrated/metallicpaint_normal.png']=true,
+}
 local required={'entityExists','getHasClassId','getNumOfChildren','getChildAt','getNumOfMaterials','getMaterial',
  'getMaterialCustomShaderFilename','getMaterialCustomShaderVariation',
  'getMaterialIsAlphaBlended','getMaterialIsAlphaTested','getHasShaderParameter','getShaderParameter','setShaderParameter'}
@@ -26,68 +44,61 @@ local function valid(node) return type(entityExists)=='function' and node~=nil a
 local function read(node,name,slot) return {getShaderParameter(node,name,slot)} end
 local function same(a,b) for i=1,4 do if a[i]~=nil or b[i]~=nil then if not equal(a[i],b[i]) then return false end end end; return true end
 local function copy(a) return {a[1],a[2],a[3],a[4]} end
--- $data/shared/detailLibrary/materialTemplates.xml: these exact
--- detailDiffuse/detailSpecular pairs are the authored paint and coated-plastic
--- templates. Shader name, colour, metalness or clear-coat values alone do not
--- identify paint, because glass, rubber and chrome share the same vehicleShader.
-local paintMaps={
- -- category "calibrated": the vehicle paint templates
+-- Only glossy uni paint and metallic paint. Plastic, rubber, glass, matte,
+-- rough, old, powder, chrome and raw metal are excluded even if they share
+-- vehicleShader and a clear-coat value.
+local GLOSSY_UNI={
  ['calibrated/calibratedpaint_diffuse.png']={['calibrated/calibratedpaint_specular.png']=true,['calibrated/calibratedpaintbumpy_specular.png']=true},
- ['calibrated/metallicpaint_diffuse.png']={['calibrated/metallicpaint_specular.png']=true},
- ['calibrated/grainsmall_diffuse.png']={['calibrated/grainclearsmall_specular.png']=true},
- -- calibratedCastIron shares the clear diffuse map; only the pair is unique
- ['metallic/clear_diffuse.png']={['calibrated/castiron_specular.png']=true},
- -- category "nonMetallic/metal": painted and powder-coated metal
- ['nonmetallic/metal/metalpainted_diffuse.png']={['nonmetallic/metal/metalpainted_specular.png']=true,
-  ['nonmetallic/metal/metalpaintedrough_specular.png']=true,['nonmetallic/metal/powdercoatmatte_specular.png']=true},
- ['nonmetallic/metal/metalpaintedgraphite_diffuse.png']={['nonmetallic/metal/metalpaintedgraphite_specular.png']=true},
- ['nonmetallic/metal/metalpaintedold_diffuse.png']={['nonmetallic/metal/metalpaintedold_specular.png']=true},
- -- category "nonMetallic/plastic": painted plastic incl. the shiny variants
- ['nonmetallic/plastic/plasticpainted_diffuse.png']={['nonmetallic/plastic/plasticpainted_specular.png']=true},
- -- category "mixed/carbon": clear-coated carbon
- ['mixed/carbonpattern02_diffuse.png']={['mixed/carbonpattern02_specular.png']=true}
+ ['nonmetallic/metal/metalpainted_diffuse.png']={['nonmetallic/metal/metalpainted_specular.png']=true},
 }
--- Wood, fabric, dirt and snow are authored at porosity 1.0 and bare rubber at
--- 0.5. Powder-coated metal is the only coated template carrying porosity (0.1),
--- so the cut sits between them instead of rejecting every non-zero value.
-local POROSITY_LIMIT=0.25
+local METALLIC_PAINT={
+ ['calibrated/metallicpaint_diffuse.png']={['calibrated/metallicpaint_specular.png']=true},
+}
+local EXCLUDE_FRAG={'plastic','rubber','glass','window','fabric','wood','leather','dirt','mud','reflector','carbon','powder','rough','old','hose','fell','chrome','silver','brass','bronze','copper','gold','palladium','zinc','galvanized','tread','noise','granite','perforated','castiron','grain','alpha'}
+local POROSITY_LIMIT=0.05
+local function excludedPath(path)
+ if type(path)~='string' or path=='' then return false end
+ local p=path:lower()
+ for i=1,#EXCLUDE_FRAG do if p:find(EXCLUDE_FRAG[i],1,true) then return true end end
+ return false
+end
 local function shaderValue(node,slot,name,index)
  local hasOK,has=pcall(getHasShaderParameter,node,name,slot)
  if not hasOK or not has then return nil end
  local ok,value=pcall(read,node,name,slot)
  if ok and finite(value[index or 1]) then return value[index or 1] end
 end
---- Decide whether a material may take part in the gloss/reflection controls.
---- Returns eligible, className. A material qualifies either because it uses an
---- authored paint template, or because it carries a real clear-coat layer of
---- its own. That second path is what picks up a lacquered rubber or plastic
---- part automatically, without ever touching bare rubber, glass or unknown assets.
+--- Glossy uni or metallic vehicle paint only. Returns eligible, className.
 local function paintClassification(node,slot,material,variation)
  local blendOK,blended=pcall(getMaterialIsAlphaBlended,material)
  local testOK,tested=pcall(getMaterialIsAlphaTested,material)
  if not blendOK or not testOK or blended or tested then return false,'transparent' end
  variation=type(variation)=='string' and variation:lower() or ''
- if variation:find('glass',1,true) or variation:find('window',1,true) then return false,'glass' end
- -- Retro-reflectors are clear-coated by design but must keep their authored
- -- response; a mirror finish would destroy the retro-reflective look.
+ if variation:find('glass',1,true) or variation:find('window',1,true) or variation:find('alpha',1,true) then return false,'glass' end
  if variation:find('reflector',1,true) then return false,'reflector' end
  local porosity=shaderValue(node,slot,'porosity')
  if porosity~=nil and porosity>POROSITY_LIMIT then return false,'porous' end
- -- Path 1: an authored clear coat means the surface is lacquered, whatever the
- -- base material underneath it happens to be.
- local clearCoat=shaderValue(node,slot,'clearCoatIntensity')
- if clearCoat~=nil and clearCoat>0.001 then return true,'coated' end
- -- Path 2: the GIANTS paint templates, matched on their exact map pair.
- if type(getMaterialCustomMapFilename)~='function' then return false,'unverified' end
  local function detail(name)
+  if type(getMaterialCustomMapFilename)~='function' then return nil end
   local ok,path=pcall(getMaterialCustomMapFilename,material,name)
   if not ok or type(path)~='string' then return nil end
-  -- XML templates name PNG sources; the renderer may report the compiled DDS.
-  -- Only the extension is normalized, preserving the exact path-pair allowlist.
-  return path:gsub('\\','/'):lower():gsub('%.dds$','.png'):match('/shared/detaillibrary/(.+)$')
+  return path:gsub('\\','/'):lower():gsub('%.dds$','.png'):match('/shared/detaillibrary/(.+)$') or path:gsub('\\','/'):lower()
  end
- local diffuse,specular=detail('detailDiffuse'),detail('detailSpecular')
- if diffuse and specular and paintMaps[diffuse] and paintMaps[diffuse][specular] then return true,'paint' end
+ local diffuse,specular,normal=detail('detailDiffuse'),detail('detailSpecular'),detail('detailNormal')
+ if excludedPath(diffuse) or excludedPath(specular) or excludedPath(normal) or excludedPath(variation) then
+  return false,'excluded'
+ end
+ if diffuse and specular and METALLIC_PAINT[diffuse] and METALLIC_PAINT[diffuse][specular] then return true,'metallic' end
+ if diffuse and specular and GLOSSY_UNI[diffuse] and GLOSSY_UNI[diffuse][specular] then return true,'uni' end
+ -- Brand-colour body paint often uses shader defaults plus a real clear coat.
+ -- Require enough coat AND smoothness so matte / satin parts stay out.
+ local coat=shaderValue(node,slot,'clearCoatIntensity') or 0
+ local smooth=shaderValue(node,slot,'clearCoatSmoothness') or 0
+ if coat>=0.12 and smooth>=0.35 then
+  local metal=shaderValue(node,slot,'metalnessScale') or 0
+  if metal>=0.35 then return true,'metallic' end
+  return true,'uni'
+ end
  return false,'unverified'
 end
 local function eligible(r,def)
@@ -264,9 +275,16 @@ function M.available(id)
   local readOK,quality=pcall(getScreenSpaceReflectionsQuality)
   if not readOK or quality==enum.OFF then return false,'FS25E_status_ssrDisabled' end
  end
- if id=='paintReflectivity' then
-  for _,r in ipairs(M.records) do if own(r) and r.paintEligible then return true end end
-  return false,'FS25E_status_noVerifiedPaint'
+ if id=='paintDetailNormal' then
+  if type(setMaterialCustomMapFromFile)~='function' then return false,'FS25E_status_missingApi' end
+  return true
+ end
+ if id=='paintReflectivity' or id=='paintFacingGloss' then
+  for _,r in ipairs(M.records) do
+   if own(r) and r.paintEligible then return true end
+  end
+  -- Keep the row visible while vehicle materials are still being scanned.
+  return #M.records==0,'FS25E_status_noVerifiedPaint'
  end
  local def; if id then for _,d in ipairs(defs) do if d.id==id then def=d end end end
  for _,r in ipairs(M.records) do if own(r) and eligible(r,def) then
@@ -303,33 +321,133 @@ local function requestVector(r,name,build)
  r.applied[name]=desired
  return true
 end
---- Apply the paint reflection chain to one record, always relative to what
---- the material was authored with. A matte powder coat (clear coat 0) keeps
---- its look, gloss and metallic paint turn into a real mirror, and materials
---- without a clear coat contract are never touched at all.
+--- Real paint, not a wrap: uni and metallic get different targets. Coat never
+--- goes to 1.0 and SSR roughness is not slammed to -1 (that was the fake veil).
 local function applyReflectivity(r,value)
  if not r.paintEligible then return nil end
- local delta=value-1
- local coatOK=requestVector(r,'clearCoatIntensity',function(o) o[1]=clamp(o[1]*value,0,1); return o end)
- local smoothOK=requestVector(r,'clearCoatSmoothness',function(o) o[1]=clamp(o[1]*value,0,1); return o end)
- local authored=r.original.clearCoatIntensity and r.original.clearCoatIntensity[1] or 0
- -- How much of the reflection change this surface may take: fully coated
- -- paint gets all of it, a clear-coat-free matte surface gets none.
- local weight=clamp(authored*2,0,1)
+ local metallic=r.materialClass=='metallic'
+ local t=value>=1 and clamp(value-1,0,1) or 0
+ local down=value<1 and value or 1
+ local function lerp(a,b,w) return a+(b-a)*w end
+ local coatTarget=metallic and 0.55 or 0.70
+ local smoothTarget=metallic and 0.86 or 0.91
+ local ssrX=metallic and 0.14 or 0.18
+ local ssrY=metallic and -0.14 or -0.20
+ local ssrZ=metallic and -0.18 or -0.26
+ local coatOK=requestVector(r,'clearCoatIntensity',function(o)
+  if t>0 then o[1]=clamp(lerp(o[1],math.max(o[1],coatTarget),t),0,1)
+  else o[1]=clamp(o[1]*down,0,1) end
+  return o
+ end)
+ local smoothOK=requestVector(r,'clearCoatSmoothness',function(o)
+  if t>0 then o[1]=clamp(lerp(o[1],math.max(o[1],smoothTarget),t),0,1)
+  else o[1]=clamp(o[1]*down,0,1) end
+  return o
+ end)
  local ssrOK=requestVector(r,'ssrParameters',function(o)
-  local coat=clamp(authored*value,0,1)
-  -- X is the clear-coat threshold: below it SSR samples the hazy base layer.
-  -- Pull it under the new coat intensity so polished paint reflects through
-  -- the coat instead of through the diffuse base.
-  if delta>0 then o[1]=math.min(o[1],math.max(0,coat*0.9)) end
-  -- Y/Z bias the roughness handed to screen space reflections. Negative is a
-  -- sharper mirror, positive the veiled look the base layer ships with.
-  o[2]=clamp(o[2]-delta*0.35*weight,-1,1)
-  o[3]=clamp(o[3]-delta*0.35*weight,-1,1)
-  return o end)
- if coatOK==false or smoothOK==false or ssrOK==false then return false end
- if coatOK or smoothOK or ssrOK then return true end
+  if t>0 then
+   o[1]=clamp(lerp(o[1],math.min(o[1],ssrX),t),0,1)
+   o[2]=clamp(lerp(o[2],ssrY,t),-1,1)
+   o[3]=clamp(lerp(o[3],ssrZ,t),-1,1)
+  end
+  return o
+ end)
+ local baseOK=requestVector(r,'smoothnessScale',function(o)
+  local target=metallic and 1.25 or 1.85
+  if t>0 then o[1]=clamp(lerp(o[1],math.max(o[1],target),t),0,10)
+  else o[1]=clamp(o[1]*down,0,10) end
+  return o
+ end)
+ if coatOK==false or smoothOK==false or ssrOK==false or baseOK==false then return false end
+ if coatOK or smoothOK or ssrOK or baseOK then return true end
  return nil
+end
+--- Facing view is dielectric Fresnel (~4%). A sharp coat plus a glossier base
+--- makes that 4% actually show the environment; slamming SSR bias does not.
+local function applyFacingGloss(r,value)
+ if not r.paintEligible then return nil end
+ local t=value>=1 and clamp(value-1,0,1) or 0
+ local down=value<1 and value or 1
+ local function lerp(a,b,w) return a+(b-a)*w end
+ local smoothOK=requestVector(r,'clearCoatSmoothness',function(o)
+  if t>0 then o[1]=clamp(lerp(o[1],0.95,t),0,1) else o[1]=clamp(o[1]*down,0,1) end
+  return o
+ end)
+ local baseOK=requestVector(r,'smoothnessScale',function(o)
+  if t>0 then o[1]=clamp(lerp(o[1],math.max(o[1],2.2),t),0,10) else o[1]=clamp(o[1]*down,0,10) end
+  return o
+ end)
+ local ssrOK=requestVector(r,'ssrParameters',function(o)
+  if t>0 then o[1]=clamp(math.min(o[1],lerp(o[1],0.04,t)),0,1) end
+  return o
+ end)
+ if smoothOK==false or baseOK==false or ssrOK==false then return false end
+ if smoothOK or baseOK or ssrOK then return true end
+ return nil
+end
+local function currentDetailNormal(r)
+ local mat=r.material
+ if not mat then
+  local ok,m=pcall(getMaterial,r.node,r.slot)
+  if not ok or not m then return nil end
+  r.material=m; mat=m
+ end
+ if type(getMaterialCustomMapFilename)~='function' then return nil end
+ local ok,path=pcall(getMaterialCustomMapFilename,mat,'detailNormal')
+ if ok and type(path)=='string' and path~='' then return path end
+end
+local function canSwapNormal(r)
+ if not r.paintEligible then return false end
+ local path=currentDetailNormal(r)
+ -- Shader default (no custom map) is flat/default normal — that is the common case.
+ if not path or path=='' then return true end
+ local tail=mapTail(path)
+ if SWAP_NORMAL[tail] then return true end
+ -- Any calibrated paint normal, or a generic default, may be upgraded.
+ if tail:find('calibratedpaint',1,true) or tail:find('metallicpaint',1,true) then return true end
+ if tail:find('flat_normal',1,true) or tail:find('default_normal',1,true) then return true end
+ return false
+end
+local function writeDetailNormal(r,path)
+ if type(setMaterialCustomMapFromFile)~='function' or type(path)~='string' then return false end
+ local mat=r.material
+ if not mat then
+  local ok,m=pcall(getMaterial,r.node,r.slot)
+  if not ok or not m then return false end
+  mat=m
+ end
+ local ok,newId=pcall(setMaterialCustomMapFromFile,mat,'detailNormal',path,false,false,false)
+ if not ok or newId==nil or newId==false then return false end
+ if type(newId)=='number' and newId~=0 then
+  pcall(setMaterial,r.node,newId,r.slot)
+  r.material=newId
+ else
+  r.material=mat
+ end
+ return true
+end
+local function applyDetailNormal(r,index)
+ if not canSwapNormal(r) and not r.originalDetailNormal then return nil end
+ local current=currentDetailNormal(r)
+ if r.originalDetailNormal==nil then r.originalDetailNormal=current or '' end
+ if index==0 then
+  local orig=r.originalDetailNormal
+  if orig==nil then return true end
+  if orig=='' then orig='$data/shared/detailLibrary/flat_normal.png' end
+  if not writeDetailNormal(r,orig) then return false end
+  r.originalDetailNormal=nil
+  return true
+ end
+ local wanted
+ if index>=2 then
+  wanted=r.materialClass=='metallic' and '$data/shared/detailLibrary/calibrated/metallicPaint_normal.png' or '$data/shared/detailLibrary/calibrated/calibratedPaint_normal.png'
+ else
+  wanted=modPaintNormal(r.materialClass)
+ end
+ if not wanted then return nil end
+ if current and mapTail(current)==mapTail(wanted) then return true end
+ if not writeDetailNormal(r,wanted) then return false end
+ return true
 end
 function M.setReflectivity(value,automatic)
  if not enabled() then return false,'FS25E_status_mod_disabled' end
@@ -408,6 +526,8 @@ local function applyRecord(r,id)
  if not own(r) then return nil end
  local value=M.values[id]; if value==nil then return nil end
  if id=='paintReflectivity' then return applyReflectivity(r,value) end
+ if id=='paintFacingGloss' then return applyFacingGloss(r,value) end
+ if id=='paintDetailNormal' then return applyDetailNormal(r,value) end
  return applyDef(r,defById[id],value)
 end
 --- Queue a record/id pair; duplicates collapse onto the pending entry.
@@ -424,7 +544,7 @@ function M.enqueueAll(id)
  local count=0
  local def=defById[id]
  for _,r in ipairs(M.records) do
-  if own(r) and ((id=='paintReflectivity' and r.paintEligible) or (def and eligible(r,def))) then enqueue(r,id); count=count+1 end
+  if own(r) and ((id=='paintReflectivity' and r.paintEligible) or (id=='paintFacingGloss' and r.paintEligible) or (id=='paintDetailNormal' and (canSwapNormal(r) or r.originalDetailNormal)) or (def and eligible(r,def))) then enqueue(r,id); count=count+1 end
  end
  return count
 end
@@ -450,6 +570,31 @@ function M.drain(budget)
  return done
 end
 function M.write(id,value,automatic)
+ if id=='paintDetailNormal' then
+  if not enabled() then return false,'FS25E_status_mod_disabled' end
+  if automatic and M.locks[id] then return false,'FS25E_status_locked' end
+  if not finite(value) then return false,'FS25E_status_invalidValue' end
+  value=math.max(0,math.min(2,math.floor(value+0.5)))
+  local ok,reason=M.available(id); if not ok then return false,reason end
+  M.values[id]=value
+  local count=M.enqueueAll(id)
+  if count==0 then M.values[id]=nil; return false,'FS25E_status_noVerifiedPaint' end
+  M.drain(IMMEDIATE_BUDGET)
+  M.lastApply={id=id,value=value,materials=count}; M.profile=0; M.profileDirty=true
+  return true
+ end
+ if id=='paintFacingGloss' then
+  if not enabled() then return false,'FS25E_status_mod_disabled' end
+  if automatic and M.locks[id] then return false,'FS25E_status_locked' end
+  if not finite(value) then return false,'FS25E_status_invalidValue' end
+  local ok,reason=M.available(id); if not ok then return false,reason end
+  M.values[id]=clamp(value,0,3)
+  local count=M.enqueueAll(id)
+  if count==0 then M.values[id]=nil; return false,'FS25E_status_noVerifiedPaint' end
+  M.drain(IMMEDIATE_BUDGET)
+  M.lastApply={id=id,value=M.values[id],materials=count}; M.profile=0; M.profileDirty=true
+  return true
+ end
  if id=='paintReflectivity' then return M.setReflectivity(value,automatic) end
  if not enabled() then return false,'FS25E_status_mod_disabled' end
  if automatic and M.locks[id] then return false,'FS25E_status_locked' end
@@ -466,7 +611,24 @@ function M.write(id,value,automatic)
  M.lastApply={id=id,value=M.values[id],materials=count}; M.profile=0; M.profileDirty=true; return true
 end
 function M.restore(id,source)
- if id=='paintReflectivity' then return M.restoreReflectivity(source) end
+ if id=='paintDetailNormal' or id==nil then
+  local ok=true
+  for _,r in ipairs(M.records) do
+   if (source==nil or r.source==source) and own(r) and r.originalDetailNormal then
+    if not writeDetailNormal(r,r.originalDetailNormal) then ok=false else r.originalDetailNormal=nil end
+   end
+  end
+  if id=='paintDetailNormal' then
+   if ok then M.values.paintDetailNormal=nil; M.profile=0; M.profileDirty=next(M.values)~=nil end
+   return ok
+  end
+  if not ok then return false end
+ end
+ if id=='paintReflectivity' or id=='paintFacingGloss' then
+  local ok=M.restoreReflectivity(source)
+  if ok then M.values.paintFacingGloss=nil; M.values.paintReflectivity=nil end
+  return ok
+ end
  local def; if id then for _,d in ipairs(defs) do if d.id==id then def=d end end end
  local ok=true
  for _,r in ipairs(M.records) do if (source==nil or r.source==source) and own(r) then for name,original in pairs(r.original) do
@@ -542,21 +704,33 @@ function M.getControls()
  end,
  restore=function() return M.setProfile(0) end,available=function() return M.available('materialDetailSmoothness') end}}
  out[#out+1]={id='paintReflectivity',category='materials',labelKey='FS25E_setting_paintReflectivity',
-  tooltipKey='FS25E_tooltip_paintReflectivity',min=0,max=3,step=0.001,cost='medium',
+  tooltipKey='FS25E_tooltip_paintReflectivity',min=0,max=3,step=0.001,cost='medium',alwaysShow=true,
   read=function() return M.values.paintReflectivity or 1 end,
   write=function(v) return M.setReflectivity(v) end,
   restore=function() return M.restore('paintReflectivity') end,
   available=function() return M.available('paintReflectivity') end}
+ out[#out+1]={id='paintFacingGloss',category='materials',labelKey='FS25E_setting_paintFacingGloss',
+  tooltipKey='FS25E_tooltip_paintFacingGloss',min=0,max=3,step=0.001,cost='medium',alwaysShow=true,
+  read=function() return M.values.paintFacingGloss or 1 end,
+  write=function(v) return M.write('paintFacingGloss',v) end,
+  restore=function() return M.restore('paintFacingGloss') end,
+  available=function() return M.available('paintFacingGloss') end}
+ out[#out+1]={id='paintDetailNormal',category='materials',kind='enum',cost='medium',alwaysShow=true,
+  labelKey='FS25E_setting_paintDetailNormal',tooltipKey='FS25E_tooltip_paintDetailNormal',
+  min=0,max=2,step=1,
+  format=function(v)
+   local key='FS25E_value_paintNormal'..tostring(math.floor(v or 0))
+   return FS25E_Localization and FS25E_Localization.t and FS25E_Localization.t(key) or tostring(v)
+  end,
+  read=function() return M.values.paintDetailNormal or 0 end,
+  write=function(v) return M.write('paintDetailNormal',v) end,
+  restore=function() return M.restore('paintDetailNormal') end,
+  available=function() return M.available('paintDetailNormal') end}
  for _,def in ipairs(defs) do local d=def; out[#out+1]={id=d.id,category='materials',labelKey='FS25E_setting_'..d.id,
- tooltipKey='FS25E_tooltip_'..d.id,min=d.min,max=d.max,step=d.step,cost='low',experimental=true,
+ tooltipKey='FS25E_tooltip_'..d.id,min=d.min,max=d.max,step=d.step,cost='low',experimental=true,alwaysShow=true,
  read=function() if d.relative then return M.values[d.id] or 1 end; M.refresh(); for _,r in ipairs(M.records) do if own(r) and eligible(r,d) then
   local ok,v=pcall(read,r.node,d.parameter,r.slot); if ok and finite(v[d.index]) then return v[d.index] end end end end,
  write=function(v) return M.write(d.id,v) end,restore=function() return M.restore(d.id) end,available=function() return M.available(d.id) end} end
- for _,id in ipairs({'materialMicrodetailStrength','materialNormalDetailScale'}) do
-  out[#out+1]={id=id,category='materials',labelKey='FS25E_setting_'..id,tooltipKey='FS25E_tooltip_materialDetailAssets',cost='medium',experimental=true,
-   read=function() return nil end,write=function() return false,'FS25E_status_detailAssetsRequired' end,
-   available=function() return false,'FS25E_status_detailAssetsRequired' end,restore=function() return true end}
- end
  return out
 end
 

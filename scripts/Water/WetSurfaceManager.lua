@@ -69,13 +69,25 @@ local defs={
  {id='rockMoss',parameter='mossLevel',shaders={placeable=true},min=0,max=2,step=0.001,default=1,ceiling=1,category='environment'},
  {id='surfaceContrast',parameter='contrastLuminiosity',shaders={vertexPaint=true},min=0.5,max=2,step=0.001,default=1,ceiling=3,category='environment'},
  {id='surfaceLuminosity',parameter='contrastLuminiosity',index=2,shaders={vertexPaint=true},min=-0.5,max=0.5,step=0.001,default=0,absolute=true,category='environment'},
+ -- More plant / water detail from authored shader parameters (no invented post-FX).
+ {id='cropBend',parameter='bendScale',shaders={cropFoliage=true},min=0,max=1,step=0.001,default=1,absolute=true,category='foliage'},
+ {id='cropScreenAO',parameter='aoIntensity',index=2,shaders={cropFoliage=true},min=0,max=3,step=0.001,default=1,ceiling=3,category='foliage'},
+ {id='cropDetailDistance',parameter='fadeInOutStartEnd',indices={3,4},shaders={cropFoliage=true,solidFoliage=true},min=0.5,max=2,step=0.001,default=1,ceiling=220,category='foliage'},
+ {id='oceanWindDetail',parameter='windScale',shaders={ocean=true},min=0,max=3,step=0.001,default=1,ceiling=1,category='water'},
+ {id='oceanDepth',parameter='depthScale',shaders={ocean=true},min=0.2,max=3,step=0.001,default=1,ceiling=10,category='water'},
+ {id='oceanBumpScale',parameter='bumpSpeedScale',index=3,shaders={ocean=true},min=0.25,max=3,step=0.001,default=1,ceiling=4,category='water'},
+ {id='oceanFogIntensity',parameter='underwaterFogColor',index=4,shaders={ocean=true},min=0.25,max=3,step=0.001,default=1,ceiling=1,category='water'},
+ {id='puddleRipple',parameter='rippleUVCoords',components=2,shaders={puddle=true},min=0.25,max=3,step=0.001,default=1,ceiling=20,category='water'},
+ {id='waterCaustics',parameter='glowAmmount',shaders={waterCaustics=true},min=0,max=3,step=0.001,default=1,ceiling=3,category='water'},
 }
 local byId={};for _,d in ipairs(defs) do byId[d.id]=d end
 local SHADERS={['placeableshader.xml']='placeable',['buildingshader.xml']='building',['oceanshader.xml']='ocean',['puddleshader.xml']='puddle',
  ['treebranchshader.xml']='treeBranch',['treebillboardshader.xml']='treeBillboard',['backgroundtreesshader.xml']='backgroundTrees',
- ['fruitgrowthfoliageshader.xml']='cropFoliage',['translucencyshader.xml']='translucency',['vertexpaintshader.xml']='vertexPaint'}
+ ['fruitgrowthfoliageshader.xml']='cropFoliage',['translucencyshader.xml']='translucency',['vertexpaintshader.xml']='vertexPaint',
+ ['solidfoliageshader.xml']='solidFoliage',['watercausticsshader.xml']='waterCaustics'}
 --- Component indices a control writes (float3 tints scale all three).
 local function indices(d)
+ if d.indices then return d.indices end
  if d.components then local t={}; for i=1,d.components do t[i]=i end; return t end
  return {d.index or 1}
 end
@@ -494,7 +506,7 @@ function M.getControls()
   restore=function() return M.restore('groundWetnessHold') end,
   available=function() return M.available('groundWetnessHold') end}
  for _,def in ipairs(defs) do local d=def
-  out[#out+1]={id=d.id,category=d.category or 'water',min=d.min,max=d.max,step=d.step,cost='medium',verification='configuration',
+  out[#out+1]={id=d.id,category=d.category or 'water',min=d.min,max=d.max,step=d.step,cost='medium',verification='configuration',alwaysShow=true,
    labelKey='FS25E_setting_'..d.id,tooltipKey='FS25E_tooltip_'..d.id,
    read=function() return M.values[d.id] or d.default end,
    write=function(v) return M.write(d.id,v) end,

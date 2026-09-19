@@ -2,18 +2,13 @@
 -- post-processing uniforms: only documented sun-light properties are exposed.
 FS25E_EnvironmentLighting={values={},locks={},records={},sunRevisions={}}
 local M=FS25E_EnvironmentLighting
--- Sun colour is intensity, warmth and tint only. Per-channel RGB controls
--- were removed. The sun light's scattering (setLightUseLightScattering /
--- setLightScatteringIntensity) lights the sky as well as the volumetric
--- shafts, so it is never switched off and never written as 0: god rays are a
--- factor on the sun's own scattering intensity, floored at 0.1.
+-- Sun colour is intensity, warmth and tint only. God-ray intensity is not
+-- exposed: the same scattering lights the sky, and the factor had no visible
+-- shaft effect in game.
 local defs={
  {id='environmentSunIntensity',sun='sunIntensity',min=0.05,max=8,step=0.001},
  {id='environmentSunWarmth',sun='sunWarmth',min=-1,max=1,step=0.001},
  {id='environmentSunTint',sun='sunTint',min=-1,max=1,step=0.001},
- -- Sun light shafts: relative to the value the game's Lighting itself sets
- -- (re-captured whenever the game changes it), so day/weather dynamics stay.
- {id='environmentGodRays',getter='getLightScatteringIntensity',setter='setLightScatteringIntensity',min=0.1,max=4,step=0.001,relative=true,floor=0.1,default=1},
  {id='environmentShadowSoftness',getter='getLightSoftShadowSize',setter='setLightSoftShadowSize',min=0,max=20,step=0.001},
  {id='environmentShadowDistance',getter='getLightSoftShadowDistance',setter='setLightSoftShadowDistance',min=0.1,max=5000,step=0.1},
  {id='environmentShadowBias',getter='getLightSoftShadowDepthBiasFactor',setter='setLightSoftShadowDepthBiasFactor',min=0,max=10,step=0.001},
@@ -22,11 +17,11 @@ local defs={
  -- getLightCastingShadowMap read-back. The control value is an index into
  -- RESOLUTIONS; the record keeps the raw size, so restore is exact even when
  -- the game's own value is not one of the four.
- {id='environmentShadowResolution',shadowMap=true,min=0,max=3,step=1},
+ {id='environmentShadowResolution',shadowMap=true,min=0,max=2,step=1},
  {id='environmentScatteringWarmth',color=true,min=-1,max=1,step=0.001,default=0},
  {id='environmentScatteringTint',color=true,min=-1,max=1,step=0.001,default=0}
 }
-local RESOLUTIONS={1024,2048,4096,8192}
+local RESOLUTIONS={1024,2048,4096}
 local function nearestIndex(res)
  local best,bestDelta=0,math.huge
  for i,r in ipairs(RESOLUTIONS) do local delta=math.abs(r-(res or 0)); if delta<=bestDelta then best,bestDelta=i-1,delta end end

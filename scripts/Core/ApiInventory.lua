@@ -6,6 +6,7 @@
 -- asymmetry) the installed build really has.
 FS25E_ApiInventory={done=false}
 local M=FS25E_ApiInventory
+function M.reset() M.done=false end
 local KEYWORDS={'exposure','bloom','tonemap','colorgrad','colourgrad','fog','atmosphere','scatter','sky','cloud',
  'ambient','godray','volumetric','haze','postprocess','postfx','saturation','gamma','vignette','sharpen','lensflare',
  'envmap','irradiance','lightcull','shadowfocus','sunlight','moon','daynight','daylight'}

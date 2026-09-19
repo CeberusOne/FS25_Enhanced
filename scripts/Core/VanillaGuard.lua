@@ -22,14 +22,23 @@ local function nativeEnvironment()
  return _G
 end
 --- Enter the vanilla state (nested calls are counted, not repeated).
+--- Always restore GameSettings even if the compare helper is missing, so FOV
+--- and mirrors never leak into gameSettings.xml.
 function M.enter(reason)
  M.depth=M.depth+1
  if M.depth>1 then return end
  local profiles=FS25E_VisualProfiles
- if not profiles or not profiles.isComparing or profiles.isComparing() then M.owned=false; return end
+ if profiles and profiles.isComparing and profiles.isComparing() then
+  M.owned=false
+  return
+ end
  M.owned=true
- local ok,status=profiles.toggleCompare()
- if FS25E_Debug then FS25E_Debug.debug('VanillaGuard','enter '..tostring(reason)..' ok='..tostring(ok)..' '..tostring(status)) end
+ if profiles and profiles.toggleCompare then
+  local ok,status=profiles.toggleCompare()
+  if FS25E_Debug then FS25E_Debug.debug('VanillaGuard','enter '..tostring(reason)..' ok='..tostring(ok)..' '..tostring(status)) end
+ elseif FS25E_GameSettingsControls and FS25E_GameSettingsControls.restoreAll then
+  FS25E_GameSettingsControls.restoreAll()
+ end
 end
 --- Leave the vanilla state; the mod's values are applied again on top of
 --- whatever the player just changed, which becomes the new baseline.

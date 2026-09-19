@@ -88,14 +88,12 @@ end
 
 --- Fetch telemetry; never synthesize system metrics.
 function FS25E_HudOverlay.getTelemetry()
-    if FS25E_SettingsAPI == nil or FS25E_SettingsAPI.getHudTelemetry == nil then
-        return { engine = nil, system = { connected = false, status = "DISCONNECTED" } }
+    local engine = nil
+    if FS25E_PerformanceMonitor ~= nil and FS25E_PerformanceMonitor.getSnapshot ~= nil then
+        local ok, snap = pcall(FS25E_PerformanceMonitor.getSnapshot)
+        if ok and type(snap) == "table" then engine = snap end
     end
-    local ok, snap = pcall(FS25E_SettingsAPI.getHudTelemetry)
-    if not ok or type(snap) ~= "table" then
-        return { engine = nil, system = { connected = false, status = "DISCONNECTED" } }
-    end
-    return snap
+    return { engine = engine, system = { connected = false, status = "DISCONNECTED" } }
 end
 
 --- Two live status values; do not mix diagnostics or slider settings into the HUD.

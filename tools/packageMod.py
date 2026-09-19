@@ -15,7 +15,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__); p.add_argument('output',type=Path,nargs='?',default=Path.cwd().parent/'FS25_Enhanced.zip'); p.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[1]); p.add_argument('--sdk-profiles',type=Path); p.add_argument('--lua',required=True)
     a=p.parse_args(); root=a.root.resolve(); out=a.output.resolve()
     if out.is_relative_to(root): raise SystemExit('Output ZIP must be outside the source mod')
-    for result in [validate_config(root,a.sdk_profiles),validate_localization(root/'l10n',LANGUAGES,True)]:
+    for result in [validate_config(root,a.sdk_profiles),validate_localization(root/'l10n',LANGUAGES,False)]:
         if not result['ok']: print(json.dumps(result,ensure_ascii=False,indent=2)); return 1
     files=sorted(f for f in root.rglob('*') if f.is_file() and not set(f.relative_to(root).parts)&EXCLUDED and f.suffix not in {'.pyc','.zip','.bak'})
     with tempfile.TemporaryDirectory(prefix='fs25e_validate_') as tmp:

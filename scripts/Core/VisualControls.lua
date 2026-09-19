@@ -173,13 +173,6 @@ local DESCRIPTORS={
     {'spot-shadow-distance-frequency-factor','EXPERIMENTAL',nil,'getSpotShadowDistanceFrequencyFactor','setSpotShadowDistanceFrequencyFactor'},
     {'spot-shadow-min-cone-angle-percentage','EXPERIMENTAL',nil,'getSpotShadowMinimumConeAnglePercentage','setSpotShadowMinimumConeAnglePercentage'},
     {'spot-shadow-reduced-cone-angle-factor','EXPERIMENTAL',nil,'getSpotShadowReducedConeAngleFactor','setSpotShadowReducedConeAngleFactor'},
-    -- Getters are listed in sdk/scriptBindingChanges.txt; the setters are only
-    -- offered when the running build actually has them (fs25eApiDump Fog).
-    {'fog-ground-density','EXPERIMENTAL',nil,'getFogGroundLevelDensity','setFogGroundLevelDensity'},
-    {'fog-max-height','EXPERIMENTAL',nil,'getFogMaxHeight','setFogMaxHeight'},
-    -- Atmosphere phase asymmetry (the map's environment.xml <asymmetryFactor>
-    -- curve): getter renamed in sdk/scriptBindingChanges.txt, setter probed.
-    {'atmosphere-asymmetry','EXPERIMENTAL',nil,'getAtmosphereCornettShrankAsymmetryFactor','setAtmosphereCornettShrankAsymmetryFactor'},
 }
 function C.build()
     if built then return end
@@ -262,12 +255,6 @@ function C.build()
     scalar('tone-mapping-shoulder','image','getToneMappingCurveShoulder','setToneMappingCurveShoulder',0,4,0.001,'low')
     scalar('tone-mapping-black-clip','image','getToneMappingCurveBlackClip','setToneMappingCurveBlackClip',-1,1,0.001,'low')
     scalar('tone-mapping-white-clip','image','getToneMappingCurveWhiteClip','setToneMappingCurveWhiteClip',0,2,0.001,'low')
-
-    -- === Height fog (getters documented for FS25 1.0; setters probed at runtime) ===
-    scalar('fog-ground-density','atmosphere','getFogGroundLevelDensity','setFogGroundLevelDensity',0,1,0.001,'medium')
-    scalar('fog-max-height','atmosphere','getFogMaxHeight','setFogMaxHeight',0,2000,0.5,'medium')
-    -- === Atmosphere phase asymmetry (sun halo concentration; getter documented, setter probed) ===
-    scalar('atmosphere-asymmetry','atmosphere','getAtmosphereCornettShrankAsymmetryFactor','setAtmosphereCornettShrankAsymmetryFactor',0,0.95,0.001,'low')
 
     -- === Spot shadow atlas tuning (FS25 1.0 script binding addition) ===
     scalar('spot-shadow-full-resolution-percentage','shadows','getSpotShadowFullResolutionPercentage','setSpotShadowFullResolutionPercentage',0,1,0.001,'high')
@@ -354,9 +341,7 @@ function C.apply(id,value,opts)
         return true
     end
     if not c.runtimeControl then
-        if FS25E_ProfileManager and FS25E_ProfileManager.cancelPendingTarget and not opts.preset then FS25E_ProfileManager.cancelPendingTarget(id) end
         if FS25E_ModSettings and FS25E_ModSettings.set then FS25E_ModSettings.set('enabled',true) end
-        if FS25E_GraphicsGovernor and FS25E_GraphicsGovernor.setEnabled then FS25E_GraphicsGovernor.setEnabled(true) end
     end
     if state.original==nil then state.original=before end
     -- A user may continue editing a value protected from the governor.
@@ -403,7 +388,6 @@ function C.apply(id,value,opts)
         FS25E_Debug.info('LiveApply',id..' requested='..tostring(value)..' readback='..tostring(actual)..' status='..tostring(state.status)..detail)
         state.lastLogTime=now
     end
-    if FS25E_CompatibilityManager and FS25E_CompatibilityManager.noteWrite then FS25E_CompatibilityManager.noteWrite(id,actual) end
     if not c.runtimeControl then C.setLocked(id,false) end
     return true
 end
@@ -419,7 +403,16 @@ end
 function C.restoreAll()
     local success=true
     for _,c in ipairs(controls) do
-        if not c.noGlobalRestore and states[c.id].original~=nil then success=C.restore(c.id) and success end
+        if not c.noGlobalRestore and states[c.id] and states[c.id].original~=nil then success=C.restore(c.id) and success end
+    end
+    return success
+end
+function C.restoreCategory(category)
+    local success=true
+    for _,c in ipairs(controls) do
+        if c.category==category and not c.noGlobalRestore and not c.runtimeControl and c.kind~='action' then
+            if states[c.id] and states[c.id].original~=nil then success=C.restore(c.id) and success end
+        end
     end
     return success
 end

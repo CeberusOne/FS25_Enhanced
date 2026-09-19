@@ -23,7 +23,13 @@ local pageSize=5
 local layoutLoaded=false
 local sx,sy=1/1920,1/1080
 local colors={panel={.045,.059,.071,.98},side={.035,.044,.05,1},row={.085,.104,.12,1},selected={.115,.145,.16,1},text={.94,.955,.96,1},muted={.58,.65,.69,1},green={.56,.78,.035,1},track={.19,.23,.25,1},warning={1,.69,.26,1}}
-local function t(key) return FS25E_Localization.t(key) end
+local function t(key)
+    if FS25E_Localization and FS25E_Localization.t then
+        local ok,value=pcall(FS25E_Localization.t,key)
+        if ok and value~=nil then return value end
+    end
+    return key
+end
 local function rect(x,y,w,h,color) if drawFilledRect then drawFilledRect(x*sx,1-(y+h)*sy,w*sx,h*sy,unpack(color)) end end
 local function width(value,size) return getTextWidth and getTextWidth(size*sy,value)/sx or #value*size*.5 end
 -- renderText uses global state shared with the HUD. Define the vertical origin
@@ -95,13 +101,35 @@ local function button(x,y,w,h,label,action,data,active)
     rect(x,y,w,h,active and colors.green or colors.track)
     text(x+8,y+(h-15)*.5,15,label,active and colors.side or colors.text,w-16,true); hit(x,y,w,h,action,data)
 end
+local function hideUnavailable()
+    return not FS25E_ModSettings or FS25E_ModSettings.get('hideUnavailable')~=false
+end
 local function refresh()
     rows={}
-    if FS25E_VisualControls then for _,c in ipairs(FS25E_VisualControls.getControls()) do
-        if c.category==categories[category] and (not FS25E_LiveSelection or FS25E_LiveSelection.isVisible(c)) then rows[#rows+1]=c end
-    end end
+    local ok,list=pcall(function()
+        return FS25E_VisualControls and FS25E_VisualControls.getControls() or {}
+    end)
+    if not ok or type(list)~='table' then
+        selected=1; scroll=0
+        return
+    end
+    for _,c in ipairs(list) do
+        if c.category==categories[category] and (not FS25E_LiveSelection or FS25E_LiveSelection.isVisible(c)) then
+            local skip=false
+            if hideUnavailable() and not c.alwaysShow and c.kind~='action' and not c.runtimeControl and not c.profileSelector then
+                local available=true
+                if FS25E_VisualControls and FS25E_VisualControls.available then
+                    local aok,result=pcall(FS25E_VisualControls.available,c)
+                    if aok then available=result==true end
+                end
+                if not available then skip=true end
+            end
+            if not skip then rows[#rows+1]=c end
+        end
+    end
     selected=math.max(1,math.min(#rows,selected)); scroll=math.max(0,math.min(math.max(0,#rows-pageSize),scroll))
 end
+function UI.currentCategory() return categories[category] end
 local function format(c,v)
     if v==nil then return t('FS25E_status_unavailable_short') end
     if c.format then local ok,r=pcall(c.format,v); if ok and r then return r end end
@@ -169,9 +197,12 @@ function UI.show(categoryId)
     visible=true; message=nil; lastNavigation={}; refresh(); if categoryId then UI.selectCategory(categoryId) end
     cursor=false
     if g_inputBinding then
-        if g_inputBinding.getShowMouseCursor then cursor=g_inputBinding:getShowMouseCursor() end
-        registerController()
-        if g_inputBinding.setShowMouseCursor then g_inputBinding:setShowMouseCursor(true) end
+        if g_inputBinding.getShowMouseCursor then
+            local ok,shown=pcall(function() return g_inputBinding:getShowMouseCursor() end)
+            if ok then cursor=shown==true end
+        end
+        pcall(registerController)
+        if g_inputBinding.setShowMouseCursor then pcall(function() g_inputBinding:setShowMouseCursor(true) end) end
     end
     return true
 end
@@ -186,9 +217,14 @@ function UI.hide()
     end
     context=false
 end
-function UI.toggle(force) if force==true or (force==nil and not visible) then return UI.show() end; UI.hide(); return true end
+function UI.toggle(force)
+    if force==true then return UI.show() end
+    if force==false then UI.hide(); return true end
+    if visible then UI.hide(); return true end
+    return UI.show()
+end
 function UI.installListeners() end
-function UI.draw()
+local function drawPanel()
     if not visible then return end
     local sw,sh=g_screenWidth or 1920,g_screenHeight or 1080
     local scale=math.min(sw/1920,sh/1080); sx=scale/sw; sy=scale/sh
@@ -225,7 +261,8 @@ function UI.draw()
         hit(P.x+10,y,160,h,'category',i)
     end
     local x,w=P.x+200,P.w-220
-    text(x,P.y+105,19,t('FS25E_menu_'..categories[category]),colors.text,w-110,true)
+    text(x,P.y+105,19,t('FS25E_menu_'..categories[category]),colors.text,w-220,true)
+    button(x+w-210,P.y+102,100,28,t('FS25E_menu_reset_tab'),'resetCategory')
     text(x+w-100,P.y+108,13,string.format('%d / %d',math.min(#rows,scroll+1),#rows),colors.muted,100)
     if #rows==0 then
         local key='FS25E_status_category_unavailable'
@@ -286,6 +323,10 @@ function UI.draw()
     setTextBold(false); setTextColor(1,1,1,1); setTextAlignment(RenderText and RenderText.ALIGN_LEFT or 0)
     if setTextVerticalAlignment and RenderText then setTextVerticalAlignment(RenderText.VERTICAL_ALIGN_BASELINE) end
 end
+function UI.draw()
+    local ok,err=pcall(drawPanel)
+    if not ok and FS25E_Debug then FS25E_Debug.warning('LiveOverlay','draw failed: '..tostring(err)) end
+end
 --- Apply a window move or resize for the current pointer position.
 local function dragWindow(d,x,y)
     if d.mode=='move' then
@@ -330,6 +371,11 @@ function UI.mouseEvent(px,py,isDown,isUp,buttonId)
             elseif a=='move' then drag={mode='move',offsetX=x-P.x,offsetY=y-P.y}
             elseif a=='resize' then drag={mode='resize',startX=x,startY=y,startW=P.w,startH=P.h}
             elseif a=='resetLayout' then UI.resetLayout()
+            elseif a=='resetCategory' then
+                if FS25E_VisualControls and FS25E_VisualControls.restoreCategory then
+                    local ok=FS25E_VisualControls.restoreCategory(categories[category])
+                    message=ok and 'FS25E_status_restored' or 'FS25E_status_restore_failed'
+                end
             elseif a=='compare' then
                 if FS25E_VisualProfiles and FS25E_VisualProfiles.toggleCompare then
                     local ok,status=FS25E_VisualProfiles.toggleCompare(); message=status; boxes={}
@@ -367,9 +413,16 @@ function UI.mouseWheel(delta)
     return true
 end
 local function key(sym,name,fallback) return sym==(Input and Input['KEY_'..name] or fallback) end
+local function isF9(sym)
+    local keyF9=Input and Input.KEY_f9
+    return keyF9~=nil and sym==keyF9
+end
 function UI.keyEvent(unicode,sym,modifier,isDown)
     if not visible then return false end
     if not isDown then return true end
+    -- Do not close on F9 here: the appended Input hook toggles. Handling F9
+    -- in both places would hide and immediately show again.
+    if isF9(sym) then return true end
     if edit then
         if key(sym,'esc',27) then edit=nil
         elseif key(sym,'return',13) then

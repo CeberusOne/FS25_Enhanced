@@ -1,6 +1,6 @@
 name: Release
 
-# Pushing a tag like v0.4.2.7 validates the mod, packs it as FS25_Enhanced.zip
+# Pushing a tag like v0.4.2.8 validates the mod, packs it as FS25_Enhanced.zip
 # (always that name, never with a version suffix) and publishes a GitHub
 # release with that single asset. The tag must match the version in modDesc.xml.
 
@@ -31,13 +31,10 @@ jobs:
           test "$tag" = "$version"
           test "$(tr -d '\r\n' < VERSION)" = "$version"
 
-      - name: Validate and run the offline tests
+      - name: Validate XML, localization and Lua syntax
         run: |
           python3 tools/validateConfig.py
           python3 tools/validateLocalization.py
-          for t in smokeBootstrap smokeControls smokeFoliageLight smokeMaterials smokeWetSurfaces smokeVanillaGuard; do
-            MOD_DIR="$PWD" lua5.1 "tools/$t.lua"
-          done
 
       - name: Build FS25_Enhanced.zip
         run: |

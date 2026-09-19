@@ -7,10 +7,11 @@
 FS25E_GameSettingsControls={}
 local M=FS25E_GameSettingsControls
 local records,locks={},{}
+-- FOV in GameSettings is radians (~1.05 = 60°). The sliders speak degrees.
 local defs={
-    {id='fovVehicle',key='FOV_Y',category='camera',min=30,max=120,step=0.5,cost='low'},
-    {id='fovFirstPerson',key='FOV_Y_PLAYER_FIRST_PERSON',category='camera',min=40,max=130,step=0.5,cost='low'},
-    {id='fovThirdPerson',key='FOV_Y_PLAYER_THIRD_PERSON',category='camera',min=25,max=120,step=0.5,cost='low'},
+    {id='fovVehicle',key='FOV_Y',category='camera',min=50,max=80,step=1,cost='low',degrees=true},
+    {id='fovFirstPerson',key='FOV_Y_PLAYER_FIRST_PERSON',category='camera',min=55,max=85,step=1,cost='low',degrees=true},
+    {id='fovThirdPerson',key='FOV_Y_PLAYER_THIRD_PERSON',category='camera',min=50,max=80,step=1,cost='low',degrees=true},
     {id='maxMirrors',key='MAX_NUM_MIRRORS',category='camera',min=0,max=7,step=1,cost='high',
         kind='enum',texts='maxMirrorsTexts'},
     {id='lightsProfile',key='LIGHTS_PROFILE',category='lighting',min=1,max=5,step=1,cost='high',
@@ -29,16 +30,37 @@ local function setting(d)
     if key==nil then return nil end
     return key
 end
-local function read(d)
+local function nativeRead(d)
     local key=setting(d); if key==nil then return nil end
     local ok,value=pcall(g_gameSettings.getValue,g_gameSettings,key)
     if ok and type(value)=='boolean' then return value and 1 or 0 end
     if ok and finite(value) then return value end
 end
-local function write(d,value)
+local function toUi(d,value)
+    if value==nil or not d.degrees then return value end
+    -- Radians are always a small number; a leaked degree write is > 5.
+    if value>0 and value<5 then return value*180/math.pi end
+    return value
+end
+local function toNative(d,value)
+    if not d.degrees then return value end
+    return value*math.pi/180
+end
+-- A previous build wrote slider degrees (30–120) into the radian field.
+-- That value is not a valid FOV; treat 70° as the stock original.
+local function saneNative(d,native)
+    if not d.degrees or native==nil then return native end
+    if native>0 and native<5 then return native end
+    if native>=50 and native<=80 then return native*math.pi/180 end
+    return 70*math.pi/180
+end
+local function read(d)
+    return toUi(d,nativeRead(d))
+end
+local function writeNative(d,value)
     local key=setting(d); if key==nil then return false end
     local ok=pcall(g_gameSettings.setValue,g_gameSettings,key,value)
-    return ok and same(read(d),value)
+    return ok and same(nativeRead(d),value)
 end
 --- Display texts come from the vanilla settings model, so the mod never invents
 --- its own wording for a value the game already labels.
@@ -56,21 +78,22 @@ function M.write(id,value,automatic)
     if not d or not finite(value) then return false,'FS25E_status_invalid_value' end
     if not enabled() then return false,'FS25E_status_mod_disabled' end
     if automatic and locks[id] then return false,'FS25E_status_locked' end
-    local current=read(d); if current==nil then return false,'FS25E_status_api_unavailable' end
+    local currentNative=nativeRead(d); if currentNative==nil then return false,'FS25E_status_api_unavailable' end
     value=math.max(d.min,math.min(d.max,value))
     if d.step>=1 then value=math.floor(value+0.5) end
+    local native=toNative(d,value)
     local r=records[id]
     -- The game or another mod may have moved the value in the meantime; adopt
     -- that as the new baseline instead of resurrecting a stale original.
-    if r and not r.pendingRestore and not same(r.last,current) then r=nil end
-    r=r or {original=current}
-    if same(current,value) then r.last=current;records[id]=r;return true end
-    if not write(d,value) then
-        r.pendingRestore=not write(d,current)
-        r.last=read(d);records[id]=r
+    if r and not r.pendingRestore and not same(r.last,currentNative) then r=nil end
+    r=r or {original=saneNative(d,currentNative)}
+    if same(currentNative,native) then r.last=currentNative;records[id]=r;return true end
+    if not writeNative(d,native) then
+        r.pendingRestore=not writeNative(d,currentNative)
+        r.last=nativeRead(d);records[id]=r
         return false,'FS25E_status_applyFailed'
     end
-    r.last=value;r.pendingRestore=false;records[id]=r
+    r.last=native;r.pendingRestore=false;records[id]=r
     return true
 end
 function M.restore(id)
@@ -81,10 +104,10 @@ function M.restore(id)
     end
     local d,r=byId[id],records[id]
     if not d or not r then return true end
-    local current=read(d)
+    local current=nativeRead(d)
     if current==nil then return false end
     if r.pendingRestore or same(current,r.last) then
-        if not write(d,r.original) then r.pendingRestore=true;return false end
+        if not writeNative(d,r.original) then r.pendingRestore=true;return false end
     end
     records[id]=nil
     return true
@@ -118,7 +141,8 @@ function M.getControls()
         controls[#controls+1]={id=d.id,category=d.category,min=d.min,max=d.max,step=d.step,
             kind=d.kind,cost=d.cost,scope='global',verification='native readback',
             labelKey='FS25E_setting_'..d.id,tooltipKey='FS25E_tooltip_'..d.id,
-            format=d.texts and function(value)
+            format=d.degrees and function(value) return string.format('%.0f°',value) end
+                or d.texts and function(value)
                 local t=texts(d)
                 -- maxMirrors starts at zero, so the text list is offset by one.
                 local index=d.id=='maxMirrors' and math.floor(value)+1 or math.floor(value)

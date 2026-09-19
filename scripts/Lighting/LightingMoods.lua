@@ -3,14 +3,13 @@
 -- path as a manual slider, so "off" hands every member back to the game.
 FS25E_LightingMoods={locks={},index=0}
 local M=FS25E_LightingMoods
-local MEMBERS={'environmentSunIntensity','environmentSunWarmth','environmentSunTint','environmentGodRays','environmentScatteringWarmth'}
--- environmentGodRays is a factor on the game's own sun scattering.
+local MEMBERS={'environmentSunIntensity','environmentSunWarmth','environmentSunTint','environmentScatteringWarmth'}
 local moods={
- {environmentSunIntensity=1.10,environmentSunWarmth=-0.05,environmentSunTint=0.00,environmentGodRays=0.90,environmentScatteringWarmth=0.00},
- {environmentSunIntensity=1.00,environmentSunWarmth=0.35,environmentSunTint=0.05,environmentGodRays=1.30,environmentScatteringWarmth=0.30},
- {environmentSunIntensity=0.85,environmentSunWarmth=-0.30,environmentSunTint=-0.05,environmentGodRays=1.10,environmentScatteringWarmth=-0.20},
- {environmentSunIntensity=1.15,environmentSunWarmth=0.55,environmentSunTint=0.10,environmentGodRays=1.60,environmentScatteringWarmth=0.50},
- {environmentSunIntensity=0.95,environmentSunWarmth=0.10,environmentSunTint=0.00,environmentGodRays=1.40,environmentScatteringWarmth=0.00},
+ {environmentSunIntensity=1.10,environmentSunWarmth=-0.05,environmentSunTint=0.00,environmentScatteringWarmth=0.00},
+ {environmentSunIntensity=1.00,environmentSunWarmth=0.35,environmentSunTint=0.05,environmentScatteringWarmth=0.30},
+ {environmentSunIntensity=0.85,environmentSunWarmth=-0.30,environmentSunTint=-0.05,environmentScatteringWarmth=-0.20},
+ {environmentSunIntensity=1.15,environmentSunWarmth=0.55,environmentSunTint=0.10,environmentScatteringWarmth=0.50},
+ {environmentSunIntensity=0.95,environmentSunWarmth=0.10,environmentSunTint=0.00,environmentScatteringWarmth=0.00},
 }
 local function finite(v) return type(v)=='number' and v==v and math.abs(v)<math.huge end
 function M.setLocked(id,value) M.locks[id]=value==true end

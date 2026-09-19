@@ -137,7 +137,7 @@
         <text name="FS25E_LIVE_OVERLAY_GATE_OK" text="OK" />
         <text name="FS25E_LIVE_OVERLAY_SOFTAPPLY_HINT" text="SKIPPED: turn Expert Soft-Apply ON to apply experimental caps (value stored only)." />
         <text name="FS25E_menu_live_title" text="FS25 ENHANCED · LIVE GRAPHICS" />
-        <text name="FS25E_menu_live_subtitle" text="Fine control. Visible world. Verified settings." />
+        <text name="FS25E_menu_live_subtitle" text="One quality level. Dead sliders stay hidden. Alt+F9 compares with vanilla." />
         <text name="FS25E_menu_fine_hint" text="Shift: fine adjustment · Click value: enter number · R: reset" />
         <text name="FS25E_menu_controller_hint" text="Controller: stick / D-pad · Shoulder buttons: category · A: select · B: close" />
         <text name="FS25E_menu_reset" text="Reset" />
@@ -521,7 +521,7 @@
         <text name="FS25E_setting_tyre_tracks_segments_coeff" text="Tyre track length" />
         <text name="FS25E_tooltip_tyre_tracks_segments_coeff" text="Length of the tyre track history kept in the world. Higher keeps tracks visible longer and uses more memory." />
         <text name="FS25E_setting_fovVehicle" text="Field of view (vehicle)" />
-        <text name="FS25E_tooltip_fovVehicle" text="Vertical field of view for vehicle cameras. Written through the game settings and restored when the mod unloads." />
+        <text name="FS25E_tooltip_fovVehicle" text="Vertical field of view of vehicle cameras in degrees. The game stores radians; 50–80° stays around the stock look. Reset hands the original value back." />
         <text name="FS25E_setting_fovFirstPerson" text="Field of view (first person)" />
         <text name="FS25E_tooltip_fovFirstPerson" text="Vertical field of view while walking in first person. Written through the game settings." />
         <text name="FS25E_setting_fovThirdPerson" text="Field of view (third person)" />
@@ -530,8 +530,19 @@
         <text name="FS25E_tooltip_maxMirrors" text="How many vehicle mirrors render at the same time. Each active mirror is an extra scene pass." />
         <text name="FS25E_setting_lightsProfile" text="Vehicle lights profile" />
         <text name="FS25E_tooltip_lightsProfile" text="Lights quality profile for vehicles and placeables. Higher profiles keep more real light sources and shadows active." />
+        <text name="FS25E_setting_paintFacingGloss" text="Facing gloss" />
+        <text name="FS25E_tooltip_paintFacingGloss" text="For looking straight at the panel: sharpens clear coat and the base layer so the weak facing reflection (Fresnel ~4%) actually shows the environment. 1 is stock, 2 is clearly glossier from the front without a wrap. Needs SSR on. Glossy solid and metallic paint only." />
+        <text name="FS25E_setting_paintBaseGloss" text="Base gloss" />
+        <text name="FS25E_tooltip_paintBaseGloss" text="Smoothness of the paint base layer (smoothnessScale). Higher = sharper reflection even without clear coat. 1 is typical stock." />
+        <text name="FS25E_setting_paintMetalness" text="Metallic amount" />
+        <text name="FS25E_tooltip_paintMetalness" text="Multiplier of the metallic mask (metalnessScale). Only useful on metallic paint. Solid paint stays unchanged at 1 because the mask is 0." />
+        <text name="FS25E_setting_paintDetailNormal" text="Paint micro-normals" />
+        <text name="FS25E_tooltip_paintDetailNormal" text="Very fine orange peel, not rough. Off keeps the authored map. Very fine = weak high-frequency normal. Giants calibrated = calibratedPaint_normal. The previous coarse map is gone. Plastic, rubber, glass and matte paint are not changed." />
+        <text name="FS25E_value_paintNormal0" text="Off (authored)" />
+        <text name="FS25E_value_paintNormal1" text="Very fine" />
+        <text name="FS25E_value_paintNormal2" text="Giants calibrated" />
         <text name="FS25E_setting_paintReflectivity" text="Paint reflection" />
-        <text name="FS25E_tooltip_paintReflectivity" text="One slider for the whole paint reflection chain: clear coat, coat smoothness and the roughness bias handed to screen space reflections. Everything is scaled from the values the material was authored with, so gloss and metallic paint become a real mirror while a matte powder coat keeps its look. Glass, bare rubber, wood and fabric are never touched; rubber or plastic carrying its own clear coat is detected and included automatically. Needs screen space reflections switched on." />
+        <text name="FS25E_tooltip_paintReflectivity" text="Real paint gloss, not a wrap. Glossy solid and metallic paint only — plastic, rubber, glass and matte finishes are skipped. 1 is stock, 2 raises clear coat to about 0.7 and smoothness to 0.91 so facing reflections hold without turning the panel into a mirror. Needs screen-space reflections on." />
         <text name="FS25E_compare_button_mod" text="MOD ON" />
         <text name="FS25E_compare_button_vanilla" text="VANILLA" />
         <text name="FS25E_compare_mod_notice" text="FS25 Enhanced: MOD (all settings applied)" />
@@ -563,8 +574,8 @@
         <text name="FS25E_value_language_auto" text="Auto (game)" />
         <text name="FS25E_value_language_de" text="Deutsch" />
         <text name="FS25E_value_language_en" text="English" />
-        <text name="FS25E_setting_enhancedLevel" text="Quality level (all effects)" />
-        <text name="FS25E_tooltip_enhancedLevel" text="Sets every quality-type control at once: draw distances, shadows, lamps, SSAO, reflections, wet world, rain. Ultra puts each member at its maximum. Colour, field of view, tone curve and moods are not touched. Off hands everything back to the game." />
+        <text name="FS25E_setting_enhancedLevel" text="Quality level (effort)" />
+        <text name="FS25E_tooltip_enhancedLevel" text="Sets draw distance, shadows, lamp budgets, SSAO and reflections at once. Ultra is the maximum of those effort controls. Paint, wetness, colour, field of view, tone curve and moods stay on their own sliders. Off hands the effort controls back to the game." />
         <text name="FS25E_value_level0" text="Off" />
         <text name="FS25E_value_level1" text="Low" />
         <text name="FS25E_value_level2" text="Medium" />
@@ -585,6 +596,24 @@
         <text name="FS25E_tooltip_leafBacklight" text="Scales the light that passes through leaves from behind (treeBranchShader backfaceDiffuseScale x, authored 0.35). Visible when the sun stands behind a tree; higher makes crowns glow against the light." />
         <text name="FS25E_setting_cropOcclusion" text="Crops and grass: base shading" />
         <text name="FS25E_tooltip_cropOcclusion" text="Exponent on the baked occlusion of crop and grass plants (fruitGrowthFoliageShader aoIntensity x, authored 2): the darkening towards the ground. Higher gives more depth between plants, 0 removes it. Within roughly 80 m only." />
+        <text name="FS25E_setting_cropBend" text="Crops: bending" />
+        <text name="FS25E_tooltip_cropBend" text="Foliage bending deformation (fruitGrowthFoliageShader bendScale). 0 holds plants rigid, 1 is the game value. Near geometry only." />
+        <text name="FS25E_setting_cropScreenAO" text="Crops: SSAO in plants" />
+        <text name="FS25E_tooltip_cropScreenAO" text="Y of aoIntensity on the crop shader: how strongly SSAO darkens inside plants. 1 is stock. Needs SSAO on." />
+        <text name="FS25E_setting_cropDetailDistance" text="Crops: detail distance" />
+        <text name="FS25E_tooltip_cropDetailDistance" text="Scales fadeOut of fruitGrowthFoliageShader (Z/W of fadeInOutStartEnd). Higher keeps 3D plants longer before the distance texture. GPU cost. 1 is the map value." />
+        <text name="FS25E_setting_oceanWindDetail" text="Water: wave normals" />
+        <text name="FS25E_tooltip_oceanWindDetail" text="oceanShader windScale: boosts water normals in wind. More surface structure. Shader max is 1." />
+        <text name="FS25E_setting_oceanDepth" text="Water: depth" />
+        <text name="FS25E_tooltip_oceanDepth" text="oceanShader depthScale: smaller looks shallower, larger deeper. 1 is the map value." />
+        <text name="FS25E_setting_oceanBumpScale" text="Water: wave scale" />
+        <text name="FS25E_tooltip_oceanBumpScale" text="Z of bumpSpeedScale: texture scale of wave normals. Higher = finer waves." />
+        <text name="FS25E_setting_oceanFogIntensity" text="Water: underwater colour" />
+        <text name="FS25E_tooltip_oceanFogIntensity" text="W of underwaterFogColor: intensity of the deep-water colour. 1 is the map value." />
+        <text name="FS25E_setting_puddleRipple" text="Puddles: ripple" />
+        <text name="FS25E_tooltip_puddleRipple" text="puddleShader rippleUVCoords: UV scale of puddle ripples. Maps with puddle decals only." />
+        <text name="FS25E_setting_waterCaustics" text="Water: caustics" />
+        <text name="FS25E_tooltip_waterCaustics" text="waterCausticsShader glowAmmount: brightness of underwater light patterns. 0 off, 1 stock. Only where caustic meshes exist." />
         <text name="FS25E_setting_cropTranslucency" text="Crops and grass: translucency" />
         <text name="FS25E_tooltip_cropTranslucency" text="Sunlight shining through crop and grass plants (fruitGrowthFoliageShader translucencyAmount, authored 0). Visible only when looking at a field against a low sun." />
         <text name="FS25E_setting_foliageTranslucency" text="Foliage: translucency" />
@@ -600,7 +629,7 @@
         <text name="FS25E_setting_leafBacklightBase" text="Trees: backlight floor" />
         <text name="FS25E_tooltip_leafBacklightBase" text="Constant light added to the back side of leaves (treeBranchShader backfaceDiffuseScale y, authored 0). Lifts dark crowns seen against the sun even where no direct light passes through." />
         <text name="FS25E_setting_cropWind" text="Crops and grass: wind strength" />
-        <text name="FS25E_tooltip_cropWind" text="Scales the wind sway of crops, grass and meadow (fruitGrowthFoliageShader windScale, authored 1). 0 holds the fields still. Only plants rendered as foliage geometry (within roughly 80 m) are affected; farther fields are the distance texture." />
+        <text name="FS25E_tooltip_cropWind" text="Scales the wind sway of crops, grass and meadow (fruitGrowthFoliageShader windScale, authored 1). 0 should hold the fields still. Only plants rendered as foliage geometry (within roughly 80 m) are affected; farther fields are the distance texture. If the field does not move, the foliage renderer is not reading these materials live." />
         <text name="FS25E_setting_buildingMoss" text="Buildings: moss" />
         <text name="FS25E_tooltip_buildingMoss" text="Scales the moss mask of building materials (buildingShader dirtMossMix x, authored 1). 0 removes the moss, higher fills the mask up to the shader limit." />
         <text name="FS25E_setting_buildingDirt" text="Buildings: dirt" />
@@ -611,6 +640,13 @@
         <text name="FS25E_tooltip_atmosphere_asymmetry" text="Phase asymmetry of the atmospheric scattering (the map's environment.xml asymmetryFactor curve, 0.5 by day and 0.8 at night). Higher concentrates the glow around the sun, lower spreads it over the sky. Only offered when the running build has the setter (see the ApiInventory log lines)." />
         <text name="input_FS25E_TOGGLE_COMPARE" text="FS25 Enhanced: compare modded / vanilla" />
         <text name="FS25E_setting_environmentShadowResolution" text="Sun shadow map size" />
-        <text name="FS25E_tooltip_environmentShadowResolution" text="Depth map resolution of the sun light (setLightShadowMap on the mission sun, read back with getLightCastingShadowMap): 1024 to 8192 px. Larger maps give sharper, deeper shadows at a real GPU cost; 8192 needs plenty of video memory. Off hands the exact game size back." />
+        <text name="FS25E_tooltip_environmentShadowResolution" text="Depth map resolution of the sun light (setLightShadowMap on the mission sun, read back with getLightCastingShadowMap): 1024, 2048 or 4096 px. Larger maps give sharper shadows at a real GPU cost. Off hands the exact game size back." />
+        <text name="FS25E_setting_hideUnavailable" text="Hide unavailable controls" />
+        <text name="FS25E_tooltip_hideUnavailable" text="Hides sliders that cannot act in this scene (missing API, still scanning, no matching assets). Turn off to see why a control is blocked." />
+        <text name="FS25E_setting_resetCategory" text="Reset this category" />
+        <text name="FS25E_tooltip_resetCategory" text="Hands every control in the currently open category back to the game. Other categories stay as they are." />
+        <text name="FS25E_menu_reset_tab" text="Reset tab" />
+        <text name="FS25E_setting_nightYard" text="Night yard look" />
+        <text name="FS25E_tooltip_nightYard" text="Boosts nearby vehicle and placeable lamps: intensity, IES, scattering and local shadow budget. Does not change the sun. Off restores those lamp controls." />
     </texts>
 </l10n>

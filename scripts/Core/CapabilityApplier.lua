@@ -9,7 +9,6 @@ local GATED_SUPPORT={
     ["screen-space-shadows-quality"]="getSupportsScreenSpaceShadowsQuality",
     ["ssr-quality"]="getSupportsScreenSpaceReflectionsQuality",
     ["atmosphere-quality"]="getSupportsAtmosphereQuality",
-    ["drs-quality"]="getSupportsDRSQuality",
 }
 local function resolveGlobal(name)
     return name~=nil and type(_G[name])=="function" and _G[name] or nil
@@ -92,7 +91,7 @@ function M.apply(id,opts)
     if id=="fast-shadow-update" or id=="shadow-focus-box" or id=="rain-shallow-water-simulation" then
         return false,"requires a camera/shape/simulation asset; not a global boolean"
     end
-    if id=="save-hardware-scalability" or id=="apply-performance-class" or id=="terrain-quality" or cap.applyMode=="RESTART" then
+    if id=="drs-quality" or id=="save-hardware-scalability" or id=="apply-performance-class" or id=="terrain-quality" or cap.applyMode=="RESTART" then
         return false,"not a live session setting"
     end
     local prefix=opts.prefixArgs or {}

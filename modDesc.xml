@@ -2,14 +2,14 @@
 <!-- FS25 Enhanced — descVersion must match game (log: ModDesc Version 113). -->
 <modDesc descVersion="113">
     <author>CeberusOne</author>
-    <version>0.4.2.7</version>
+    <version>0.4.2.8</version>
     <title>
         <en>FS25 Enhanced</en>
         <de>FS25 Enhanced</de>
     </title>
     <description>
-        <en><![CDATA[Manual graphics controls for Farming Simulator 25, all in one movable live window (F9). Quality levels Low to Ultra for every effect, strictly decoupled from the game menu (the vanilla settings page never sees mod values), MOD/VANILLA comparison (Alt+F9), mod language switch, wet environment with puddles and drying time, sun light shafts and light moods, canopy, crop and foliage light shaders, filmic tone mapping, spot shadow tuning, field of view, mirror count, lamp scattering and shadows, paint reflection that scales each material from its own finish. Heavy engine options stay in the main menu. Asset-dependent controls require compatible game assets.]]></en>
-        <de><![CDATA[Manuelle Grafikeinstellungen für Landwirtschafts-Simulator 25, alles in einem verschiebbaren Live-Fenster (F9). Qualitätsstufen Niedrig bis Ultra für alle Effekte, strikt vom Spielmenü entkoppelt (die Grafikseite des Spiels sieht nie Mod-Werte), MOD/VANILLA-Vergleich (Alt+F9), Mod-Sprachumschaltung, nasse Umgebung mit Pfützen und Abtrockenzeit, Sonnen-Lichtstrahlen und Lichtstimmungen, Licht-Shader für Baumkronen, Feldfrucht und Vegetation, filmische Tonwertkurve, Spotschatten-Feinabstimmung, Sichtfeld, Spiegelanzahl, Lampenstreuung und -schatten, Lackspiegelung, die jedes Material aus seiner eigenen Lackierung skaliert. Schwere Engine-Optionen bleiben im Hauptmenü. Assetabhängige Regler benötigen passende Spiel-Assets.]]></de>
+        <en><![CDATA[Manual graphics controls for Farming Simulator 25 in one movable live window (F9). One quality level Low to Ultra for effort (draw distance, shadows, lamps, SSAO), strictly decoupled from the game menu, MOD/VANILLA comparison, wet environment, sun light shafts, vegetation shaders, filmic tone mapping, lamp scattering and paint reflection scaled from each material's own finish. Dead or engine-impossible controls are hidden. Heavy engine options stay in the main menu.]]></en>
+        <de><![CDATA[Manuelle Grafikeinstellungen für Landwirtschafts-Simulator 25 in einem verschiebbaren Live-Fenster (F9). Eine Qualitätsstufe Niedrig bis Ultra für den Aufwand (Sichtweite, Schatten, Lampen, SSAO), strikt vom Spielmenü entkoppelt, MOD/VANILLA-Vergleich, nasse Umgebung, Sonnen-Lichtstrahlen, Vegetations-Shader, filmische Tonwertkurve, Lampenstreuung und Lackspiegelung aus der eigenen Lackierung. Tote oder engine-unmögliche Regler sind ausgeblendet. Schwere Engine-Optionen bleiben im Hauptmenü.]]></de>
     </description>
     <iconFilename>icon.png</iconFilename>
     <multiplayer supported="true"/>
@@ -33,24 +33,10 @@
         <sourceFile filename="scripts/Core/SettingsCache.lua"/>
         <sourceFile filename="scripts/Core/CapabilityApplier.lua"/>
         <sourceFile filename="scripts/Core/RestoreManager.lua"/>
-        <sourceFile filename="scripts/Core/Diagnostics.lua"/>
-        <sourceFile filename="scripts/Core/RuntimeProbe.lua"/>
         <sourceFile filename="scripts/Core/ApiInventory.lua"/>
-        <sourceFile filename="scripts/Core/ProbeSession.lua"/>
         <sourceFile filename="scripts/Core/PerformanceMonitor.lua"/>
-        <sourceFile filename="scripts/Shadows/ShadowManager.lua"/>
-        <sourceFile filename="scripts/Core/ExperimentalCaps.lua"/>
-        <sourceFile filename="scripts/World/LodGovernor.lua"/>
         <sourceFile filename="scripts/Lighting/LightDiscovery.lua"/>
-        <sourceFile filename="scripts/Core/SceneAnalyzer.lua"/>
-        <sourceFile filename="scripts/Core/ProfileManager.lua"/>
-        <sourceFile filename="scripts/Core/GraphicsGovernor.lua"/>
-        <sourceFile filename="scripts/Core/CompatibilityManager.lua"/>
         <sourceFile filename="scripts/Core/ModSettings.lua"/>
-        <sourceFile filename="scripts/Core/CostCatalog.lua"/>
-        <sourceFile filename="scripts/Core/TelemetryReader.lua"/>
-        <sourceFile filename="scripts/Core/SettingsAPI.lua"/>
-        <sourceFile filename="scripts/Core/SettingsSchema.lua"/>
         <sourceFile filename="scripts/Core/ConsoleCommands.lua"/>
         <sourceFile filename="scripts/Lighting/LightTuning.lua"/>
         <sourceFile filename="scripts/Lighting/GlobalLighting.lua"/>
@@ -65,8 +51,8 @@
         <sourceFile filename="scripts/Core/QualityLevels.lua"/>
         <sourceFile filename="scripts/Core/VisualControls.lua"/>
         <sourceFile filename="scripts/Core/ModuleRuntime.lua"/>
-        <sourceFile filename="scripts/Core/RuntimeControls.lua"/>
         <sourceFile filename="scripts/Core/VisualProfiles.lua"/>
+        <sourceFile filename="scripts/Core/SessionControls.lua"/>
         <sourceFile filename="scripts/Core/VanillaGuard.lua"/>
         <sourceFile filename="scripts/UI/FS25E_LiveSelection.lua"/>
         <sourceFile filename="scripts/UI/FS25E_Input.lua"/>
@@ -76,23 +62,11 @@
     </extraSourceFiles>
 
     <actions>
-        <action name="FS25E_OPEN_SETTINGS" category="SYSTEM" ignoreComboMask="false" />
-        <action name="FS25E_TOGGLE_LIVE_OVERLAY" category="SYSTEM" ignoreComboMask="false" />
-        <action name="FS25E_LIVE_HINT" category="SYSTEM" ignoreComboMask="false" />
-        <action name="FS25E_TOGGLE_COMPARE" category="SYSTEM" ignoreComboMask="false" />
+        <action name="FS25E_OPEN_SETTINGS" category="SYSTEM" ignoreComboMask="true" />
     </actions>
     <inputBinding>
         <actionBinding action="FS25E_OPEN_SETTINGS">
             <binding device="KB_MOUSE_DEFAULT" input="KEY_f9" />
-            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_e" />
-        </actionBinding>
-        <actionBinding action="FS25E_TOGGLE_LIVE_OVERLAY">
-            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_f9" />
-            <binding device="KB_MOUSE_DEFAULT" input="KEY_lshift KEY_f9" />
-            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lshift KEY_e" />
-        </actionBinding>
-        <actionBinding action="FS25E_TOGGLE_COMPARE">
-            <binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_f9" />
         </actionBinding>
     </inputBinding>
 </modDesc>
