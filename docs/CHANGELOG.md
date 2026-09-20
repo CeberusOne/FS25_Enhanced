@@ -3,8 +3,8 @@
 ## 0.4.2.8 – 2026-09-20 – aktuellen lokalen Modstand übernommen
 
 Fortsetzung der GitHub-Version 0.4.2.7. Übernommen wurde der installierte
-Modstand aus dem FS25-Modordner. VERSION, FS25_Enhanced.VERSION, modDesc.xml,
-Laufzeitversion und README verwenden einheitlich 0.4.2.8.
+Modstand aus dem FS25-Modordner. `VERSION` ist die einzige Versionsdatei im
+Repository; modDesc.xml, Laufzeitversion und README verwenden ebenfalls 0.4.2.8.
 
 Gegenüber 0.4.2.7:
 
